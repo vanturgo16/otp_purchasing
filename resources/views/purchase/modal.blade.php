@@ -1,0 +1,443 @@
+<!-- input Purchase Order -->
+<div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true" data-bs-scroll="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Purchase Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/simpan_po" class="form-material m-t-40" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">PO Number</label>
+                    <input class="form-control" type="text" name="po_number" id="generatedCode" readonly>
+                    @error('po_number')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Date</label>
+                    <input class="form-control" type="date" name="date" value="{{ date('Y-m-d'), old('date') }}">
+                    @error('date')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
+                    <select class="form-select request_number" name="request_number">
+                        <option>Pilih Supplier</option>
+                    </select>
+                    @error('reference_number')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Supplier *</label>
+                    <select class="form-select name_supplier" name="id_master_suppliers">
+                        <option>Pilih Supplier</option>
+                    </select>
+                    @error('id_master_suppliers')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">QC Check *</label>
+                    <input class="form-control" type="text"  name="qc_check" value="N" readonly>
+                    @error('qc_check')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Down Payment </label>
+                    <input class="form-control" type="text" name="down_payment">
+                    @error('down_payment')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Own Remarks</label>
+                    <textarea name="own_remarks" rows="4" cols="50"></textarea>
+                    @error('own_remarks')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Supplier Remarks</label>
+                    <textarea name="supplier_remarks" rows="4" cols="50"></textarea>
+                    @error('supplier_remarks')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Status *</label>
+                    <input class="form-control" type="text" name="status" value="Request" readonly>
+                    @error('status')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Type *</label>
+                    <input class="form-control" type="text" name="type">
+                    <input class="form-control" type="hidden" name="non_invoiceable" value="N">
+                    <input class="form-control" type="hidden" name="vendor_taxable" value="N">
+                    @error('type')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Back</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Save & Add More</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+            </div>
+
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- edit Purchase Order -->
+<div id="edit-po" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_poLabel">Purchase Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/simpan_po" class="form-material m-t-40" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">PO Number</label>
+                    <input class="form-control" type="text" name="po_number" id="po_number_po" readonly>
+                    @error('po_number')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Date</label>
+                    <input class="form-control" type="date" name="date" value="{{ old('date') }}" id="date_po">
+                    @error('date')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
+                    <select class="form-select request_number" name="request_number" id="request_number_po">
+                        <option>Pilih Supplier</option>
+                    </select>
+                    @error('reference_number')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Supplier *</label>
+                    <select class="form-select name_supplier" name="id_master_suppliers" id="qc_check_po">
+                        <option>Pilih Supplier</option>
+                    </select>
+                    @error('id_master_suppliers')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">QC Check *</label>
+                    <input class="form-control" type="text"  name="qc_check" value="N" readonly>
+                    @error('qc_check')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Down Payment </label>
+                    <input class="form-control" type="text" name="down_payment" id="down_payment_po">
+                    @error('down_payment')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Own Remarks</label>
+                    <textarea name="own_remarks" rows="4" cols="50" id="own_remarks_po"></textarea>
+                    @error('own_remarks')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Supplier Remarks</label>
+                    <textarea name="supplier_remarks" rows="4" cols="50" id="supplier_remarks_po"></textarea>
+                    @error('supplier_remarks')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Status *</label>
+                    <input class="form-control" type="text" name="status" value="Request" id="status_po" readonly>
+                    @error('status')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Type *</label>
+                    <input class="form-control" type="text" name="type" id="type_po">
+                    <input class="form-control" type="hidden" name="non_invoiceable" value="N">
+                    <input class="form-control" type="hidden" name="vendor_taxable" value="N">
+                    @error('type')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Back</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Save & Add More</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+            </div>
+
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- edit Purchase RRequisition Sementara -->
+<div id="edit-pr-smt" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_poLabel">Edit Purchase Requisition Sementara</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/update_pr_detail" class="form-material m-t-40" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Type Product</label>
+                    <input type="radio" id="html" name="type" value="" checked>
+                    @error('type')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Product</label>
+                    <select class="form-select" name="master_products_id" id="">
+                            <option>Pilih Product RM</option>
+                    </select>
+                    @error('master_products_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Qty</label>
+                    <input type="number" class="form-control" name="qty" value="old('qty') }}">
+                    @error('qty')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Units</label>
+                    <select class="form-select" name="master_units_id" id="">
+                        <option>Pilih Units</option>
+                    </select>
+                    @error('master_units_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Required Date</label>
+                    <input type="date" class="form-control" name="required_date" value="{{ old('required_date') }}">
+                    @error('required_date')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">CC / CO </label>
+                    <select class="form-select" name="cc_co" value="{{ old('cc_co') }}">
+                        <option>Pilih CC / CO</option>
+                    </select>
+                    @error('cc_co')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Remarks</label>
+                    <input type="text" class="form-control" name="remarks" value="{{ old('remarks') }}">
+                    @error('own_remarks')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Update</button>
+            </div>
+
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- edit Purchase RRequisition -->
+<div id="edit-pr" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_poLabel">Edit Purchase Requisition</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/update_pr_detail" class="form-material m-t-40" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Type Product</label>
+                    <input type="radio" id="type_product_pr" name="type" checked>
+                    @error('type')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Product</label>
+                    <select class="form-select" name="master_products_id" id="">
+                            <option>Pilih Product RM</option>
+                    </select>
+                    @error('master_products_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Qty</label>
+                    <input type="number" class="form-control" name="qty" id="qty_pr">
+                    @error('qty')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Units</label>
+                    <select class="form-select" name="master_units_id" id="">
+                        <option>Pilih Units</option>
+                    </select>
+                    @error('master_units_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">Required Date</label>
+                    <input type="date" class="form-control" name="required_date" id="required_date_pr">
+                    @error('required_date')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3 required-field">
+                    <label for="example-text-input" class="form-label">CC / CO </label>
+                    <select class="form-select" name="cc_co" id="cc_co_pr">
+                        <option>Pilih CC / CO</option>
+                    </select>
+                    @error('cc_co')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Remarks</label>
+                    <input type="text" class="form-control" name="remarks" id="remarks_po">
+                    @error('own_remarks')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Update</button>
+            </div>
+
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
