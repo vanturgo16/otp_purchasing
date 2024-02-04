@@ -30,7 +30,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
-                    <select class="form-select request_number" name="request_number">
+                    <select class="form-select request_number" name="reference_number">
                         <option>Pilih Supplier</option>
                     </select>
                     @error('reference_number')
@@ -250,6 +250,123 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- edit Purchase Order -->
+<div id="edit-po-detail" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_poLabel">Purchase Order Detail.</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/update_po_detail" class="form-material m-t-40" enctype="multipart/form-data" id="form_po_detail">
+            @method('PUT')
+            @csrf
+            <div class="modal-body">
+                
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Type Product</label>
+                    <input class="form-control" type="text" name="type_product" id="type_product_po_detail" readonly>
+                    <input class="form-control" type="hidden" name="id_purchase_orders" id="id_purchase_orders_po_detail" readonly>
+                    @error('type_product')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Product RM</label>
+                    
+                    <select class="form-select" name="master_products_id" id="master_products_id_po_detail">
+                        <option>Pilih Product</option>
+                    </select>
+                    @error('master_products_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Qty *</label>
+                    <input class="form-control" type="text" name="qty"  id="qty_po_detail">
+                    @error('qty')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Units *</label>
+                    <select class="form-select " name="master_units_id" id="master_units_id_po_detail">
+                        <option>Pilih Unit</option>
+                    </select>
+                    @error('master_units_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Price</label>
+                    <input class="form-control" type="text"  name="price" id="price_po_detail">
+                    @error('price')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Discount </label>
+                    <input class="form-control" type="text" name="discount" id="discount_po_detail">
+                    @error('discount')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Tax</label>
+                    <input class="form-control" type="text" name="tax" id="tax_po_detail">
+                    @error('tax')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Amount</label>
+                    <input class="form-control" type="text" name="amount" id="amount_po_detail">
+                    @error('amount')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Note </label>
+                    <textarea name="note" rows="4" cols="50" id="note_po_detail"></textarea>
+                    @error('note')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Back</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Update</button>
+            </div>
+
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- edit Purchase RRequisition Sementara -->
 <div id="edit-pr-smt" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
     <div class="modal-dialog">
@@ -284,7 +401,7 @@
                 </div>
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Qty</label>
-                    <input type="number" class="form-control" name="qty" value="old('qty') }}">
+                    <input type="number" class="form-control" name="qty" value="">
                     @error('qty')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -354,13 +471,15 @@
                 <h5 class="modal-title" id="edit_poLabel">Edit Purchase Requisition</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="/update_pr_detail" class="form-material m-t-40" enctype="multipart/form-data">
+            <form method="post" action="/update_pr_detailx" class="form-material m-t-40" enctype="multipart/form-data" id="form_pr_detail">
+            @method('PUT')
             @csrf
             <div class="modal-body">
                 
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Type Product</label>
-                    <input type="radio" id="type_product_pr" name="type" checked>
+                    <input type="text" class="form-control" id="type_product_pr" name="type_product">
+                    <input type="hidden" class="form-control" id="request_number_pr" name="request_number">
                     @error('type')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -369,8 +488,8 @@
                 </div>
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Product</label>
-                    <select class="form-select" name="master_products_id" id="">
-                            <option>Pilih Product RM</option>
+                    <select class="form-select" name="master_products_id" id="master_products_id_pr">
+                            <option>Pilih Product</option>
                     </select>
                     @error('master_products_id')
                         <div class="form-group has-danger mb-0">
@@ -390,7 +509,7 @@
 
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Units</label>
-                    <select class="form-select" name="master_units_id" id="">
+                    <select class="form-select" name="master_units_id" id="master_units_id_pr">
                         <option>Pilih Units</option>
                     </select>
                     @error('master_units_id')
@@ -423,7 +542,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Remarks</label>
-                    <input type="text" class="form-control" name="remarks" id="remarks_po">
+                    <input type="text" class="form-control" name="remarks" id="remarks_pr">
                     @error('own_remarks')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>

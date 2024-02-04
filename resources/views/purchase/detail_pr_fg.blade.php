@@ -1,6 +1,7 @@
 @extends('layouts.master')
 
 @section('konten')
+
 <div class="page-content">
     <div class="container-fluid">
     @if (session('pesan'))
@@ -9,23 +10,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
     @endif
-
-    <form method="post" action="/simpan_detail_rm/{{ $request_number }}" class="form-material m-t-40" enctype="multipart/form-data">
+    <form method="post" action="/simpan_detail_fg/{{ $request_number }}" class="form-material m-t-40" enctype="multipart/form-data">
     @csrf
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18"> Add Purchase</h4>
-                   
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Add Purchase RM</li>
+                            <li class="breadcrumb-item active"> Add Purchase FG</li>
                         </ol>
                     </div>
                 </div>
-                <a href="/purchase" class="btn btn-info waves-effect waves-light">Back To List Data Purchase Requisition</a>
-                <div></div>
             </div>
         </div>
         <div class="row">
@@ -33,25 +30,21 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Add Purchase Requisition</h4>
-                        <!--  <p class="card-title-desc"> layout options : from inline, horizontal & custom grid implementations</p> -->
+                        <!--  <p class="card-title-desc">Form layout options : from inline, horizontal & custom grid implementations</p> -->
                     </div>
                     <div class="card-body p-4">
 
                     <div class="col-sm-12">
                             <div class="mt-4 mt-lg-0">
                                 
-                    
+                               
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Request Number</label>
                                         <div class="col-sm-9">
-                                            <input type="text" name="request_number" class="form-control" value="{{ $request_number }}" readonly>
+                                            <input type="text" class="form-control" name="request_number" value="{{ $request_number }}" readonly>
                                         </div>
                                     </div>
                                     
-                                    <div class="row left-content-end">
-                                </div>
-                                    
-                        
                             </div>
                         </div>
                     </div>
@@ -64,28 +57,27 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Purchase Requisition Detail</h4>
-                        <!--  <p class="card-title-desc"> layout options : from inline, horizontal & custom grid implementations</p> -->
+                        <!--  <p class="card-title-desc">Form layout options : from inline, horizontal & custom grid implementations</p> -->
                     </div>
                     <div class="card-body p-4">
 
                     <div class="col-sm-12">
                             <div class="mt-4 mt-lg-0">
                                 
-                               
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
                                         <div class="col-sm-9">
-                                            <input type="radio" id="html" name="type" value="RM" checked>
-                                            <input type="hidden" id="html" name="type_product" value="RM" checked>
-                                              <label for="html">RM</label>
+                                            <input type="radio" id="html" name="type" value="FG" checked>
+                                            <input type="hidden" id="html" name="type_product" value="FG">
+                                              <label for="html">FG</label>
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
-                                        <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product RM</label>
+                                        <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product FG</label>
                                         <div class="col-sm-9">
                                             <select class="form-select" name="master_products_id" id="">
-                                                    <option>Pilih Product RM</option>
-                                                @foreach ($rawMaterials as $data)
+                                                    <option>Pilih Product FG</option>
+                                                @foreach ($fg as $data)
                                                     <option value="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
@@ -103,7 +95,7 @@
                                             <select class="form-select" name="master_units_id" id="">
                                                 <option>Pilih Units</option>
                                                 @foreach ($units as $data)
-                                                <option value="{{ $data->id }}" @if ($data->unit_code === "KG") selected @endif>{{ $data->unit_code }}</option>
+                                                <option value="{{ $data->id }}">{{ $data->unit_code }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -120,7 +112,7 @@
                                             <select class="form-select" name="cc_co" id="">
                                                 <option>Pilih CC / CO</option>
                                                 @foreach ($datas as $data)
-                                                    <option value="{{ $data->id }}">{{ $data->nm_requester }}</option>
+                                                <option value="{{ $data->id }}">{{ $data->nm_requester }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -140,7 +132,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -153,7 +144,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Table Detail</h4>
-                        <!--  <p class="card-title-desc"> layout options : from inline, horizontal & custom grid implementations</p> -->
+                        <!--  <p class="card-title-desc">Form layout options : from inline, horizontal & custom grid implementations</p> -->
                     </div>
                     <div class="card-body p-4">
                     <div class="card-body">
@@ -175,16 +166,15 @@
                                 <tbody>
                                 @foreach ($dt_detailSmt as $data)
                                         <tr>
-                                            <td>{{ $data->type_product }}</td>
-                                            <td>{{ $data->description }}</td>
-                                            <td>{{ $data->qty }}</td>
-                                            <td>{{ $data->unit_code }}</td>
-                                            <td>{{ $data->required_date }}</td>
-                                            <td>{{ $data->cc_co }}</td>
-                                            <td>{{ $data->remarks }}</td>
+                                        <td>{{ $data->type_product }}</td>
+                                        <td>{{ $data->description }}</td>
+                                        <td>{{ $data->qty }}</td>
+                                        <td>{{ $data->unit_code }}</td>
+                                        <td>{{ $data->required_date }}</td>
+                                        <td>{{ $data->cc_co }}</td>
+                                        <td>{{ $data->remarks }}</td>
                                             <td>
-                                    
-                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                            <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                         <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-info " id=""
@@ -196,8 +186,8 @@
                                                     @include('purchase.modal')
                                             
                                         </tr>
+                                @endforeach
                                     <!-- Add more rows as needed -->
-                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -213,8 +203,7 @@
             </div>
         </div>
         
-    
-    </form>
+        </form>
                     <!-- end row -->
     </div>
 </div>

@@ -4,6 +4,12 @@
 
 <div class="page-content">
         <div class="container-fluid">
+        @if (session('pesan'))
+            <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
+                <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('pesan') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+         @endif
             <div class="row">
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -65,9 +71,11 @@
                                                 <td>{{ $data->note }}</td>
                                                 <td></td>
                                                 <td>{{ $data->type }}</td>
-                                                <td>{{ $data->status }}</td>
+                                                <td><button type="submit" class="btn btn-sm btn-success">
+                                                        {{ $data->status }}
+                                                        </button></td>
                                                 <td></td>
-                                                <td><form action="/hapus_pr/{{ $data->id }}" method="post"
+                                                <td><form action="/hapus_pr/{{ $data->request_number }}" method="post"
                                                         class="d-inline">
                                                         @method('delete')
                                                         @csrf
@@ -86,12 +94,35 @@
                                                         @csrf
                                                         <button type="button" class="btn btn-sm btn-success"
                                                             onclick="kirimData($(this).closest('form'))">
-                                                            <i class="bx bx-printer" title="Kirim data"></i>
+                                                            <i class="bx bx-printer" title="Print"></i>
                                                         </button></center>
                                                     </form>
                                                     <a href="/edit-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
                                                             <i class="bx bx-edit-alt" title="Edit data"></i>
                                                     </a>
+                                                    @if($data->status=='Request' or $data->status=='Un Posted')
+                                                    <form action="/posted_pr/{{ $data->request_number }}" method="post"
+                                                        class="d-inline" data-id="">
+                                                        @method('PUT')
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Anda yakin mau Posted item ini ?')">
+                                                            <i class="bx bx-paper-plane" title="Posted" ></i>
+                                                            <!-- <i class="mdi mdi-arrow-left-top-bold" title="Posted" >Un Posted</i> -->
+                                                        </button></center>
+                                                    </form>
+                                                    @elseif($data->status=='Posted' or $data->status=='Created PO')
+                                                    <form action="/unposted_pr/{{ $data->request_number }}" method="post"
+                                                        class="d-inline" data-id="">
+                                                        @method('PUT')
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-primary"
+                                                        onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
+                                                            <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
+                                                            <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
+                                                        </button></center>
+                                                    </form>
+                                                    @endif
                                                     </td>
                                              
                                             </tr>
