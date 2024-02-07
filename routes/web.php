@@ -240,5 +240,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/update_detail_po/{id}', [PurchaseController::class, 'update_detail_po'])->name('update_detail_po');
     Route::put('/update_po_detail/{id}', [PurchaseController::class, 'update_po_detail'])->name('update_po_detail');
     Route::put('/update_pr_detailx/{id}', [PurchaseController::class, 'update_pr_detailx'])->name('update_pr_detailx');
+    Route::get('/print-po/{id}', [PurchaseController::class, 'print_po'])->name('print_po');
 });
 

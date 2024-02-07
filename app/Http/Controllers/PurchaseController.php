@@ -1661,6 +1661,38 @@ class PurchaseController extends Controller
 
         $request_number = $request->input('request_number');
         return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+    }public function print_po($id)
+    {
+        $purchaseOrder = PurchaseOrders::findOrFail($id);
+        $data_detail_rm = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $results = DB::table('purchase_orders as a')
+                ->select(
+                    'a.id',
+                    'a.po_number',
+                    'a.date',
+                    'b.request_number',
+                    'c.name',
+                    'a.qc_check',
+                    'a.down_payment',
+                    'a.own_remarks',
+                    'a.supplier_remarks',
+                    'a.status',
+                    'a.type',
+                    'a.reference_number',
+                    'a.id_master_suppliers'
+                )
+                ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
+                ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
+                ->where('a.id', '=', $id)
+                ->get();
+
+        return view('purchase.print_po',compact('purchaseOrder','data_detail_rm','results'));
     }
     
 

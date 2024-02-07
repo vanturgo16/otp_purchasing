@@ -83,21 +83,10 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <form action="/submit_bulan_pgb/" method="post"
-                                                        class="d-inline" data-id="">
-                                                        @method('PUT')
-                                                        @csrf
-                                                        <button type="button" class="btn btn-sm btn-success"
-                                                            onclick="kirimData($(this).closest('form'))">
-                                                            <i class="bx bx-printer" title="Kirim data"></i>
-                                                        </button>
-                                                    </form>
-                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
-                                                            data-bs-toggle="modal"
-                                                            onclick="edit_po('{{ $data->id }}')"
-                                                            data-bs-target="#edit-po" data-id="">
-                                                            <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button> -->
+                                                    <a href="/print-po/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
+                                                            <i class="bx bx-printer" title="Edit data"></i>
+                                                    </a>
+                                               
                                                     <a href="/edit-po/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
                                                             <i class="bx bx-edit-alt" title="Edit data"></i>
                                                     </a>
