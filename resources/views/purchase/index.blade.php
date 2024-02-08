@@ -79,24 +79,15 @@
                                                         class="d-inline">
                                                         @method('delete')
                                                         @csrf
-                                                        <!-- <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button> -->
+                                                       
                                                         <button type="submit" class="btn btn-sm btn-danger"
                                                         onclick="return confirm('Anda yakin mau menghapus item ini ?')">
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <form action="/submit_bulan_pgb/" method="post"
-                                                        class="d-inline" data-id="">
-                                                        @method('PUT')
-                                                        @csrf
-                                                        <button type="button" class="btn btn-sm btn-success"
-                                                            onclick="kirimData($(this).closest('form'))">
-                                                            <i class="bx bx-printer" title="Print"></i>
-                                                        </button></center>
-                                                    </form>
+                                                    <a href="/print-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
+                                                            <i class="bx bx-printer" title="Edit data"></i>
+                                                    </a>
                                                     <a href="/edit-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
                                                             <i class="bx bx-edit-alt" title="Edit data"></i>
                                                     </a>
