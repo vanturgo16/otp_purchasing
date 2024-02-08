@@ -199,6 +199,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/hapus_request_number_wip', [PurchaseController::class, 'hapus_request_number_wip'])->name('hapus_request_number_wip');
     Route::get('/hapus_request_number_fg', [PurchaseController::class, 'hapus_request_number_fg'])->name('hapus_request_number_fg');
     Route::get('/hapus_request_number_ta', [PurchaseController::class, 'hapus_request_number_ta'])->name('hapus_request_number_ta');
+    Route::get('/hapus_request_number_other', [PurchaseController::class, 'hapus_request_number_other'])->name('hapus_request_number_other');
     Route::get('/add-pr-rm', [PurchaseController::class, 'tambah_pr_rm'])->name('tambah_pr_rm');
     Route::get('/detail-pr/{request_number}', [PurchaseController::class, 'detail_pr'])->name('detail_pr');
     Route::get('/add-pr-wip', [PurchaseController::class, 'tambah_pr_wip'])->name('tambah_pr_wip');
@@ -207,6 +208,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/detail-pr-fg/{request_number}', [PurchaseController::class, 'detail_pr_fg'])->name('detail_pr_fg');
     Route::get('/add-pr-sparepart', [PurchaseController::class, 'tambah_pr_sparepart'])->name('tambah_pr_sparepart');
     Route::get('/detail-pr-sparepart/{request_number}', [PurchaseController::class, 'detail_pr_sparepart'])->name('detail_pr_sparepart');
+    Route::get('/add-pr-other', [PurchaseController::class, 'tambah_pr_other'])->name('tambah_pr_other');
     Route::get('/get-supplier', [PurchaseController::class, 'get_supplier'])->name('get_supplier');
     Route::post('/simpan_po', [PurchaseController::class, 'simpan_po'])->name('simpan_po');
     Route::get('/detail-po/{reference_number}/{id}', [PurchaseController::class, 'detail_po'])->name('detail_po');

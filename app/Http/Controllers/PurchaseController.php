@@ -190,6 +190,25 @@ class PurchaseController extends Controller
     //  return redirect()->route('http://localhost/add-pr-rm');
         return redirect()->intended('/add-pr-sparepart');
     }
+    public function hapus_request_number_other(){
+        // Ambil nomor urut terakhir dari database
+        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')
+        ->value(DB::raw('RIGHT(request_number, 7)'));
+
+        // Jika tidak ada nomor urut sebelumnya, atur ke 0
+        $lastCode = $lastCode ? $lastCode : 0;
+
+        // Tingkatkan nomor urut
+        $nextCode = $lastCode + 1;
+
+        // Format kode dengan panjang 7 karakter
+        $formattedCode = 'PR'.date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+
+        PurchaseRequisitionsDetailSmt::where('request_number', $formattedCode)->delete(); 
+
+    //  return redirect()->route('http://localhost/add-pr-rm');
+        return redirect()->intended('/add-pr-other');
+    }
     public function tambah_pr_rm(){
         $datas = MstRequester::get();
         $supplier = MstSupplier::get();
@@ -356,6 +375,49 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.tambah_pr_sparepart',compact('datas','supplier','ta','units','formattedCode','dt_detailSmt'));
+
+    }
+    public function tambah_pr_other(){
+        $datas = MstRequester::get();
+        $supplier = MstSupplier::get();
+        $rawMaterials = DB::table('master_raw_materials')
+                        ->select('description','id')
+                        ->get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+        
+        // Ambil nomor urut terakhir dari database
+        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')
+        ->value(DB::raw('RIGHT(request_number, 7)'));
+    
+        // Jika tidak ada nomor urut sebelumnya, atur ke 0
+        $lastCode = $lastCode ? $lastCode : 0;
+
+        // Tingkatkan nomor urut
+        $nextCode = $lastCode + 1;
+
+        // Format kode dengan panjang 7 karakter
+        $formattedCode = 'PR'.date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+
+        // $dt_detailSmt = PurchaseRequisitionsDetailSmt::where('request_number', $formattedCode)->get();
+        $dt_detailSmt = DB::table('purchase_requisition_details_sementara as a')
+                        ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->where('a.request_number', $formattedCode)
+                        ->get();            
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Add Purchase Order RM';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.tambah_pr_other',compact('datas','supplier','rawMaterials','units','formattedCode'
+        ,'dt_detailSmt'));
 
     }
     public function get_supplier(){
