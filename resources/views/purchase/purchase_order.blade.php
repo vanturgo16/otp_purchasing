@@ -4,6 +4,12 @@
 
 <div class="page-content">
         <div class="container-fluid">
+        @if (session('pesan'))
+            <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
+                <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('pesan') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
             <div class="row">
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -59,7 +65,7 @@
                                                 <td>{{ $data->po_number }}</td>
                                                 <td>{{ $data->date }}</td>
                                                 <td>{{ $data->name }}</td>
-                                                <td>{{ $data->request_number }}</td>
+                                                <td><a href="#" class="btn btn-sm btn-danger waves-effect waves-light" data-request-number="{{ $data->request_number }}">{{ $data->request_number }}</a></td>
                                                 <td>{{ $data->down_payment }}</td>
                                                 <td>{{ $data->total_amount }}</td>
                                                 <td>{{ $data->qc_check }}</td>
@@ -77,21 +83,37 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <form action="/submit_bulan_pgb/" method="post"
+                                                    <a href="/print-po/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
+                                                            <i class="bx bx-printer" title="Edit data"></i>
+                                                    </a>
+                                               
+                                                    <a href="/edit-po/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
+                                                            <i class="bx bx-edit-alt" title="Edit data"></i>
+                                                    </a>
+                                                    @if($data->status=='Request' or $data->status=='Un Posted')
+                                                    <form action="/posted_po/{{ $data->id }}" method="post"
                                                         class="d-inline" data-id="">
                                                         @method('PUT')
                                                         @csrf
-                                                        <button type="button" class="btn btn-sm btn-success"
-                                                            onclick="kirimData($(this).closest('form'))">
-                                                            <i class="bx bx-printer" title="Kirim data"></i>
+                                                        <button type="submit" class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Anda yakin mau Posted item ini ?')">
+                                                            <i class="bx bx-paper-plane" title="Posted" ></i>
+                                                            <!-- <i class="mdi mdi-arrow-left-top-bold" title="Posted" >Un Posted</i> -->
                                                         </button></center>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
-                                                            data-bs-toggle="modal"
-                                                            onclick="edit_po('{{ $data->id }}')"
-                                                            data-bs-target="#edit-po" data-id="">
-                                                            <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button></td>
+                                                    @elseif($data->status=='Posted' or $data->status=='Created PO')
+                                                    <form action="/unposted_po/{{ $data->id }}" method="post"
+                                                        class="d-inline" data-id="">
+                                                        @method('PUT')
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-primary"
+                                                        onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
+                                                            <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
+                                                            <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
+                                                        </button></center>
+                                                    </form>
+                                                    @endif
+                                                    </td>
                                              
                                             </tr>
                                         <!-- Add more rows as needed -->

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use RealRashid\SweetAlert\Facades\Alert;
 use Browser;
+use Illuminate\Support\Facades\Crypt;
 
 // Model
 use App\Models\PurchaseRequisitions;
@@ -16,6 +17,8 @@ use App\Models\MstRequester;
 use App\Models\MstSupplier;
 use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseRequisitionsDetailSmt;
+use App\Models\PurchaseOrderDetailsSMT;
+use App\Models\PurchaseOrderDetails;
 
 class PurchaseController extends Controller
 {
@@ -357,7 +360,7 @@ class PurchaseController extends Controller
     }
     public function get_supplier(){
         $data = DB::select("SELECT master_suppliers.name,master_suppliers.id  FROM master_suppliers");
-        $data['rn'] = DB::select("SELECT `purchase_requisitions`.`request_number` FROM `purchase_requisitions` GROUP BY request_number");
+        $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions`");
         return response()->json(['data' => $data]);
     }
     public function simpan_po(Request $request){
@@ -396,17 +399,28 @@ class PurchaseController extends Controller
 
         PurchaseOrders::create($validatedData);
 
-        if ($validatedData) {
-            //redirect dengan pesan sukses
-            Alert::success('Success', 'Data berhasil ditambahkan');
-            return back();
+        $reference_number = $request->input('reference_number');
+        $po_number = $request->input('po_number');
+
+        $idValue = DB::table('purchase_orders')
+            ->select('id')
+            ->where('po_number', $po_number)
+            ->first();
+
+        if ($idValue) {
+            $id = $idValue->id;
+            return redirect('/tambah_detail_po/' . $reference_number.'/'.$id);
         } else {
-            //redirect dengan pesan error
-            Alert::error('Error', 'Data gagal berhasil ditambahkan');
-            return back();
+            // Penanganan jika $id tidak ditemukan
+            return redirect()->back()->with('error', 'ID tidak ditemukan');
         }
+        
     }
-    public function simpan_detail_rm(Request $request){
+    public function simpan_detail_rm(Request $request, $request_number){
+        $request_number = $request_number;
+        $request->merge([
+            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+        ]);
         if($request->has('save_detail')){
         $pesan = [
             'type_product.required' => 'type masih kosong',
@@ -434,7 +448,6 @@ class PurchaseController extends Controller
 
         // dd($validatedData);
         // die;
-        $request_number = $request->input('request_number');
         PurchaseRequisitionsDetail::create($validatedData);
 
         // return "Tombol Save detail diklik.";
@@ -445,7 +458,6 @@ class PurchaseController extends Controller
 
             // dd($id);
             // die;
-            $request_number = $request->input('request_number');
             PurchaseRequisitionsDetail::destroy($validatedData);
             return Redirect::to('/detail-pr/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
 
@@ -497,48 +509,6 @@ class PurchaseController extends Controller
             return Redirect::to('/detail-pr/'.$request_number);
        
 
-        }elseif($request->has('save_detail')) {
-
-            $pesan = [
-                'type_product.required' => 'type masih kosong',
-                'master_products_id.required' => 'master_products_id masih kosong',
-                'qty.required' => 'qty masih kosong',
-                'master_units_id.required' => 'master_units_id masih kosong',
-                'required_date.required' => 'required_date masih kosong',
-                'cc_co.required' => 'cc_co masih kosong',
-                'remarks.required' => 'remarks masih kosong',
-                'request_number.required' => 'type masih kosong',
-                
-            ];
-    
-            $validatedData = $request->validate([
-                'type_product' => 'required',
-                'master_products_id' => 'required',
-                'qty' => 'required',
-                'master_units_id' => 'required',
-                'required_date' => 'required',
-                'cc_co' => 'required',
-                'remarks' => 'required',
-                'request_number' => 'required',
-    
-            ], $pesan);
-
-            // dd($validatedData);
-            // die;
-    
-            PurchaseRequisitionsDetailSmt::create($validatedData);
-
-            // return "Tombol Save detail diklik.";
-            return back();
-            
-        }elseif ($request->has('hapus_detail')){
-            $validatedData = $request->input('hapus_detail');
-
-            // dd($id);
-            // die;
-            PurchaseRequisitionsDetailSmt::destroy($validatedData);
-
-            // return "Tombol Save detail diklik.";
         }
         
     }
@@ -572,8 +542,57 @@ class PurchaseController extends Controller
         return view('purchase.detail_pr',compact('datas','supplier','rawMaterials','units','dt_detailSmt'
         ,'request_number'));
     }
+    public function simpan_detail_wip(Request $request, $request_number){
+        $request_number = $request_number;
+        $request->merge([
+            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+        ]);
+        if($request->has('save_detail')){
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'required_date.required' => 'required_date masih kosong',
+            'cc_co.required' => 'cc_co masih kosong',
+            'remarks.required' => 'remarks masih kosong',
+            'request_number.required' => 'type masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+            'remarks' => 'required',
+            'request_number' => 'required',
+
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+        PurchaseRequisitionsDetail::create($validatedData);
+
+        // return "Tombol Save detail diklik.";
+        return Redirect::to('/detail-pr-wip/'.$request_number)->with('pesan', 'Data berhasil disimpan.');
+        // return Redirect::to('/detail-pr/'.$request_number);
+        }elseif ($request->has('hapus_detail')){
+            $validatedData = $request->input('hapus_detail');
+
+            // dd($id);
+            // die;
+            PurchaseRequisitionsDetail::destroy($validatedData);
+            return Redirect::to('/detail-pr-wip/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
+
+            // return "Tombol Save detail diklik.";
+        }
+
+    }
     public function simpan_pr_wip(Request $request){
-        // dd($request->has('save_detail'));
+        // dd($request->has('save'));
         // die;
 
         if ($request->has('savemore')) {
@@ -590,13 +609,7 @@ class PurchaseController extends Controller
                 'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
-                // 'master_products_id.required' => 'master_products_id masih kosong',
-                // 'qty.required' => 'qty masih kosong',
-                // 'master_units_id.required' => 'master_units_id masih kosong',
-                // 'required_date.required' => 'required date masih kosong',
-                // 'cc_co.required' => 'cc co masih kosong',
-                // 'remarks.required' => 'remarks masih kosong',
-                // 'master_units_id.required' => 'master_units_id masih kosong',
+                
             ];
 
             $validatedData = $request->validate([
@@ -611,87 +624,95 @@ class PurchaseController extends Controller
 
             ], $pesan);
 
-            PurchaseRequisitions::create($validatedData);
-        } elseif($request->has('save_detail')) {
+            // dd($validatedData);
+            // die;
+            $request_number = $request->input('request_number');
 
-            $pesan = [
-                'type.required' => 'type masih kosong',
-                'master_products_id.required' => 'master_products_id masih kosong',
-                'qty.required' => 'qty masih kosong',
-                'master_units_id.required' => 'master_units_id masih kosong',
-                'required_date.required' => 'required_date masih kosong',
-                'cc_co.required' => 'cc_co masih kosong',
-                'remarks.required' => 'remarks masih kosong',
-                'request_number.required' => 'type masih kosong',
-                
-            ];
-    
-            $validatedData = $request->validate([
-                'type' => 'required',
-                'master_products_id' => 'required',
-                'qty' => 'required',
-                'master_units_id' => 'required',
-                'required_date' => 'required',
-                'cc_co' => 'required',
-                'remarks' => 'required',
-                'request_number' => 'required',
-    
-            ], $pesan);
-    
-            PurchaseRequisitionsDetailSmt::create($validatedData);
+            PurchaseRequisitions::create($validatedData);
+
+            return Redirect::to('/detail-pr-wip/'.$request_number);
+        } 
+    }
+    public function detail_pr_wip($request_number){
+        // dd($request_number);
+        // die;
+        $datas = MstRequester::get();
+        $supplier = MstSupplier::get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+
+         $dt_detailSmt = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->select('a.*', 'b.description', 'c.unit_code')
+         ->where('a.request_number', $request_number)
+         ->get();            
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Add Purchase Order WIP';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.detail_pr_wip',compact('datas','supplier','wip','units','dt_detailSmt'
+        ,'request_number'));
+    }
+    public function simpan_detail_fg(Request $request, $request_number){
+        // dd($request_number);
+        // die;
+        $request_number = $request_number;
+        $request->merge([
+            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+        ]);
+        if($request->has('save_detail')){
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'required_date.required' => 'required_date masih kosong',
+            'cc_co.required' => 'cc_co masih kosong',
+            'remarks.required' => 'remarks masih kosong',
+            'request_number.required' => 'type masih kosong',
             
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+            'remarks' => 'required',
+            'request_number' => 'required',
+
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+        PurchaseRequisitionsDetail::create($validatedData);
+
+        // return "Tombol Save detail diklik.";
+        return Redirect::to('/detail-pr-fg/'.$request_number)->with('pesan', 'Data berhasil disimpan.');
+        // return Redirect::to('/detail-pr/'.$request_number);
         }elseif ($request->has('hapus_detail')){
             $validatedData = $request->input('hapus_detail');
 
             // dd($id);
             // die;
-            PurchaseRequisitionsDetailSmt::destroy($validatedData);
+            PurchaseRequisitionsDetail::destroy($validatedData);
+            return Redirect::to('/detail-pr-fg/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
+
+            // return "Tombol Save detail diklik.";
         }
-        // $pesan = [
-        //     'request_number.required' => 'request number masih kosong',
-        //     'date.required' => 'date masih kosong',
-        //     'id_master_suppliers.required' => 'id master suppliers masih kosong',
-        //     'requester.required' => 'requester masih kosong',
-        //     'qc_check.required' => 'qc_check masih kosong',
-        //     'note.required' => 'note masih kosong',
-        //     'status.required' => 'status masih kosong',
-        //     'type.required' => 'type masih kosong',
-        //     'master_products_id.required' => 'master_products_id masih kosong',
-        //     'qty.required' => 'qty masih kosong',
-        //     'master_units_id.required' => 'master_units_id masih kosong',
-        //     'required_date.required' => 'required date masih kosong',
-        //     'cc_co.required' => 'cc co masih kosong',
-        //     'remarks.required' => 'remarks masih kosong',
-        //     'master_units_id.required' => 'master_units_id masih kosong',
-        // ];
 
-        // $validatedData = $request->validate([
-        //     'po_number' => 'required',
-        //     'date' => 'required',
-        //     'reference_number' => 'required',
-        //     'id_master_suppliers' => 'required',
-        //     'qc_check' => 'required',
-        //     'non_invoiceable' => 'required',
-        //     'vendor_taxable' => 'required',
-        //     'down_payment' => 'required',
-        //     'own_remarks' => 'required',
-        //     'supplier_remarks' => 'required',
-        //     'status' => 'required',
-        //     'type' => 'required',
-
-        // ], $pesan);
-
-        // PurchaseOrders::create($validatedData);
-
-        if ($validatedData) {
-            //redirect dengan pesan sukses
-            Alert::success('Success', 'Data berhasil ditambahkan');
-            return back();
-        } else {
-            //redirect dengan pesan error
-            Alert::error('Error', 'Data gagal berhasil ditambahkan');
-            return back();
-        }
     }
     public function simpan_pr_fg(Request $request){
         // dd($request->has('save_detail'));
@@ -711,13 +732,6 @@ class PurchaseController extends Controller
                 'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
-                // 'master_products_id.required' => 'master_products_id masih kosong',
-                // 'qty.required' => 'qty masih kosong',
-                // 'master_units_id.required' => 'master_units_id masih kosong',
-                // 'required_date.required' => 'required date masih kosong',
-                // 'cc_co.required' => 'cc co masih kosong',
-                // 'remarks.required' => 'remarks masih kosong',
-                // 'master_units_id.required' => 'master_units_id masih kosong',
             ];
 
             $validatedData = $request->validate([
@@ -732,88 +746,93 @@ class PurchaseController extends Controller
 
             ], $pesan);
 
-            PurchaseRequisitions::create($validatedData);
-        } elseif($request->has('save_detail')) {
+            $request_number = $request->input('request_number');
 
-            $pesan = [
-                'type.required' => 'type masih kosong',
-                'master_products_id.required' => 'master_products_id masih kosong',
-                'qty.required' => 'qty masih kosong',
-                'master_units_id.required' => 'master_units_id masih kosong',
-                'required_date.required' => 'required_date masih kosong',
-                'cc_co.required' => 'cc_co masih kosong',
-                'remarks.required' => 'remarks masih kosong',
-                'request_number.required' => 'type masih kosong',
-                
-            ];
-    
-            $validatedData = $request->validate([
-                'type' => 'required',
-                'master_products_id' => 'required',
-                'qty' => 'required',
-                'master_units_id' => 'required',
-                'required_date' => 'required',
-                'cc_co' => 'required',
-                'remarks' => 'required',
-                'request_number' => 'required',
-    
-            ], $pesan);
-    
-            PurchaseRequisitionsDetailSmt::create($validatedData);
+            PurchaseRequisitions::create($validatedData);
+
+            return Redirect::to('/detail-pr-fg/'.$request_number);
+        }
+    }
+    public function detail_pr_fg($request_number){
+        // dd($request_number);
+        // die;
+        $datas = MstRequester::get();
+        $supplier = MstSupplier::get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id')
+                        ->get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+
+         $dt_detailSmt = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->select('a.*', 'b.description', 'c.unit_code')
+         ->where('a.request_number', $request_number)
+         ->get();            
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Add Purchase Order WIP';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.detail_pr_fg',compact('datas','supplier','fg','units','dt_detailSmt'
+        ,'request_number'));
+    }
+    public function simpan_detail_ta(Request $request, $request_number){
+        $request_number = $request_number;
+        $request->merge([
+            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+        ]);
+        if($request->has('save_detail')){
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'required_date.required' => 'required_date masih kosong',
+            'cc_co.required' => 'cc_co masih kosong',
+            'remarks.required' => 'remarks masih kosong',
+            'request_number.required' => 'type masih kosong',
             
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+            'remarks' => 'required',
+            'request_number' => 'required',
+
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+        PurchaseRequisitionsDetail::create($validatedData);
+
+        // return "Tombol Save detail diklik.";
+        return Redirect::to('/detail-pr-sparepart/'.$request_number)->with('pesan', 'Data berhasil disimpan.');
+        // return Redirect::to('/detail-pr/'.$request_number);
         }elseif ($request->has('hapus_detail')){
             $validatedData = $request->input('hapus_detail');
 
             // dd($id);
             // die;
-            PurchaseRequisitionsDetailSmt::destroy($validatedData);
+            PurchaseRequisitionsDetail::destroy($validatedData);
+            return Redirect::to('/detail-pr-sparepart/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
+
+            // return "Tombol Save detail diklik.";
         }
-        // $pesan = [
-        //     'request_number.required' => 'request number masih kosong',
-        //     'date.required' => 'date masih kosong',
-        //     'id_master_suppliers.required' => 'id master suppliers masih kosong',
-        //     'requester.required' => 'requester masih kosong',
-        //     'qc_check.required' => 'qc_check masih kosong',
-        //     'note.required' => 'note masih kosong',
-        //     'status.required' => 'status masih kosong',
-        //     'type.required' => 'type masih kosong',
-        //     'master_products_id.required' => 'master_products_id masih kosong',
-        //     'qty.required' => 'qty masih kosong',
-        //     'master_units_id.required' => 'master_units_id masih kosong',
-        //     'required_date.required' => 'required date masih kosong',
-        //     'cc_co.required' => 'cc co masih kosong',
-        //     'remarks.required' => 'remarks masih kosong',
-        //     'master_units_id.required' => 'master_units_id masih kosong',
-        // ];
 
-        // $validatedData = $request->validate([
-        //     'po_number' => 'required',
-        //     'date' => 'required',
-        //     'reference_number' => 'required',
-        //     'id_master_suppliers' => 'required',
-        //     'qc_check' => 'required',
-        //     'non_invoiceable' => 'required',
-        //     'vendor_taxable' => 'required',
-        //     'down_payment' => 'required',
-        //     'own_remarks' => 'required',
-        //     'supplier_remarks' => 'required',
-        //     'status' => 'required',
-        //     'type' => 'required',
-
-        // ], $pesan);
-
-        // PurchaseOrders::create($validatedData);
-
-        if ($validatedData) {
-            //redirect dengan pesan sukses
-            Alert::success('Success', 'Data berhasil ditambahkan');
-            return back();
-        } else {
-            //redirect dengan pesan error
-            Alert::error('Error', 'Data gagal berhasil ditambahkan');
-            return back();
-        }
     }
+    
     public function simpan_pr_ta(Request $request){
         // dd($request->has('save_detail'));
         // die;
@@ -832,13 +851,6 @@ class PurchaseController extends Controller
                 'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
-                // 'master_products_id.required' => 'master_products_id masih kosong',
-                // 'qty.required' => 'qty masih kosong',
-                // 'master_units_id.required' => 'master_units_id masih kosong',
-                // 'required_date.required' => 'required date masih kosong',
-                // 'cc_co.required' => 'cc co masih kosong',
-                // 'remarks.required' => 'remarks masih kosong',
-                // 'master_units_id.required' => 'master_units_id masih kosong',
             ];
 
             $validatedData = $request->validate([
@@ -853,93 +865,51 @@ class PurchaseController extends Controller
 
             ], $pesan);
 
+            $request_number = $request->input('request_number');
+
             PurchaseRequisitions::create($validatedData);
-        } elseif($request->has('save_detail')) {
 
-            $pesan = [
-                'type.required' => 'type masih kosong',
-                'master_products_id.required' => 'master_products_id masih kosong',
-                'qty.required' => 'qty masih kosong',
-                'master_units_id.required' => 'master_units_id masih kosong',
-                'required_date.required' => 'required_date masih kosong',
-                'cc_co.required' => 'cc_co masih kosong',
-                'remarks.required' => 'remarks masih kosong',
-                'request_number.required' => 'type masih kosong',
-                
-            ];
-    
-            $validatedData = $request->validate([
-                'type' => 'required',
-                'master_products_id' => 'required',
-                'qty' => 'required',
-                'master_units_id' => 'required',
-                'required_date' => 'required',
-                'cc_co' => 'required',
-                'remarks' => 'required',
-                'request_number' => 'required',
-    
-            ], $pesan);
-    
-            PurchaseRequisitionsDetailSmt::create($validatedData);
-            
-        }elseif ($request->has('hapus_detail')){
-            $validatedData = $request->input('hapus_detail');
-
-            // dd($id);
-            // die;
-            PurchaseRequisitionsDetailSmt::destroy($validatedData);
+            return Redirect::to('/detail-pr-sparepart/'.$request_number);
         }
-        // $pesan = [
-        //     'request_number.required' => 'request number masih kosong',
-        //     'date.required' => 'date masih kosong',
-        //     'id_master_suppliers.required' => 'id master suppliers masih kosong',
-        //     'requester.required' => 'requester masih kosong',
-        //     'qc_check.required' => 'qc_check masih kosong',
-        //     'note.required' => 'note masih kosong',
-        //     'status.required' => 'status masih kosong',
-        //     'type.required' => 'type masih kosong',
-        //     'master_products_id.required' => 'master_products_id masih kosong',
-        //     'qty.required' => 'qty masih kosong',
-        //     'master_units_id.required' => 'master_units_id masih kosong',
-        //     'required_date.required' => 'required date masih kosong',
-        //     'cc_co.required' => 'cc co masih kosong',
-        //     'remarks.required' => 'remarks masih kosong',
-        //     'master_units_id.required' => 'master_units_id masih kosong',
-        // ];
+    }
+    public function detail_pr_sparepart($request_number){
+        // dd($request_number);
+        // die;
+        $datas = MstRequester::get();
+        $supplier = MstSupplier::get();
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description','id')
+                        ->get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
 
-        // $validatedData = $request->validate([
-        //     'po_number' => 'required',
-        //     'date' => 'required',
-        //     'reference_number' => 'required',
-        //     'id_master_suppliers' => 'required',
-        //     'qc_check' => 'required',
-        //     'non_invoiceable' => 'required',
-        //     'vendor_taxable' => 'required',
-        //     'down_payment' => 'required',
-        //     'own_remarks' => 'required',
-        //     'supplier_remarks' => 'required',
-        //     'status' => 'required',
-        //     'type' => 'required',
+         $dt_detailSmt = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->select('a.*', 'b.description', 'c.unit_code')
+         ->where('a.request_number', $request_number)
+         ->get();            
 
-        // ], $pesan);
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Add Purchase Order WIP';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
-        // PurchaseOrders::create($validatedData);
-
-        if ($validatedData) {
-            //redirect dengan pesan sukses
-            Alert::success('Success', 'Data berhasil ditambahkan');
-            return back();
-        } else {
-            //redirect dengan pesan error
-            Alert::error('Error', 'Data gagal berhasil ditambahkan');
-            return back();
-        }
+        return view('purchase.detail_pr_sparepart',compact('datas','supplier','ta','units','dt_detailSmt'
+        ,'request_number'));
     }
     public function hapus_po(Request $request, $id)
     {
         // dd('test');
         // die;
         PurchaseOrders::destroy($id);
+
+        PurchaseOrderDetails::where('id_purchase_orders', $id)->delete();
+
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -951,34 +921,74 @@ class PurchaseController extends Controller
 
         if ($id) {
             //redirect dengan pesan sukses
-            Alert::success('Success', 'Data berhasil dihapus');
-            return back();
+            return Redirect::to('/purchase-order')->with('pesan', 'Data berhasil dihapus.');
         } else {
             //redirect dengan pesan error
-            Alert::error('Error', 'Data gagal dihapus');
-            return back();
+            return Redirect::to('/purchase-order')->with('pesan', 'Data gagal berhasil dihapus.');
+        }
+    }
+    public function hapus_po_detail(Request $request, $id, $idx)
+    {
+        // dd('test');
+        // die;
+        $data = DB::table('purchase_order_details_smt')
+            ->select('id_pr')
+            ->where('id', '=', $id) // Ganti 'some_column' dan 'some_value' sesuai kebutuhan
+            ->get();
+
+        if ($data->isEmpty()) {
+            // Data kosong, lakukan penanganan sesuai kebutuhan Anda
+        } else {
+            $reference_number = $data[0]->id_pr;
+            // Lakukan sesuatu dengan $id_pr
+        }
+
+        PurchaseOrderDetailsSMT::destroy($id);
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Hapus Purchase Order Detail';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        if ($id) {
+            //redirect dengan pesan sukses
+            return Redirect::to('/detail-po/'.$reference_number.'/'.$idx)->with('pesan', 'Data berhasil dihapus.');
+        } else {
+            //redirect dengan pesan error
+            return Redirect::to('/purchase-order')->with('pesan', 'Data gagal berhasil dihapus.');
         }
     }
     public function get_edit_po($id)
     {
         $data['find'] = PurchaseOrders::find($id);
+        $data['finddetail'] = PurchaseOrderDetails::find($id);
+        $data['produk'] = DB::select("SELECT master_raw_materials.description, master_raw_materials.id FROM master_raw_materials");
+        $data['unit'] = DB::select("SELECT master_units.unit_code, master_units.id FROM master_units");
         return response()->json(['data' => $data]);
     }
     public function get_edit_pr($id)
     {
-        $data['find'] = DB::table('purchase_requisition_details as a')
-                        ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
-                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code')
-                        ->where('a.id', $id)
-                        ->get();
+        // $data['find'] = DB::table('purchase_requisition_details as a')
+        //                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+        //                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //                 ->select('a.*', 'b.description', 'c.unit_code')
+        //                 ->where('a.id', $id)
+        //                 ->get();
+        $data['find'] = PurchaseRequisitionsDetail::find($id);
+        $data['produk'] = DB::select("SELECT master_raw_materials.description, master_raw_materials.id FROM master_raw_materials");
+        $data['unit'] = DB::select("SELECT master_units.unit_code, master_units.id FROM master_units");
+        $data['requester'] = DB::select("SELECT master_requester.nm_requester, master_requester.id FROM master_requester");
         return response()->json(['data' => $data]);
     }
-    public function hapus_pr(Request $request, $id)
+    public function hapus_pr(Request $request, $request_number)
     {
-        // dd('test');
+        // dd($request_number);
         // die;
-        PurchaseRequisitions::destroy($id);
+        PurchaseRequisitions::where('request_number', $request_number)->delete();
+        PurchaseRequisitionsDetail::where('request_number', $request_number)->delete();
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -988,15 +998,7 @@ class PurchaseController extends Controller
         $activity='Hapus Purchase Requisitions';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
-        if ($id) {
-            //redirect dengan pesan sukses
-            Alert::success('Success', 'Data berhasil dihapus');
-            return back();
-        } else {
-            //redirect dengan pesan error
-            Alert::error('Error', 'Data gagal dihapus');
-            return back();
-        }
+        return Redirect::to('/purchase')->with('pesan', 'Data berhasil dihapus.');
     }
     public function edit_pr($request_number)
     {
@@ -1037,10 +1039,10 @@ class PurchaseController extends Controller
                         ->select('description')
                         ->get();
         $fg = DB::table('master_product_fgs')
-                        ->select('description')
+                        ->select('description','id')
                         ->get();
         $wip = DB::table('master_wips')
-                        ->select('description')
+                        ->select('description','id')
                         ->get();
         
         $data_detail_ta = DB::table('purchase_requisition_details as a')
@@ -1086,4 +1088,641 @@ class PurchaseController extends Controller
         ,'data_detail_wip'));
 
     }
+    public function update_detail_rm(Request $request, $request_number){
+        //    dd($request);
+        //     die;
+        $request_number = $request_number;
+        $request->merge([
+            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+        ]);
+        if($request->has('save_detail')){
+            $pesan = [
+                'type_product.required' => 'type masih kosong',
+                'master_products_id.required' => 'master_products_id masih kosong',
+                'qty.required' => 'qty masih kosong',
+                'master_units_id.required' => 'master_units_id masih kosong',
+                'required_date.required' => 'required_date masih kosong',
+                'cc_co.required' => 'cc_co masih kosong',
+                'remarks.required' => 'remarks masih kosong',
+                'request_number.required' => 'type masih kosong',
+                
+            ];
+    
+            $validatedData = $request->validate([
+                'type_product' => 'required',
+                'master_products_id' => 'required',
+                'qty' => 'required',
+                'master_units_id' => 'required',
+                'required_date' => 'required',
+                'cc_co' => 'required',
+                'remarks' => 'required',
+                'request_number' => 'required',
+    
+            ], $pesan);
+    
+            // dd($validatedData);
+            // die;
+            $request_number = $request_number;
+            PurchaseRequisitionsDetail::create($validatedData);
+    
+            // return "Tombol Save detail diklik.";
+            return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil disimpan.');
+            // return Redirect::to('/detail-pr/'.$request_number);
+        }elseif ($request->has('hapus_detail')){
+            $validatedData = $request->input('hapus_detail');
+
+            // dd($id);
+            // die;
+            $request_number = $request->input('request_number');
+            PurchaseRequisitionsDetail::destroy($validatedData);
+            return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
+
+            // return "Tombol Save detail diklik.";
+        }
+    }public function update_pr(Request $request, $request_number){
+        $request_number = $request_number;
+        // dd($request);
+        // die;
+        $pesan = [
+            'request_number.required' => 'request number masih kosong',
+            'date.required' => 'date masih kosong',
+            'id_master_suppliers.required' => 'id master suppliers masih kosong',
+            'requester.required' => 'requester masih kosong',
+            'qc_check.required' => 'qc_check masih kosong',
+            'note.required' => 'note masih kosong',
+            'status.required' => 'status masih kosong',
+            'type.required' => 'type masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'request_number' => 'required',
+            'date' => 'required',
+            'id_master_suppliers' => 'required',
+            'requester' => 'required',
+            'qc_check' => 'required',
+            'note' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+
+        PurchaseRequisitions::where('request_number', $request_number)
+            ->update($validatedData);
+
+        $request_number = $request->input('request_number');
+        return Redirect::to('/edit-pr/'.$request_number);
+    }
+    public function posted_pr($request_number)
+    {
+        $request_numberx=$request_number;
+        $validatedData = DB::update("UPDATE `purchase_requisitions` SET `status` = 'Posted' WHERE `request_number` = '$request_numberx';");
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Posted Purchase Requisitions';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        if ($validatedData) {
+            //redirect dengan pesan sukses
+            return Redirect::to('/purchase')->with('pesan', 'Data berhasil diposted.');
+        } else {
+            //redirect dengan pesan error
+            return Redirect::to('/purchase')->with('pesan', 'Data gagal diposted.');
+        }
+
+        
+    }public function unposted_pr($request_number)
+    {
+        $request_numberx=$request_number;
+        $validatedData = DB::update("UPDATE `purchase_requisitions` SET `status` = 'Un Posted' WHERE `request_number` = '$request_numberx';");
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Posted Purchase Requisitions';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        if ($validatedData) {
+            //redirect dengan pesan sukses
+            return Redirect::to('/purchase')->with('pesan', 'Data berhasil di Un Posted.');
+        } else {
+            //redirect dengan pesan error
+            return Redirect::to('/purchase')->with('pesan', 'Data gagal di Un Posted.');
+        }
+
+        
+    }
+    public function detail_po($reference_number,$id){
+        // dd('test');
+        // die;
+        $datas = MstRequester::get();
+        $supplier = MstSupplier::get();
+        $rawMaterials = DB::table('master_raw_materials')
+                        ->select('description','id')
+                        ->get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+
+        $POSmt = PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->get();
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Add Purchase Order RM';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.detail_po',compact('datas','supplier','rawMaterials','units'
+        ,'reference_number','POSmt','id'));
+    }
+    public function tambah_detail_po($reference_number,$id){
+        // dd('test');
+        // die;
+       PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->delete(); 
+
+        $results = DB::table('purchase_requisition_details')
+        ->select(
+            'purchase_requisitions.id',
+            'purchase_requisition_details.type_product',
+            'master_raw_materials.description',
+            'purchase_requisition_details.qty',
+            'purchase_requisitions.request_number',
+            'master_units.unit'
+        )
+        ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
+        ->leftJoin('master_raw_materials', 'purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
+        ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+        ->where('purchase_requisitions.id', '=', $reference_number)
+        ->get();
+
+        // dd($results);
+        // die;
+        
+        // Simpan hasil query ke dalam tabel purchase_order_details_smt
+        foreach ($results as $result) {
+            DB::table('purchase_order_details_smt')->insert([
+                'id_pr' => $result->id,
+                'type_product' => $result->type_product,
+                'description' => $result->description,
+                'qty' => $result->qty,
+                'request_number' => $result->request_number,
+                'unit' => $result->unit,
+            ]);
+        }
+
+        return Redirect::to('/detail-po/'. $reference_number. '/' .$id);
+
+    }public function simpan_detail_po(Request $request, $reference_number,$id){
+        // dd($id);
+        // die;
+        $requestNumber = DB::table('purchase_requisitions')
+            ->select('request_number')
+            ->where('id', $reference_number)
+            ->first();
+    
+        // Periksa jika hasil kueri tidak null sebelum mengakses properti request_number
+        if ($requestNumber) {
+            $requestNumberValue = $requestNumber->request_number;
+        } else {
+            // Handle jika hasil kueri tidak ditemukan
+            return redirect()->back()->with('error', 'Data request tidak ditemukan');
+        }
+    
+        $validatedData = $request->validate([
+            'id_pr' => 'required',
+            'type_product' => 'required',
+            'description' => 'required',
+            'qty' => 'required',
+            'unit' => 'required',
+            'price' => 'required',
+            'discount' => 'required',
+            'tax' => 'required',
+            'amount' => 'required',
+            'note' => 'required',
+        ]);
+    
+        // Set nilai 'request_number' dengan hasil kueri database
+        $validatedData['request_number'] = $requestNumberValue;
+    
+        PurchaseOrderDetailsSMT::create($validatedData);
+    
+        return Redirect::to('/detail-po/'.$reference_number.'/'.$id)->with('pesan', 'Purchase Requisition Detail berhasil ditambahkan.');
+    }public function simpan_detail_po_fix(Request $request, $id){
+        
+        // dd($id);
+        // die;
+
+        $results = DB::table('purchase_order_details_smt as a')
+                    ->select(
+                        DB::raw($id.' as id_purchase_order'),
+                        'a.type_product',
+                        'b.id as master_products_id',
+                        'a.note',
+                        'a.qty',
+                        'c.id as master_units_id',
+                        'a.price',
+                        'a.discount',
+                        'a.tax',
+                        'a.amount'
+                    )
+                    ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.description')
+                    ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit_code')
+                    ->where('a.id_pr', '=', '886')
+                    ->get();
+
+
+        // dd($results);
+        // die;
+        
+        // Simpan hasil query ke dalam tabel purchase_order_details_smt
+        foreach ($results as $result) {
+            DB::table('purchase_order_details')->insert([
+                'id_purchase_orders' => $result->id_purchase_order,
+                'type_product' => $result->type_product,
+                'master_products_id' => $result->master_products_id,
+                'note' => $result->note,
+                'qty' => $result->qty,
+                'master_units_id' => $result->master_units_id,
+                'price' => $result->price,
+                'discount' => $result->discount,
+                'tax' => $result->tax,
+                'amount' => $result->amount,
+            ]);
+        }
+    
+        return Redirect::to('/purchase-order')->with('pesan', 'Purchase Order berhasil ditambahkan.');
+    }public function posted_po($id)
+    {
+        $idx=$id;
+        $validatedData = DB::update("UPDATE `purchase_orders` SET `status` = 'Posted' WHERE `id` = '$idx';");
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Posted Purchase Order';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        if ($validatedData) {
+            //redirect dengan pesan sukses
+            return Redirect::to('/purchase-order')->with('pesan', 'Data berhasil diposted.');
+        } else {
+            //redirect dengan pesan error
+            return Redirect::to('/purchase-order')->with('pesan', 'Data gagal diposted.');
+        }
+
+        
+    }public function unposted_po($id)
+    {
+        $idx=$id;
+        $validatedData = DB::update("UPDATE `purchase_orders` SET `status` = 'Un Posted' WHERE `id` = '$idx';");
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Un Posted Purchase Order';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        if ($validatedData) {
+            //redirect dengan pesan sukses
+            return Redirect::to('/purchase-order')->with('pesan', 'Data berhasil di Un Posted.');
+        } else {
+            //redirect dengan pesan error
+            return Redirect::to('/purchase-order')->with('pesan', 'Data gagal di Un Posted.');
+        }
+
+        
+    }
+    public function edit_po($id)
+    {
+        // dd($id);
+        //  die;
+        $supplier = MstSupplier::get();
+        $data_requester = MstRequester::get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+
+        $reference_number = PurchaseRequisitions::get();
+
+        $rawMaterials = DB::table('master_raw_materials')
+                        ->select('description','id')
+                        ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description')
+                        ->get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id')
+                        ->get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
+
+        $data_detail_rm = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $data_detail_ta = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $data_detail_fg = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $data_detail_wip = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $results = DB::table('purchase_orders as a')
+                ->select(
+                    'a.id',
+                    'a.po_number',
+                    'a.date',
+                    'b.request_number',
+                    'c.name',
+                    'a.qc_check',
+                    'a.down_payment',
+                    'a.own_remarks',
+                    'a.supplier_remarks',
+                    'a.status',
+                    'a.type',
+                    'a.reference_number',
+                    'a.id_master_suppliers'
+                )
+                ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
+                ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
+                ->where('a.id', '=', $id)
+                ->get();
+
+        $selectedId = $results[0]->reference_number;
+        $selectedsupplier = $results[0]->id_master_suppliers;
+        $radioselectted = $results[0]->qc_check;
+
+    
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Edit Purchase Order';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.edit_po',compact('supplier','data_requester','units','data_detail_rm','results',
+        'reference_number','selectedId','selectedsupplier','radioselectted','rawMaterials','ta','fg','wip',
+        'data_detail_ta','data_detail_fg','data_detail_wip'));
+
+    }public function update_po(Request $request, $id){
+        $id = $id;
+        // dd($request);
+        // die;
+        $pesan = [
+            'po_number.required' => 'po number masih kosong',
+            'date.required' => 'date masih kosong',
+            'reference_number.required' => 'reference number masih kosong',
+            'id_master_suppliers.required' => 'id_master_suppliers masih kosong',
+            'qc_check.required' => 'qc_check masih kosong',
+            'down_payment.required' => 'down_payment masih kosong',
+            'own_remarks.required' => 'own_remarks masih kosong',
+            'supplier_remarks.required' => 'supplier_remarks masih kosong',
+            'status.required' => 'status masih kosong',
+            'type.required' => 'type masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'po_number' => 'required',
+            'date' => 'required',
+            'reference_number' => 'required',
+            'id_master_suppliers' => 'required',
+            'qc_check' => 'required',
+            'down_payment' => 'required',
+            'own_remarks' => 'required',
+            'supplier_remarks' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+
+        PurchaseOrders::where('id', $id)
+            ->update($validatedData);
+
+        return Redirect::to('/purchase-order')->with('pesan', 'Data berhasil diupdate.');
+    }public function update_detail_po(Request $request, $id){
+    //    dd($id);
+    //    die;
+       $request->merge([
+        'id_purchase_orders' => $id, // Ganti 'request_number' dengan nilai variabel buatan Anda
+       ]);
+        if($request->has('save_detail')){
+            $pesan = [
+                'id_purchase_orders.required' => 'id_purchase_orders masih kosong',
+                'type_product.required' => 'type masih kosong',
+                'master_products_id.required' => 'master_products_id masih kosong',
+                'qty.required' => 'qty masih kosong',
+                'master_units_id.required' => 'master_units_id masih kosong',
+                'price.required' => 'price masih kosong',
+                'discount.required' => 'discount masih kosong',
+                'tax.required' => 'tax masih kosong',
+                'amount.required' => 'amount masih kosong',
+                'note.required' => 'note masih kosong',
+                
+            ];
+    
+            $validatedData = $request->validate([
+                'id_purchase_orders' => 'required',
+                'type_product' => 'required',
+                'master_products_id' => 'required',
+                'qty' => 'required',
+                'master_units_id' => 'required',
+                'price' => 'required',
+                'discount' => 'required',
+                'tax' => 'required',
+                'amount' => 'required',
+                'note' => 'required',
+                
+    
+            ], $pesan);
+    
+            // dd($validatedData);
+            // die;
+            $id = $id;
+            PurchaseOrderDetails::create($validatedData);
+    
+            // return "Tombol Save detail diklik.";
+            return Redirect::to('/edit-po/'.$id)->with('pesan', 'Data berhasil disimpan.');
+            // return Redirect::to('/detail-pr/'.$request_number);
+        }elseif ($request->has('hapus_detail')){
+            $validatedData = $request->input('hapus_detail');
+
+            // dd($validatedData);
+            // die;
+            $id = $id;
+            PurchaseOrderDetails::destroy($validatedData);
+            return Redirect::to('/edit-po/'.$id)->with('pesan', 'Data berhasil dihapus.');
+
+            // return "Tombol Save detail diklik.";
+        }
+    }public function update_po_detail(Request $request, $id){
+        // dd($id);
+        // die;
+
+        $id = $id;
+        // dd($request);
+        // die;
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'price.required' => 'price masih kosong',
+            'discount.required' => 'discount masih kosong',
+            'tax.required' => 'tax masih kosong',
+            'amount.required' => 'amount masih kosong',
+            'note.required' => 'note masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'price' => 'required',
+            'discount' => 'required',
+            'tax' => 'required',
+            'amount' => 'required',
+            'note' => 'required',
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+
+        PurchaseOrderDetails::where('id', $id)
+            ->update($validatedData);
+
+        $id_purchase_orders = $request->input('id_purchase_orders');
+        return Redirect::to('/edit-po/'.$id_purchase_orders)->with('pesan', 'Data berhasil diupdate.');
+    }public function update_pr_detailx(Request $request, $id){
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'required_date.required' => 'required_date masih kosong',
+            'cc_co.required' => 'cc_co masih kosong',
+            'remarks.required' => 'remarks masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+            'remarks' => 'required',
+
+        ], $pesan);
+
+        PurchaseRequisitionsDetail::where('id', $id)
+        ->update($validatedData);
+
+        $request_number = $request->input('request_number');
+        return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+    }public function print_po($id)
+    {
+        $purchaseOrder = PurchaseOrders::findOrFail($id);
+        $data_detail_rm = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $results = DB::table('purchase_orders as a')
+                ->select(
+                    'a.id',
+                    'a.po_number',
+                    'a.date',
+                    'b.request_number',
+                    'c.name',
+                    'a.qc_check',
+                    'a.down_payment',
+                    'a.own_remarks',
+                    'a.supplier_remarks',
+                    'a.status',
+                    'a.type',
+                    'a.reference_number',
+                    'a.id_master_suppliers'
+                )
+                ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
+                ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
+                ->where('a.id', '=', $id)
+                ->get();
+
+        return view('purchase.print_po',compact('purchaseOrder','data_detail_rm','results'));
+    }public function print_pr($request_number)
+    {
+        // dd($request_number);
+        // die;
+        $datas = PurchaseRequisitions::select(
+            'purchase_requisitions.*',
+            'master_suppliers.name',
+            'master_requester.nm_requester',
+            'purchase_requisition_details.type_product',
+            'purchase_requisition_details.qty',
+            'purchase_requisition_details.cc_co',
+            'purchase_requisition_details.required_date',
+            'purchase_requisition_details.remarks'
+        )
+        ->leftJoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', '=', 'master_suppliers.id')
+        ->leftJoin('master_requester', 'purchase_requisitions.requester', '=', 'master_requester.id')
+        ->leftJoin('purchase_requisition_details', 'purchase_requisitions.request_number', '=', 'purchase_requisition_details.request_number')
+        ->where('purchase_requisitions.request_number', '=', $request_number)
+        ->orderBy('purchase_requisitions.created_at', 'desc')
+        ->get();
+
+        $data_detail_rm = DB::table('purchase_requisition_details as a')
+                        ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.rm_code')
+                        ->where('a.request_number', $request_number)
+                        ->get();
+
+        return view('purchase.print_pr',compact('datas','data_detail_rm'));
+    }
+    
+
 }
