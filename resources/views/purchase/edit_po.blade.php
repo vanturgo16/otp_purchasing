@@ -440,11 +440,14 @@
         const price = parseFloat(priceInput.value);
         const discount = parseFloat(discountInput.value);
 
-        // Hitung jumlah
-        const amount = (qty * price) - discount;
+        // Hitung jumlah diskon dalam persen
+        const discountAmount = (price * discount) / 100;
 
-        // Masukkan hasil perhitungan ke dalam input amount
-        amountInput.value = isNaN(amount) ? '' : amount.toFixed(2);
+        // Hitung jumlah
+        const amount = (qty * price) - discountAmount;
+
+         // Masukkan hasil perhitungan ke dalam input amount dengan format ribuan
+         amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
     }
 </script>
 @endsection
