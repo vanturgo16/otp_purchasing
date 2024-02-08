@@ -189,10 +189,10 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="row mb-4 field-wrapper">
+                                    <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="qty" value="old('qty') }}">
+                                            <input type="number" class="form-control" name="qty" id="qty" value="old('qty') }}">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
@@ -209,13 +209,13 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="price" value="{{ old('price') }}">
+                                            <input type="number" class="form-control" name="price" id="price" value="{{ old('price') }}">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="discount" value="{{ old('discount') }}">
+                                            <input type="number" class="form-control" name="discount" id="discount" value="{{ old('discount') }}">
                                         </div>
                                     </div>
                                     
@@ -228,10 +228,15 @@
                                             <label for="tax_N">N</label>
                                         </div>
                                     </div>
-                                    <div class="row mb-4 field-wrapper">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Amount</label>
+                                    <style>
+                                        .custom-bg-gray {
+                                            background-color: #c4c4c4; /* Warna abu-abu yang lebih terang */
+                                        }
+                                    </style>
+                                    <div class="row mb-4 field-wrapper required-field">
+                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Amount </label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control" name="amount" value="{{ old('amount') }}">
+                                            <input type="number" class="form-control custom-bg-gray" name="amount" id="amount">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper">
@@ -416,4 +421,30 @@
                     <!-- end row -->
     </div>
 </div>
+
+<script>
+    // Ambil elemen input
+    const qtyInput = document.getElementById('qty');
+    const priceInput = document.getElementById('price');
+    const discountInput = document.getElementById('discount');
+    const amountInput = document.getElementById('amount');
+
+    // Tambahkan event listener untuk menghitung jumlah saat nilai berubah
+    [qtyInput, priceInput, discountInput].forEach(input => {
+        input.addEventListener('input', calculateAmount);
+    });
+
+    // Fungsi untuk menghitung jumlah
+    function calculateAmount() {
+        const qty = parseFloat(qtyInput.value);
+        const price = parseFloat(priceInput.value);
+        const discount = parseFloat(discountInput.value);
+
+        // Hitung jumlah
+        const amount = (qty * price) - discount;
+
+        // Masukkan hasil perhitungan ke dalam input amount
+        amountInput.value = isNaN(amount) ? '' : amount.toFixed(2);
+    }
+</script>
 @endsection

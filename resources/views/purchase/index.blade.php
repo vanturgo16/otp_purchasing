@@ -57,7 +57,7 @@
                                             <th>Type</th>
                                             <th>Status</th>
                                             <th>Un Posted</th>
-                                            <th>Aksi</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>

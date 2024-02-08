@@ -63,7 +63,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Down Payment </label>
-                    <input class="form-control" type="text" name="down_payment">
+                    <input class="form-control" type="text" name="down_payment" value="0">
                     @error('down_payment')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>

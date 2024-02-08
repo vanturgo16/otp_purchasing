@@ -1380,7 +1380,7 @@ class PurchaseController extends Controller
         PurchaseOrderDetailsSMT::create($validatedData);
     
         return Redirect::to('/detail-po/'.$reference_number.'/'.$id)->with('pesan', 'Purchase Requisition Detail berhasil ditambahkan.');
-    }public function simpan_detail_po_fix(Request $request, $id){
+    }public function simpan_detail_po_fix(Request $request, $id, $reference_number){
         
         // dd($id);
         // die;
@@ -1399,8 +1399,8 @@ class PurchaseController extends Controller
                         'a.amount'
                     )
                     ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.description')
-                    ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit_code')
-                    ->where('a.id_pr', '=', '886')
+                    ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+                    ->where('a.id_pr', '=', $reference_number)
                     ->get();
 
 
@@ -1784,6 +1784,26 @@ class PurchaseController extends Controller
                         ->get();
 
         return view('purchase.print_pr',compact('datas','data_detail_rm'));
+    }public function purchase_requisition()
+    {
+        $data_detail_rm = DB::table('purchase_requisition_details as a')
+                        ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->limit(100)
+                        ->get();
+
+        $data_requester = MstRequester::get();
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='View List Purchase';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.purchase_requisition',compact('data_detail_rm','data_requester'));
     }
     
 

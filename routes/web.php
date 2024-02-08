@@ -195,6 +195,7 @@ Route::middleware(['auth'])->group(function () {
     //Purchase
     Route::get('/purchase', [PurchaseController::class, 'index'])->name('purchase');
     Route::get('/purchase-order', [PurchaseController::class, 'purchase_order'])->name('purchase_order');
+    Route::get('/purchase-requisition-items', [PurchaseController::class, 'purchase_requisition'])->name('purchase_requisition');
     Route::get('/hapus_request_number', [PurchaseController::class, 'hapus_request_number'])->name('hapus_request_number');
     Route::get('/hapus_request_number_wip', [PurchaseController::class, 'hapus_request_number_wip'])->name('hapus_request_number_wip');
     Route::get('/hapus_request_number_fg', [PurchaseController::class, 'hapus_request_number_fg'])->name('hapus_request_number_fg');
@@ -235,7 +236,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/edit-po/{id}', [PurchaseController::class, 'edit_po'])->name('edit_po');
     Route::get('/tambah_detail_po/{reference_number}/{id}', [PurchaseController::class, 'tambah_detail_po'])->name('tambah_detail_po');
     Route::post('/simpan_detail_po/{reference_number}/{id}', [PurchaseController::class, 'simpan_detail_po'])->name('simpan_detail_po');
-    Route::post('/simpan_detail_po_fix/{id}', [PurchaseController::class, 'simpan_detail_po_fix'])->name('simpan_detail_po_fix');
+    Route::post('/simpan_detail_po_fix/{id}/{reference_number}', [PurchaseController::class, 'simpan_detail_po_fix'])->name('simpan_detail_po_fix');
     Route::put('/posted_po/{id}', [PurchaseController::class, 'posted_po'])->name('posted_po');
     Route::put('/unposted_po/{id}', [PurchaseController::class, 'unposted_po'])->name('unposted_po');
     Route::put('/update_po/{id}', [PurchaseController::class, 'update_po'])->name('update_po');

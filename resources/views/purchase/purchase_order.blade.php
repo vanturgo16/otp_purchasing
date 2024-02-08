@@ -55,7 +55,7 @@
                                             <th>Type</th>
                                             <th>Status</th>
                                             <th>Un Posted</th>
-                                            <th>Aksi</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -66,8 +66,8 @@
                                                 <td>{{ $data->date }}</td>
                                                 <td>{{ $data->name }}</td>
                                                 <td><a href="#" class="btn btn-sm btn-danger waves-effect waves-light" data-request-number="{{ $data->request_number }}">{{ $data->request_number }}</a></td>
-                                                <td>{{ $data->down_payment }}</td>
-                                                <td>{{ $data->total_amount }}</td>
+                                                <td>{{ number_format($data->down_payment,0,',',','); }}</td>
+                                                <td>{{ number_format($data->total_amount,0,',',','); }}</td>
                                                 <td>{{ $data->qc_check }}</td>
                                                 <td>{{ $data->type }}</td>
                                                 <td>{{ $data->status }}</td>
