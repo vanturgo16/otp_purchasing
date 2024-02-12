@@ -87,7 +87,10 @@
                                                         </button>
                                                     </form>
                                                     <a href="/print-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
-                                                            <i class="bx bx-printer" title="Edit data"></i>
+                                                            <i class="bx bx-printer" title="print in English"></i>
+                                                    </a>
+                                                    <a href="/print-pr-ind/{{ $data->request_number }}" class="btn btn-sm btn-success waves-effect waves-light">
+                                                            <i class="bx bx-printer" title="print dalam B Indo"></i>
                                                     </a>
                                                     <a href="/edit-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
                                                             <i class="bx bx-edit-alt" title="Edit data"></i>

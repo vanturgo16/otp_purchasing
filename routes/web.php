@@ -244,6 +244,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/update_po_detail/{id}', [PurchaseController::class, 'update_po_detail'])->name('update_po_detail');
     Route::put('/update_pr_detailx/{id}', [PurchaseController::class, 'update_pr_detailx'])->name('update_pr_detailx');
     Route::get('/print-po/{id}', [PurchaseController::class, 'print_po'])->name('print_po');
+    Route::get('/print-po-ind/{id}', [PurchaseController::class, 'print_po_ind'])->name('print_po_ind');
     Route::get('/print-pr/{request_number}', [PurchaseController::class, 'print_pr'])->name('print_pr');
+    Route::get('/print-pr-ind/{request_number}', [PurchaseController::class, 'print_pr_ind'])->name('print_pr_ind');
 });
 

@@ -168,7 +168,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Supplier *</label>
-                    <select class="form-select name_supplier" name="id_master_suppliers" id="qc_check_po">
+                    <select class="form-select name_supplier" name="id_master_suppliers" id="">
                         <option>Pilih Supplier</option>
                     </select>
                     @error('id_master_suppliers')
