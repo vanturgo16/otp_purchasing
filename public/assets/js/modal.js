@@ -344,3 +344,68 @@ function edit_pr(id) {
   });
   // })
 }
+
+
+$('.productSelectsx').change(function () {
+  let idProduct = $(this).val();
+
+  if (idProduct != '') {
+      // mengambil detail product sesuai dengan product yang dipilih
+      $.ajax({
+          url: baseRoute + '/marketing/inputPOCust/get-product-detail',
+          type: 'GET',
+          dataType: 'json',
+          data: {
+              idProduct: idProduct
+          },
+          success: function (response) {
+              // console.log(response);
+              let idUnit = response.product.id_master_units;
+
+              // Memanggil getAllUnit() di sini
+              getAllUnit()
+                  .then(units => {
+                      // Lakukan sesuatu dengan units
+                      let optionsUnit = `<option value="">** Please select a Unit</option>${units.map(unit => `<option value="${unit.id}"${idUnit == unit.id ? ' selected' : ''}>${unit.unit}</option>`).join('')}`;
+                      $('.unitSelect').html(optionsUnit);
+                  })
+                  .catch(error => {
+                      // Tangani kesalahan saat mengambil unit
+                      console.error(error);
+                  });
+
+              if (response.product.price != undefined) {
+                  let price = response.product.price;
+                  $('.price').val(price);
+              } else {
+                  $('.price').val('');
+              }
+          },
+          error: function (xhr, status, error) {
+              console.error(xhr.responseText);
+          }
+      });
+  } else {
+      let optionsProduct = '<option value="">** Please select a Product</option>';
+      $('.productSelectsx').html(optionsProduct);
+  }
+});
+
+// Anda dapat memindahkan ini ke dalam event listener agar dipanggil saat produk dipilih
+function getAllUnit() {
+  return new Promise((resolve, reject) => {
+      $.ajax({
+          url: baseRoute + '/marketing/inputPOCust/get-all-units',
+          type: 'GET',
+          dataType: 'json',
+          success: function (response) {
+              resolve(response.units); // Mengembalikan array dari unit-unit yang diperoleh dari respons
+          },
+          error: function (xhr, status, error) {
+              reject(error); // Menolak promise dengan error yang diterima
+          }
+      });
+  });
+}
+
+  

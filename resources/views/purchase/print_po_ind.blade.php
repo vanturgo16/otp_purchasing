@@ -73,8 +73,8 @@
                                 <td>{{ $data->description }}</td>
                                 <td>{{ $data->qty }}</td>
                                 <td>{{ $data->unit }}</td>
-                                <td>{{ $data->price }}</td>
-                                <td>{{ $data->amount }}</td>
+                                <td>{{ number_format($data->price,2,',','.'); }}</td>
+                                <td>{{ number_format($data->amount,2,',','.'); }}</td>
                             </tr>
                     @endforeach
                     </tbody>
