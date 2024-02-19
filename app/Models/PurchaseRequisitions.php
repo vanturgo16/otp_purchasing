@@ -12,4 +12,10 @@ class PurchaseRequisitions extends Model
     protected $guarded=[
         'id'
     ];
+
+     // Definisikan relasi many-to-one ke tabel master_salesman
+     public function masterSupplier()
+     {
+         return $this->belongsTo(\App\Models\MstSupplier::class, 'id_master_suppliers', 'id');
+     }
 }

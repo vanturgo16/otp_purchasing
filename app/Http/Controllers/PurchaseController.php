@@ -423,7 +423,19 @@ class PurchaseController extends Controller
     public function get_supplier(){
         $data = DB::select("SELECT master_suppliers.name,master_suppliers.id  FROM master_suppliers");
         $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions`");
-        return response()->json(['data' => $data]);
+        $id = request()->get('id');
+        $pr_detail = PurchaseRequisitions::with('masterSupplier')
+            ->where('id', $id)
+            ->first();
+        return response()->json(['data' => $data, 'pr_detail' => $pr_detail]);
+    }
+    public function get_unit(){
+        $data = DB::select("SELECT master_units.unit_code,master_units.id  FROM master_units");
+        $id = request()->get('id');
+        $po_detail = PurchaseOrderDetails::with('masterUnit')
+            ->where('id', $id)
+            ->first();
+        return response()->json(['data' => $data, 'po_detail' => $po_detail]);
     }
     public function simpan_po(Request $request){
         // dd($request);

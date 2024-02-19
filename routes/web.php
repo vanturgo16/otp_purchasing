@@ -211,6 +211,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/detail-pr-sparepart/{request_number}', [PurchaseController::class, 'detail_pr_sparepart'])->name('detail_pr_sparepart');
     Route::get('/add-pr-other', [PurchaseController::class, 'tambah_pr_other'])->name('tambah_pr_other');
     Route::get('/get-supplier', [PurchaseController::class, 'get_supplier'])->name('get_supplier');
+    Route::get('/get-unit', [PurchaseController::class, 'get_unit'])->name('get_unit');
     Route::post('/simpan_po', [PurchaseController::class, 'simpan_po'])->name('simpan_po');
     Route::get('/detail-po/{reference_number}/{id}', [PurchaseController::class, 'detail_po'])->name('detail_po');
     Route::post('/simpan_pr_rm', [PurchaseController::class, 'simpan_pr_rm'])->name('simpan_pr_rm');

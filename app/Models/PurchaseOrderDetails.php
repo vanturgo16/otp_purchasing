@@ -12,5 +12,9 @@ class PurchaseOrderDetails extends Model
     protected $guarded=[
         'id'
     ];
-    
+     // Definisikan relasi many-to-one ke tabel master_salesman
+     public function masterUnit()
+     {
+         return $this->belongsTo(\App\Models\MstUnits::class, 'master_units_id', 'id');
+     }
 }
