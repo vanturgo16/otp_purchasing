@@ -83,10 +83,10 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product RM</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="master_products_id" id="">
+                                            <select class="form-select request_number" name="master_products_id" id="" onchange="get_unit()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
-                                                    <option value="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -100,10 +100,10 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="master_units_id" id="">
+                                            <select class="form-select" name="master_units_id" id="unit_code">
                                                 <option>Pilih Units</option>
                                                 @foreach ($units as $data)
-                                                <option value="{{ $data->id }}" @if ($data->unit_code === "KG") selected @endif>{{ $data->unit_code }}</option>
+                                                <option value="{{ $data->id }}" >{{ $data->unit_code }}</option>
                                                 @endforeach
                                             </select>
                                         </div>

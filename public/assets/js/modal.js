@@ -117,7 +117,7 @@ function get_unit() {
         $.each(response.data, function (i, value) {
           isSelected = value.unit_code == unit ? 'selected' : '';
           $('#unit_code').append(
-            `<option value="` + value.unit_code + `" ` + isSelected + `>` + value.unit_code + `</option>`
+            `<option value="` + value.id + `" ` + isSelected + `>` + value.unit_code + `</option>`
           )
         });
     },

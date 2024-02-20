@@ -30,7 +30,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
-                    <select class="form-select request_number" name="reference_number" onchange="get_supplier()">
+                    <select class="form-select request_number data-select2" name="reference_number" onchange="get_supplier()">
                         <option>Pilih Supplier</option>
                     </select>
                     @error('reference_number')
