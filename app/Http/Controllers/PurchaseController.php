@@ -423,7 +423,19 @@ class PurchaseController extends Controller
     public function get_supplier(){
         $data = DB::select("SELECT master_suppliers.name,master_suppliers.id  FROM master_suppliers");
         $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions`");
-        return response()->json(['data' => $data]);
+        $id = request()->get('id');
+        $pr_detail = PurchaseRequisitions::with('masterSupplier')
+            ->where('id', $id)
+            ->first();
+        return response()->json(['data' => $data, 'pr_detail' => $pr_detail]);
+    }
+    public function get_unit(){
+        $data = DB::select("SELECT master_units.unit_code,master_units.id  FROM master_units");
+        $id = request()->get('id');
+        $po_detail = PurchaseOrderDetails::with('masterUnit')
+            ->where('id', $id)
+            ->first();
+        return response()->json(['data' => $data, 'po_detail' => $po_detail]);
     }
     public function simpan_po(Request $request){
         // dd($request);
@@ -1380,7 +1392,7 @@ class PurchaseController extends Controller
         PurchaseOrderDetailsSMT::create($validatedData);
     
         return Redirect::to('/detail-po/'.$reference_number.'/'.$id)->with('pesan', 'Purchase Requisition Detail berhasil ditambahkan.');
-    }public function simpan_detail_po_fix(Request $request, $id){
+    }public function simpan_detail_po_fix(Request $request, $id, $reference_number){
         
         // dd($id);
         // die;
@@ -1399,8 +1411,8 @@ class PurchaseController extends Controller
                         'a.amount'
                     )
                     ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.description')
-                    ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit_code')
-                    ->where('a.id_pr', '=', '886')
+                    ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+                    ->where('a.id_pr', '=', $reference_number)
                     ->get();
 
 
@@ -1784,6 +1796,87 @@ class PurchaseController extends Controller
                         ->get();
 
         return view('purchase.print_pr',compact('datas','data_detail_rm'));
+    }public function purchase_requisition()
+    {
+        $data_detail_rm = DB::table('purchase_requisition_details as a')
+                        ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->limit(100)
+                        ->get();
+
+        $data_requester = MstRequester::get();
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='View List Purchase';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.purchase_requisition',compact('data_detail_rm','data_requester'));
+    }public function print_pr_ind($request_number)
+    {
+        // dd($request_number);
+        // die;
+        $datas = PurchaseRequisitions::select(
+            'purchase_requisitions.*',
+            'master_suppliers.name',
+            'master_requester.nm_requester',
+            'purchase_requisition_details.type_product',
+            'purchase_requisition_details.qty',
+            'purchase_requisition_details.cc_co',
+            'purchase_requisition_details.required_date',
+            'purchase_requisition_details.remarks'
+        )
+        ->leftJoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', '=', 'master_suppliers.id')
+        ->leftJoin('master_requester', 'purchase_requisitions.requester', '=', 'master_requester.id')
+        ->leftJoin('purchase_requisition_details', 'purchase_requisitions.request_number', '=', 'purchase_requisition_details.request_number')
+        ->where('purchase_requisitions.request_number', '=', $request_number)
+        ->orderBy('purchase_requisitions.created_at', 'desc')
+        ->get();
+
+        $data_detail_rm = DB::table('purchase_requisition_details as a')
+                        ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.rm_code')
+                        ->where('a.request_number', $request_number)
+                        ->get();
+
+        return view('purchase.print_pr_ind',compact('datas','data_detail_rm'));
+    }public function print_po_ind($id)
+    {
+        $purchaseOrder = PurchaseOrders::findOrFail($id);
+        $data_detail_rm = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->get();
+
+        $results = DB::table('purchase_orders as a')
+                ->select(
+                    'a.id',
+                    'a.po_number',
+                    'a.date',
+                    'b.request_number',
+                    'c.name',
+                    'a.qc_check',
+                    'a.down_payment',
+                    'a.own_remarks',
+                    'a.supplier_remarks',
+                    'a.status',
+                    'a.type',
+                    'a.reference_number',
+                    'a.id_master_suppliers'
+                )
+                ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
+                ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
+                ->where('a.id', '=', $id)
+                ->get();
+
+        return view('purchase.print_po_ind',compact('purchaseOrder','data_detail_rm','results'));
     }
     
 

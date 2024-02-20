@@ -5,101 +5,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PRINT PURCHASE ORDER</title>
+    <title>PRINT PESANAN PEMBELIAN</title>
     <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
-                    @php
-                    function numberToWords($number) {
-                    $words = [
-                        0 => 'nol',
-                        1 => 'satu',
-                        2 => 'dua',
-                        3 => 'tiga',
-                        4 => 'empat',
-                        5 => 'lima',
-                        6 => 'enam',
-                        7 => 'tujuh',
-                        8 => 'delapan',
-                        9 => 'sembilan',
-                        10 => 'sepuluh',
-                        11 => 'sebelas',
-                        12 => 'dua belas',
-                        13 => 'tiga belas',
-                        14 => 'empat belas',
-                        15 => 'lima belas',
-                        16 => 'enam belas',
-                        17 => 'tujuh belas',
-                        18 => 'delapan belas',
-                        19 => 'sembilan belas',
-                        20 => 'dua puluh',
-                        30 => 'tiga puluh',
-                        40 => 'empat puluh',
-                        50 => 'lima puluh',
-                        60 => 'enam puluh',
-                        70 => 'tujuh puluh',
-                        80 => 'delapan puluh',
-                        90 => 'sembilan puluh',
-                    ];
+            @php
+            function numberToWords($number) {
+            $words = [
+                0 => 'nol',
+                1 => 'satu',
+                2 => 'dua',
+                3 => 'tiga',
+                4 => 'empat',
+                5 => 'lima',
+                6 => 'enam',
+                7 => 'tujuh',
+                8 => 'delapan',
+                9 => 'sembilan',
+                10 => 'sepuluh',
+                11 => 'sebelas',
+                12 => 'dua belas',
+                13 => 'tiga belas',
+                14 => 'empat belas',
+                15 => 'lima belas',
+                16 => 'enam belas',
+                17 => 'tujuh belas',
+                18 => 'delapan belas',
+                19 => 'sembilan belas',
+                20 => 'dua puluh',
+                30 => 'tiga puluh',
+                40 => 'empat puluh',
+                50 => 'lima puluh',
+                60 => 'enam puluh',
+                70 => 'tujuh puluh',
+                80 => 'delapan puluh',
+                90 => 'sembilan puluh',
+            ];
 
-                    if ($number < 20) {
-                        return $words[$number];
-                    }
+            if ($number < 20) {
+                return $words[$number];
+            }
 
-                    if ($number < 100) {
-                        $result = $words[10 * floor($number / 10)];
-                        if ($number % 10 !== 0) {
-                            $result .= ' ' . $words[$number % 10];
-                        }
-                        return $result;
-                    }
-
-                    if ($number < 200) {
-                        $result = 'seratus';
-                        if ($number % 100 !== 0) {
-                            $result .= ' ' . numberToWords($number % 100);
-                        }
-                        return $result;
-                    }
-
-                    if ($number < 1000) {
-                        $result = $words[floor($number / 100)] . ' ratus';
-                        if ($number % 100 !== 0) {
-                            $result .= ' ' . numberToWords($number % 100);
-                        }
-                        return $result;
-                    }
-
-                    if ($number < 1000000) {
-                        $result = numberToWords(floor($number / 1000)) . ' ribu';
-                        if ($number % 1000 !== 0) {
-                            $result .= ' ' . numberToWords($number % 1000);
-                        }
-                        return $result;
-                    }
-
-                    if ($number < 1000000000) {
-                        $result = numberToWords(floor($number / 1000000)) . ' juta';
-                        if ($number % 1000000 !== 0) {
-                            $result .= ' ' . numberToWords($number % 1000000);
-                        }
-                        return $result;
-                    }
-
-                    if ($number < 1000000000000) {
-                        $result = numberToWords(floor($number / 1000000000)) . ' milyar';
-                        if ($number % 1000000000 !== 0) {
-                            $result .= ' ' . numberToWords($number % 1000000000);
-                        }
-                        return $result;
-                    }
-
-                    return numberToWords(floor($number / 1000000000000)) . ' trilyun ' . numberToWords($number % 1000000000000);
+            if ($number < 100) {
+                $result = $words[10 * floor($number / 10)];
+                if ($number % 10 !== 0) {
+                    $result .= ' ' . $words[$number % 10];
                 }
+                return $result;
+            }
 
-                    @endphp
+            if ($number < 200) {
+                $result = 'seratus';
+                if ($number % 100 !== 0) {
+                    $result .= ' ' . numberToWords($number % 100);
+                }
+                return $result;
+            }
+
+            if ($number < 1000) {
+                $result = $words[floor($number / 100)] . ' ratus';
+                if ($number % 100 !== 0) {
+                    $result .= ' ' . numberToWords($number % 100);
+                }
+                return $result;
+            }
+
+            if ($number < 1000000) {
+                $result = numberToWords(floor($number / 1000)) . ' ribu';
+                if ($number % 1000 !== 0) {
+                    $result .= ' ' . numberToWords($number % 1000);
+                }
+                return $result;
+            }
+
+            if ($number < 1000000000) {
+                $result = numberToWords(floor($number / 1000000)) . ' juta';
+                if ($number % 1000000 !== 0) {
+                    $result .= ' ' . numberToWords($number % 1000000);
+                }
+                return $result;
+            }
+
+            if ($number < 1000000000000) {
+                $result = numberToWords(floor($number / 1000000000)) . ' milyar';
+                if ($number % 1000000000 !== 0) {
+                    $result .= ' ' . numberToWords($number % 1000000000);
+                }
+                return $result;
+            }
+
+            return numberToWords(floor($number / 1000000000000)) . ' trilyun ' . numberToWords($number % 1000000000000);
+        }
+
+            @endphp
     <div class="container-fluid">
         <div class="row">
             <div class="col-8 d-flex align-items-center gap-10">
@@ -117,18 +117,18 @@
         </div>
 
         <div class="row text-center">
-            <h1>PURCHASE ORDER</h1>
+            <h1>PESANAN PEMBELIAN</h1>
         </div>
 
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Supplier : {{ $results[0]->name; }}</div>
+            <div class="col-8">Pemasok : {{ $results[0]->name; }}</div>
             <div class="col-4">
                 <p class="mb-1">PO &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->po_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Phone &nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;:</div>
             <div class="col-4">
                 <p class="mb-1">PR No : {{ $results[0]->request_number; }}</p>
                 <p class="mb-1"></p>
@@ -137,7 +137,7 @@
         <div class="row d-flex justify-content-between pb-3">
             <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
             <div class="col-4">
-                <p class="mb-1">Date &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
+                <p class="mb-1">Tanggal &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
@@ -148,14 +148,13 @@
                     <thead class="table-light">
                         <tr>
                             <td>No</td>
-                            <td>Description</td>
-                            <td>Qty</td>
-                            <td>Unit</td>
-                            <td>Unit Price 	</td>
-                            <td>Amount</td>
+                            <td>Keterangan</td>
+                            <td>Jumlah</td>
+                            <td>Satuan</td>
+                            <td>Harga Satuan 	</td>
+                            <td>Total</td>
                         </tr>
                     </thead>
-                    
                     <tbody>
                     @php
                         $total = 0; // Deklarasi dan inisialisasi variabel total di sini
@@ -166,7 +165,7 @@
                                 <td>{{ $data->description }}</td>
                                 <td>{{ $data->qty }}</td>
                                 <td>{{ $data->unit }}</td>
-                                <td>{{ number_format($data->price,2,',','.'); }} </td>
+                                <td>{{ number_format($data->price,2,',','.'); }}</td>
                                 <td>{{ number_format($data->amount,2,',','.'); }}</td>
                                 @php
                                     $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
@@ -205,8 +204,6 @@
                 </div>
             </div>
         </div>
-
-
         <div class="row">
             <div class="col-4 text-center">
                 <p class="mb-5">Purchasing,</p>

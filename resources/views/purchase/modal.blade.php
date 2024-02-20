@@ -30,7 +30,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
-                    <select class="form-select request_number" name="reference_number">
+                    <select class="form-select request_number" name="reference_number" onchange="get_supplier()">
                         <option>Pilih Supplier</option>
                     </select>
                     @error('reference_number')
@@ -63,7 +63,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Down Payment </label>
-                    <input class="form-control" type="text" name="down_payment">
+                    <input class="form-control" type="text" name="down_payment" value="0">
                     @error('down_payment')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -73,7 +73,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Own Remarks</label>
-                    <textarea name="own_remarks" rows="4" cols="50"></textarea>
+                    <textarea class="form-control" name="own_remarks" rows="4" cols="50"></textarea>
                     @error('own_remarks')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Supplier Remarks</label>
-                    <textarea name="supplier_remarks" rows="4" cols="50"></textarea>
+                    <textarea class="form-control" name="supplier_remarks" rows="4" cols="50"></textarea>
                     @error('supplier_remarks')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -102,7 +102,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Type *</label>
-                    <input class="form-control" type="text" name="type">
+                    <input class="form-control" type="text" name="type" id="type_pr" readonly>
                     <input class="form-control" type="hidden" name="non_invoiceable" value="N">
                     <input class="form-control" type="hidden" name="vendor_taxable" value="N">
                     @error('type')
@@ -115,7 +115,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Back</button>
-                <button type="submit" class="btn btn-primary waves-effect waves-light">Save & Add More</button>
+                <!-- <button type="submit" class="btn btn-primary waves-effect waves-light">Save & Add More</button> -->
                 <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
             </div>
 
@@ -168,7 +168,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Supplier *</label>
-                    <select class="form-select name_supplier" name="id_master_suppliers" id="qc_check_po">
+                    <select class="form-select name_supplier" name="id_master_suppliers" id="">
                         <option>Pilih Supplier</option>
                     </select>
                     @error('id_master_suppliers')
@@ -347,7 +347,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Note </label>
-                    <textarea name="note" rows="4" cols="50" id="note_po_detail"></textarea>
+                    <textarea class="form-control" name="note" rows="4" cols="50" id="note_po_detail"></textarea>
                     @error('note')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>

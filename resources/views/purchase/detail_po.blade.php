@@ -84,27 +84,27 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product RM</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="description" id="">
+                                            <select class="form-select request_number" name="description" id="" onchange="get_unit()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
-                                                    <option value="{{ $data->description }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="row mb-4 field-wrapper">
+                                    <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="qty">
+                                            <input type="number" class="form-control" name="qty" id="qty">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="unit" id="">
+                                            <select class="form-select" name="unit" id="unit_code">
                                                 <option>Pilih Unit</option>
                                                 @foreach ($units as $data)
-                                                <option value="{{ $data->unit_code }}" @if ($data->unit_code === "KG") selected @endif>{{ $data->unit_code }}</option>
+                                                <option value="{{ $data->unit_code }}">{{ $data->unit_code }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -112,13 +112,13 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="price">
+                                            <input type="number" class="form-control" name="price" id="price">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="discount">
+                                            <input type="number" class="form-control" name="discount" id="discount">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper">
@@ -138,7 +138,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Amount </label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control custom-bg-gray" name="amount">
+                                            <input type="number" class="form-control custom-bg-gray" name="amount" id="amount">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper">
@@ -233,7 +233,7 @@
                         <div class="col-sm-9">
                             <div>
                                 <a href="/purchase-order" class="btn btn-info w-md">Back</a>
-                                <form action="/simpan_detail_po_fix/{{ $id }}" method="post"
+                                <form action="/simpan_detail_po_fix/{{ $id }}/{{ $reference_number }}" method="post"
                                     class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-success w-md"
@@ -251,5 +251,32 @@
                     <!-- end row -->
     </div>
 </div>
+<script>
+    // Ambil elemen input
+    const qtyInput = document.getElementById('qty');
+    const priceInput = document.getElementById('price');
+    const discountInput = document.getElementById('discount');
+    const amountInput = document.getElementById('amount');
 
+    // Tambahkan event listener untuk menghitung jumlah saat nilai berubah
+    [qtyInput, priceInput, discountInput].forEach(input => {
+        input.addEventListener('input', calculateAmount);
+    });
+
+    // Fungsi untuk menghitung jumlah
+    function calculateAmount() {
+        const qty = parseFloat(qtyInput.value);
+        const price = parseFloat(priceInput.value);
+        const discount = parseFloat(discountInput.value);
+
+        // Hitung jumlah diskon dalam persen
+        const discountAmount = (price * discount) / 100;
+
+        // Hitung jumlah
+        const amount = (qty * price) - discountAmount;
+
+         // Masukkan hasil perhitungan ke dalam input amount dengan format ribuan
+         amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
+    }
+</script>
 @endsection

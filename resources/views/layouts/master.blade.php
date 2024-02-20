@@ -272,6 +272,7 @@
                             </a>
                             <ul class="sub-menu" aria-expanded="false">
                                 <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
+                                <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
                                 <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
                             </ul>
                         </li>
