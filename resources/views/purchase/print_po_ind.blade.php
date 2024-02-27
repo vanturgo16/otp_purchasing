@@ -159,19 +159,68 @@
                     @php
                         $total = 0; // Deklarasi dan inisialisasi variabel total di sini
                     @endphp
-                    @foreach ($data_detail_rm as $data)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $data->description }}</td>
-                                <td>{{ $data->qty }}</td>
-                                <td>{{ $data->unit }}</td>
-                                <td>{{ number_format($data->price,2,',','.'); }}</td>
-                                <td>{{ number_format($data->amount,2,',','.'); }}</td>
-                                @php
-                                    $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
-                                @endphp
-                            </tr>
-                    @endforeach
+                    @if($purchaseOrder->type=='RM')
+                        
+                        @foreach ($data_detail_rm as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit }}</td>
+                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    @php
+                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                    @endphp
+                                </tr>
+                        @endforeach
+                    
+                    @elseif($purchaseOrder->type=='TA')
+                        
+                        @foreach ($data_detail_ta as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit }}</td>
+                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    @php
+                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                    @endphp
+                                </tr>
+                        @endforeach
+                    @elseif($purchaseOrder->type=='WIP')
+                        
+                        @foreach ($data_detail_wip as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit }}</td>
+                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    @php
+                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                    @endphp
+                                </tr>
+                        @endforeach
+                    @elseif($purchaseOrder->type=='FG')
+                        
+                        @foreach ($data_detail_fg as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit }}</td>
+                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    @php
+                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                    @endphp
+                                </tr>
+                        @endforeach
+                    @endif
                     </tbody>
                 </table>
             </div>
@@ -197,9 +246,9 @@
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">
                     <h6 style="flex-grow: 1;">Sub Total : {{ number_format($total,2,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</h6>
-                    <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</h6>
-                    <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</h6>
+                    <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_discount,2,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,2,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_ppn,2,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total,2,',','.'); }}</h6>  
                 </div>
             </div>

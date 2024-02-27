@@ -84,7 +84,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product RM</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select request_number" name="description" id="" onchange="get_unit()">
+                                            <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
                                                     <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
@@ -104,7 +104,7 @@
                                             <select class="form-select" name="unit" id="unit_code">
                                                 <option>Pilih Unit</option>
                                                 @foreach ($units as $data)
-                                                <option value="{{ $data->unit_code }}">{{ $data->unit_code }}</option>
+                                                <option value="{{ $data->unit }}">{{ $data->unit_code }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -273,10 +273,12 @@
         const discountAmount = (price * discount) / 100;
 
         // Hitung jumlah
-        const amount = (qty * price) - discountAmount;
+        const amount = (qty * price) - discount;
 
          // Masukkan hasil perhitungan ke dalam input amount dengan format ribuan
-         amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
+          //  amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
+
+          amountInput.value = isNaN(amount) ? '' : amount.toFixed(0); // 0 menghasilkan bilangan bulat
     }
 </script>
 @endsection
