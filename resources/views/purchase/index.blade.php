@@ -86,13 +86,13 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <a href="/print-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
+                                                    <a href="/print-pr/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
                                                             <i class="bx bx-printer" title="print in English"></i>
                                                     </a>
-                                                    <a href="/print-pr-ind/{{ $data->request_number }}" class="btn btn-sm btn-success waves-effect waves-light">
+                                                    <a href="/print-pr-ind/{{ $data->id }}" class="btn btn-sm btn-success waves-effect waves-light">
                                                             <i class="bx bx-printer" title="print dalam B Indo"></i>
                                                     </a>
-                                                    <a href="/edit-pr/{{ $data->request_number }}" class="btn btn-sm btn-info waves-effect waves-light">
+                                                    <a href="/edit-pr/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
                                                             <i class="bx bx-edit-alt" title="Edit data"></i>
                                                     </a>
                                                     @if($data->status=='Request' or $data->status=='Un Posted')

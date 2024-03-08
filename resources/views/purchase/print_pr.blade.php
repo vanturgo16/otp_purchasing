@@ -56,17 +56,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach ($data_detail_rm as $data)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $data->rm_code }}</td>
-                                <td>{{ $data->description }}</td>
-                                <td>{{ $data->qty }}</td>
-                                <td>{{ $data->unit_code }}</td>
-                                <td>{{ $data->required_date }}</td>
-                                <td>{{ $data->cc_co }}</td>
-                            </tr>
-                    @endforeach
+                    @if($PurchaseRequisitions->type=='RM')
+                        @foreach ($data_detail_rm as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->rm_code }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit_code }}</td>
+                                    <td>{{ $data->required_date }}</td>
+                                    <td>{{ $data->cc_co }}</td>
+                                </tr>
+                        @endforeach
+                    @elseif($PurchaseRequisitions->type=='TA')
+                        @foreach ($data_detail_ta as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->code }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit_code }}</td>
+                                    <td>{{ $data->required_date }}</td>
+                                    <td>{{ $data->cc_co }}</td>
+                                </tr>
+                        @endforeach
+                    @elseif($PurchaseRequisitions->type=='WIP')
+                        @foreach ($data_detail_wip as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->wip_code }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit_code }}</td>
+                                    <td>{{ $data->required_date }}</td>
+                                    <td>{{ $data->cc_co }}</td>
+                                </tr>
+                        @endforeach
+                    @elseif($PurchaseRequisitions->type=='FG')
+                        @foreach ($data_detail_fg as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->product_code }}</td>
+                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit_code }}</td>
+                                    <td>{{ $data->required_date }}</td>
+                                    <td>{{ $data->cc_co }}</td>
+                                </tr>
+                        @endforeach
+                    @endif
                     </tbody>
                 </table>
             </div>

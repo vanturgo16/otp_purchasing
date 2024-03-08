@@ -444,10 +444,12 @@
         const discountAmount = (price * discount) / 100;
 
         // Hitung jumlah
-        const amount = (qty * price) - discountAmount;
+        const amount = (qty * price) - discount;
 
          // Masukkan hasil perhitungan ke dalam input amount dengan format ribuan
-         amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
+        //  amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
+
+         amountInput.value = isNaN(amount) ? '' : amount.toFixed(0); // 0 menghasilkan bilangan bulat
     }
 </script>
 @endsection
