@@ -121,25 +121,28 @@
         </div>
 
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Pemasok : {{ $results[0]->name; }}</div>
+            <div class="col-8">Pemasok &nbsp;: {{ $results[0]->name; }}</div>
             <div class="col-4">
                 <p class="mb-1">PO &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->po_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;:</div>
             <div class="col-4">
                 <p class="mb-1">PR No : {{ $results[0]->request_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
-        <div class="row d-flex justify-content-between pb-3">
-            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+        <div class="row d-flex justify-content-between">
+            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
             <div class="col-4">
                 <p class="mb-1">Tanggal &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
                 <p class="mb-1"></p>
             </div>
+        </div>
+        <div class="row d-flex justify-content-between pb-3">
+            <div class="col-8">Alamat PT : Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
         </div>
 
         <div class="row">
@@ -167,10 +170,10 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
-                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
-                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                        $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
                                     @endphp
                                 </tr>
                         @endforeach
@@ -183,10 +186,10 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
-                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
-                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                        $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
                                     @endphp
                                 </tr>
                         @endforeach
@@ -198,10 +201,10 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
-                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
-                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                        $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
                                     @endphp
                                 </tr>
                         @endforeach
@@ -213,10 +216,10 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,2,',','.'); }}</td>
-                                    <td>{{ number_format($data->amount,2,',','.'); }}</td>
+                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
-                                        $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
+                                        $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
                                     @endphp
                                 </tr>
                         @endforeach
@@ -241,15 +244,17 @@
             <div class="col-8">
                 <h6>#{{ ucfirst(numberToWords($total))." rupiah" }}#</h6>
                 <h6>Term Of Payment :</h6>
-                <h6>Delivery Date :</h6>
+                <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</h6>
+                <h6>Return Address &nbsp;&nbsp;:</h6>
             </div>
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">
-                    <h6 style="flex-grow: 1;">Sub Total : {{ number_format($total,2,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_discount,2,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,2,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_ppn,2,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total,2,',','.'); }}</h6>  
+                <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($total,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_discount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($total-$purchaseOrder->total_discount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format(($total-$purchaseOrder->total_discount)-$purchaseOrder->down_payment-$purchaseOrder->total_ppn,3,',','.'); }}</h6>   
                 </div>
             </div>
         </div>
