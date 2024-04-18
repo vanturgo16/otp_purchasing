@@ -57,7 +57,7 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Suppliers </label>
                                         <div class="col-sm-9">
-                                        <select class="form-select" name="id_master_suppliers" id="">
+                                        <select class="form-select data-select2" name="id_master_suppliers" id="">
                                             <option value="">Pilih Suppliers</option>
                                             @foreach ($supplier as $data)
                                                 <option value="{{ $data->id }}" {{ $data->id == $selectedId ? 'selected' : '' }}>{{ $data->name }}</option>
@@ -68,7 +68,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Requester </label>
                                         <div class="col-sm-9">
-                                        <select class="form-select" name="requester" id="">
+                                        <select class="form-select data-select2" name="requester" id="">
                                         <option>Pilih Requester</option>
                                         @foreach ($data_requester as $data)
                                             <option value="{{ $data->id }}" {{ $data->id == $selectedIdreques ? 'selected' : '' }}>{{ $data->nm_requester }}</option>
@@ -143,28 +143,28 @@
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product {{ $datas[0]->type; }}</label>
                                         <div class="col-sm-9">
                                             @if($datas[0]->type=='RM')
-                                            <select class="form-select request_number" name="master_products_id" id="" onchange="get_unit()">
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='WIP')
-                                            <select class="form-select" name="master_products_id" id="">
+                                            <select class="form-select data-select2" name="master_products_id" id="">
                                                     <option>Pilih Product WIP</option>
                                                 @foreach ($wip as $data)
                                                     <option value="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='FG')
-                                            <select class="form-select" name="master_products_id" id="">
+                                            <select class="form-select data-select2" name="master_products_id" id="">
                                                     <option value="{{ $data->id }}">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
                                                     <option>{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='TA')
-                                            <select class="form-select" name="product" id="">
+                                            <select class="form-select data-select2" name="product" id="">
                                                     <option value="{{ $data->id }}">Pilih Product Sparepart & Auxiliaries</option>
                                                 @foreach ($ta as $data)
                                                     <option>{{ $data->description }}</option>
@@ -182,7 +182,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="master_units_id" id="unit_code">
+                                            <select class="form-select data-select2" name="master_units_id" id="unit_code">
                                                 <option>Pilih Units</option>
                                                 @foreach ($units as $data)
                                                     <option value="{{ $data->id }}">{{ $data->unit_code }}</option>
@@ -199,7 +199,7 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">CC / CO</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="cc_co" value="{{ old('cc_co') }}">
+                                            <select class="form-select data-select2" name="cc_co" value="{{ old('cc_co') }}">
                                                 <option>Pilih CC / CO</option>
                                                 @foreach ($datas as $data)
                                                     <option>{{ $data->nm_requester }}</option>

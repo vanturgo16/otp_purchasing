@@ -48,7 +48,7 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Suppliers </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="id_master_suppliers" id="">
+                                            <select class="form-select data-select2" name="id_master_suppliers" id="">
                                                 <option>Pilih Suppliers</option>
                                                 @foreach ($supplier as $data)
                                                     <option value="{{ $data->id }}">{{ $data->name }}</option>
@@ -59,7 +59,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Requester </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="requester" id="">
+                                            <select class="form-select data-select2" name="requester" id="">
                                                 <option>Pilih Requester</option>
                                                 @foreach ($datas as $data)
                                                     <option value="{{ $data->id }}">{{ $data->nm_requester }}</option>
