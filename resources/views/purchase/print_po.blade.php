@@ -246,7 +246,7 @@
                 <h6>#{{ ucfirst(numberToWords($total))." rupiah" }}#</h6>
                 <h6>Term Of Payment :</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</h6>
-                <h6>Return Address &nbsp;&nbsp;:</h6>
+                <h6>Note &nbsp;&nbsp;:</h6>
             </div>
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">
