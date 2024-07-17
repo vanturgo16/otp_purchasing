@@ -150,143 +150,28 @@
                                 <span data-key="t-dashboard">Dashboard</span>
                             </a>
                         </li>
-                        <li class="menu-title" data-key="t-menu">Configuration</li>
-                        <li>
-                            <a href="{{ route('user.index') }}">
-                                <i data-feather="users"></i>
-                                <span>Manage User</span>
-                            </a>
-                        </li>
-
-                        <!-- <li class="menu-title" data-key="t-menu">Master Data</li>
-
-                        <li>
-                            <a href="{{ route('company.index') }}">
-                                <i class="mdi mdi-office-building"></i>
-                                <span>Master Company</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('department.index') }}">
-                                <i class="mdi mdi-graph-outline"></i>
-                                <span>Master Department</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('salesman.index') }}">
-                                <i class="mdi mdi-account-tie"></i>
-                                <span>Master Salesman</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('province.index') }}">
-                                <i class="mdi mdi-map-marker"></i>
-                                <span>Master Province</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('country.index') }}">
-                                <i class="mdi mdi-wan"></i>
-                                <span>Master Country</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('group.index') }}">
-                                <i class="mdi mdi-google-circles-group"></i>
-                                <span>Master Group</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('groupsub.index') }}">
-                                <i class="mdi mdi-lan"></i>
-                                <span>Master Group Sub</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('unit.index') }}">
-                                <i class="mdi mdi-camera-control"></i>
-                                <span>Master Unit</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('termpayment.index') }}">
-                                <i class="mdi mdi-file-alert"></i>
-                                <span>Master Term Payment</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('currency.index') }}">
-                                <i class="mdi mdi-credit-card-marker"></i>
-                                <span>Master Currency</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('costcenter.index') }}">
-                                <i class="mdi mdi-cash-multiple"></i>
-                                <span>Master Cost Center</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('processproduction.index') }}">
-                                <i class="mdi mdi-cogs"></i>
-                                <span>Master Proc. Production</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('waste.index') }}">
-                                <i class="mdi mdi-recycle"></i>
-                                <span>Master Waste</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('downtime.index') }}">
-                                <i class="mdi mdi-package-down"></i>
-                                <span>Master Downtime</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('warehouse.index') }}">
-                                <i class="mdi mdi-warehouse"></i>
-                                <span>Master Warehose</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('vehicle.index') }}">
-                                <i class="mdi mdi-rv-truck"></i>
-                                <span>Master Vehicle</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('reason.index') }}">
-                                <i class="mdi mdi-file-question"></i>
-                                <span>Master Reason</span>
-                            </a>
-                        </li> 
-                        <li>
-                            <a href="{{ route('approval.index') }}">
-                                <i class="mdi mdi-check-decagram"></i>
-                                <span>Master Approval</span>
-                            </a>
-                        </li> -->
+                        @can('Purchasing')
+                            
                         <li>
                             <a href="javascript: void(0);" class="has-arrow">
                             <i class="mdi mdi-file-alert"></i>
                                 <span data-key="t-blog">Purchasing</span>
                             </a>
                             <ul class="sub-menu" aria-expanded="false">
+                                @can('Purchasing_Requisition')
                                 <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
+                                @endcan
+
+                                @can('Purchasing_Item')
                                 <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
+                                @endcan
+                                @can('Purchasing_Order')
                                 <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
+                                @endcan
                             </ul>
                         </li>
+                        @endcan 
                         
-                        <li class="menu-title" data-key="t-menu">Logs</li>
-                        <li>
-                            <a href="{{ route('auditlog') }}">
-                                <i class="mdi mdi-chart-donut"></i>
-                                <span>Audit Logs</span>
-                            </a>
-                        </li>
 
                     </ul>
                 </div>
