@@ -31,7 +31,7 @@
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
                     <select class="form-select request_number" name="reference_number" onchange="get_supplier()">
-                        <option>Pilih Supplier</option>
+                        <option>Pilih Reference Number</option>
                     </select>
                     @error('reference_number')
                         <div class="form-group has-danger mb-0">

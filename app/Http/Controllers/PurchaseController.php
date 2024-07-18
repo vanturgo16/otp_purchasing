@@ -510,7 +510,7 @@ class PurchaseController extends Controller
     }
     public function get_supplier(){
         $data = DB::select("SELECT master_suppliers.name,master_suppliers.id  FROM master_suppliers");
-        $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions`");
+        $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions` where purchase_requisitions.status not in ('Request','Closed','Created PO','Un Posted') ");
         $id = request()->get('id');
         $pr_detail = PurchaseRequisitions::with('masterSupplier')
             ->where('id', $id)
