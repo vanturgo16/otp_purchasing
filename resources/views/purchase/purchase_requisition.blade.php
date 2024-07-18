@@ -42,9 +42,10 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
+                                <table id="so_ppic_table" class="table table-bordered dt-responsive  nowrap w-100">
                                     <thead>
                                         <tr>
+                                            <th>NO</th>
                                             <th>Type Product</th>
                                             <th>Product WIP</th>
                                             <th>Qty</th>
@@ -54,22 +55,7 @@
                                             <th>Remarks</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                    @foreach ($data_detail_rm as $data)
-                                            <tr>
-                                                <td>{{ $data->type_product }}</td>
-                                                <td>{{ $data->description }}</td>
-                                                <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
-                                                <td>{{ $data->required_date }}</td>
-                                                <td>{{ $data->cc_co }}</td>
-                                                <td>{{ $data->remarks }}</td>
-                                               
-                                                
-                                            </tr>
-                                        <!-- Add more rows as needed -->
-                                    @endforeach
-                                    </tbody>
+                                    
                                 </table>
                             </div>
                         </div>
@@ -79,3 +65,118 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            // alert('test')
+            var i = 1;
+            let dataTable = $('#so_ppic_table').DataTable({
+                dom: '<"top d-flex"<"position-absolute top-0 end-0 d-flex"fl>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>><"clear:both">',
+                initComplete: function(settings, json) {
+                    // Setelah DataTable selesai diinisialisasi
+                    // Tambahkan elemen kustom ke dalam DOM
+                    $('.top').prepend(
+                        `<div class='pull-left col-sm-12 col-md-5'><div class="btn-group mb-4"></div></div>`
+                    );
+                },
+                processing: true,
+                serverSide: true,
+                // scrollX: true,
+                language: {
+                    lengthMenu: "_MENU_",
+                    search: "",
+                    searchPlaceholder: "Search",
+                },
+                pageLength: 5,
+                lengthMenu: [
+                    [5, 10, 20, 25, 50, 100],
+                    [5, 10, 20, 25, 50, 100]
+                ],
+                aaSorting: [
+                    [1, 'desc']
+                ], // start to sort data in second column 
+                ajax: {
+                    url: baseRoute + '/purchase-requisition-items',
+                    data: function(d) {
+                        d.search = $('input[type="search"]').val(); // Kirim nilai pencarian
+                    }
+                },
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                        // className: 'align-middle text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'type_product',
+                        name: 'type_product',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'desc',
+                        name: 'desc',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'qty',
+                        name: 'qty',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'unit_code',
+                        name: 'unit_code',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'required_date',
+                        name: 'required_date',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'cc_co',
+                        name: 'cc_co',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'remarks',
+                        name: 'remarks',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    // Tambahkan class "table-success" ke tr jika statusnya "Posted"
+                    if (data.statusLabel === 'Posted') {
+                        $(row).addClass('table-success');
+                    }
+                },
+                bAutoWidth: false,
+                columnDefs: [{
+                        width: "10%",
+                        targets: [3]
+                    }, {
+                        width: '100px', // Menetapkan min-width ke 150px
+                        targets: [6, 7], // Menggunakan class 'progress' pada kolom
+                    },
+                    {
+                        width: '60px', // Menetapkan min-width ke 150px
+                        targets: [4], // Menggunakan class 'progress' pada kolom
+                    }, {
+                        orderable: false,
+                        targets: [0]
+                    }
+                ],
+            });
+        });
+    </script>
+@endpush

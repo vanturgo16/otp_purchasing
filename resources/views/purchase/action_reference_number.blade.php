@@ -1,0 +1,1 @@
+<a href="#" class="btn btn-sm btn-danger waves-effect waves-light" data-request-number="{{ $data->request_number }}">{{ $data->request_number }}</a>

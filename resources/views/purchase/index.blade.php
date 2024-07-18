@@ -42,7 +42,7 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
+                                <table id="so_ppic_table" class="table table-bordered dt-responsive  nowrap w-100">
                                     <thead>
                                         <tr>
                                         <tr>
@@ -56,74 +56,10 @@
                                             <th>PO Number</th>
                                             <th>Type</th>
                                             <th>Status</th>
-                                            <th>Un Posted</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                    @foreach ($datas as $data)
-                                            <tr>
-                                                <td></td>
-                                                <td>{{ $data->request_number }}</td>
-                                                <td>{{ $data->date }}</td>
-                                                <td>{{ $data->name }}</td>
-                                                <td>{{ $data->nm_requester }}</td>
-                                                <td>{{ $data->qc_check }}</td>
-                                                <td>{{ $data->note }}</td>
-                                                <td></td>
-                                                <td>{{ $data->type }}</td>
-                                                <td><button type="submit" class="btn btn-sm btn-success">
-                                                        {{ $data->status }}
-                                                        </button></td>
-                                                <td></td>
-                                                <td><form action="/hapus_pr/{{ $data->request_number }}" method="post"
-                                                        class="d-inline">
-                                                        @method('delete')
-                                                        @csrf
-                                                       
-                                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Anda yakin mau menghapus item ini ?')">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
-                                                    </form>
-                                                    <a href="/print-pr/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
-                                                            <i class="bx bx-printer" title="print in English"></i>
-                                                    </a>
-                                                    <a href="/print-pr-ind/{{ $data->id }}" class="btn btn-sm btn-success waves-effect waves-light">
-                                                            <i class="bx bx-printer" title="print dalam B Indo"></i>
-                                                    </a>
-                                                    <a href="/edit-pr/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
-                                                            <i class="bx bx-edit-alt" title="Edit data"></i>
-                                                    </a>
-                                                    @if($data->status=='Request' or $data->status=='Un Posted')
-                                                    <form action="/posted_pr/{{ $data->request_number }}" method="post"
-                                                        class="d-inline" data-id="">
-                                                        @method('PUT')
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-success"
-                                                        onclick="return confirm('Anda yakin mau Posted item ini ?')">
-                                                            <i class="bx bx-paper-plane" title="Posted" ></i>
-                                                            <!-- <i class="mdi mdi-arrow-left-top-bold" title="Posted" >Un Posted</i> -->
-                                                        </button></center>
-                                                    </form>
-                                                    @elseif($data->status=='Posted' or $data->status=='Created PO')
-                                                    <form action="/unposted_pr/{{ $data->request_number }}" method="post"
-                                                        class="d-inline" data-id="">
-                                                        @method('PUT')
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-primary"
-                                                        onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
-                                                            <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
-                                                            <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
-                                                        </button></center>
-                                                    </form>
-                                                    @endif
-                                                    </td>
-                                             
-                                            </tr>
-                                        <!-- Add more rows as needed -->
-                                        @endforeach
-                                    </tbody>
+                                    
                                 </table>
                             </div>
                         </div>
@@ -133,3 +69,142 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            // alert('test')
+            var i = 1;
+            let dataTable = $('#so_ppic_table').DataTable({
+                dom: '<"top d-flex"<"position-absolute top-0 end-0 d-flex"fl>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>><"clear:both">',
+                initComplete: function(settings, json) {
+                    // Setelah DataTable selesai diinisialisasi
+                    // Tambahkan elemen kustom ke dalam DOM
+                    $('.top').prepend(
+                        `<div class='pull-left col-sm-12 col-md-5'><div class="btn-group mb-4"></div></div>`
+                    );
+                },
+                processing: true,
+                serverSide: true,
+                // scrollX: true,
+                language: {
+                    lengthMenu: "_MENU_",
+                    search: "",
+                    searchPlaceholder: "Search",
+                },
+                pageLength: 5,
+                lengthMenu: [
+                    [5, 10, 20, 25, 50, 100],
+                    [5, 10, 20, 25, 50, 100]
+                ],
+                aaSorting: [
+                    [1, 'desc']
+                ], // start to sort data in second column 
+                ajax: {
+                    url: baseRoute + '/purchase',
+                    data: function(d) {
+                        d.search = $('input[type="search"]').val(); // Kirim nilai pencarian
+                    }
+                },
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                        // className: 'align-middle text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'request_number',
+                        name: 'request_number',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'date',
+                        name: 'date',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'name',
+                        name: 'name',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'nm_requester',
+                        name: 'nm_requester',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'qc_check',
+                        name: 'qc_check',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'note',
+                        name: 'note',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'note',
+                        name: 'note',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'type',
+                        name: 'type',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        // className: 'align-middle text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    // Tambahkan class "table-success" ke tr jika statusnya "Posted"
+                    if (data.statusLabel === 'Posted') {
+                        $(row).addClass('table-success');
+                    }
+                },
+                bAutoWidth: false,
+                columnDefs: [{
+                        width: "10%",
+                        targets: [3]
+                    }, {
+                        width: '100px', // Menetapkan min-width ke 150px
+                        targets: [6, 7], // Menggunakan class 'progress' pada kolom
+                    }, {
+                        width: '120px', // Menetapkan min-width ke 150px
+                        targets: [9], // Menggunakan class 'progress' pada kolom
+                    }, {
+                        width: '150px', // Menetapkan min-width ke 150px
+                        targets: [10], // Menggunakan class 'progress' pada kolom
+                    },
+                    {
+                        width: '60px', // Menetapkan min-width ke 150px
+                        targets: [4], // Menggunakan class 'progress' pada kolom
+                    }, {
+                        orderable: false,
+                        targets: [0]
+                    }
+                ],
+            });
+        });
+    </script>
+@endpush

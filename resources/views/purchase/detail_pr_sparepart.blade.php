@@ -74,7 +74,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Sparepart & Auxiliaries</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="master_products_id" id="">
+                                            <select class="form-select data-select2" name="master_products_id" id="">
                                                     <option>Pilih Product Sparepart & Auxiliaries</option>
                                                 @foreach ($ta as $data)
                                                     <option value="{{ $data->id }}">{{ $data->description }}</option>
@@ -91,7 +91,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="master_units_id" id="">
+                                            <select class="form-select data-select2" name="master_units_id" id="">
                                                 <option>Pilih Units</option>
                                                 @foreach ($units as $data)
                                                 <option value="{{ $data->id }}">{{ $data->unit_code }}</option>
@@ -108,7 +108,7 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">CC / CO</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="cc_co" id="">
+                                            <select class="form-select data-select2" name="cc_co" id="">
                                                 <option>Pilih CC / CO</option>
                                                 @foreach ($datas as $data)
                                                 <option value="{{ $data->id }}">{{ $data->nm_requester }}</option>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DataTables;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Redirect;
 use RealRashid\SweetAlert\Facades\Alert;
 use Browser;
 use Illuminate\Support\Facades\Crypt;
+
 
 // Model
 use App\Models\PurchaseRequisitions;
@@ -24,13 +26,13 @@ class PurchaseController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index(){
-        $datas = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
-                ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
-                ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester')
-                ->orderBy('purchase_requisitions.created_at', 'desc')
-                ->get();
-        $data_requester = MstRequester::get();
+    public function index(Request $request){
+        // $datas = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
+        //         ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
+        //         ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester')
+        //         ->orderBy('purchase_requisitions.created_at', 'desc')
+        //         ->get();
+        // $data_requester = MstRequester::get();
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -40,7 +42,48 @@ class PurchaseController extends Controller
         $activity='View List Purchase';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
-        return view('purchase.index',compact('datas','data_requester'));
+        if (request()->ajax()) {
+            $orderColumn = $request->input('order')[0]['column'];
+            $orderDirection = $request->input('order')[0]['dir'];
+            $columns = ['id', 'request_number', 'date', 'name', 'nm_requester', 'qc_check', 'note', '', 'type', '', ''];
+
+            // Query dasar
+            $query = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
+                    ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
+                    ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester')
+            ->orderBy($columns[$orderColumn], $orderDirection);
+
+            // Handle pencarian
+            if ($request->has('search') && $request->input('search')) {
+                $searchValue = $request->input('search');
+                $query->where(function ($query) use ($searchValue) {
+                    $query->where('request_number', 'like', '%' . $searchValue . '%')
+                        ->orWhere('date', 'like', '%' . $searchValue . '%')
+                        ->orWhere('b.name', 'like', '%' . $searchValue . '%')
+                        ->orWhere('c.nm_requester', 'like', '%' . $searchValue . '%')
+                        ->orWhere('qc_check', 'like', '%' . $searchValue . '%')
+                        ->orWhere('note', 'like', '%' . $searchValue . '%')
+                        ->orWhere('type', 'like', '%' . $searchValue . '%');
+                });
+            }
+
+            return DataTables::of($query)
+                ->addColumn('action', function ($data) {
+                    return view('purchase.action_pr', compact('data'));
+                    // return 'ACTION';
+                })
+                ->addColumn('status', function ($data) {
+                    $badgeColor = $data->status == 'Request' ? 'info' : ($data->status == 'Un Posted' ? 'warning' : 'success');
+                    return '<span class="badge bg-' . $badgeColor . '" style="font-size: smaller;width: 100%">' . $data->status . '</span>';
+                })
+                ->addColumn('statusLabel', function ($data) {
+                    return $data->status;
+                })
+                ->rawColumns(['action', 'status', 'statusLabel'])
+                ->make(true);
+        }
+
+        return view('purchase.index');
 
     }
     // Fungsi untuk mengonversi bulan dalam format angka menjadi format romawi
@@ -64,13 +107,13 @@ class PurchaseController extends Controller
         return $romans[$month];
     }
 
-    public function purchase_order(){
+    public function purchase_order(Request $request){
         $datas = PurchaseRequisitions::get();
-        $datas = PurchaseOrders::leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', '=', 'master_suppliers.id')
-                ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', '=', 'purchase_requisitions.id')
-                ->select('purchase_orders.*', 'master_suppliers.name', 'purchase_requisitions.request_number')
-                ->orderBy('purchase_orders.created_at', 'desc') // Menambahkan pengurutan berdasarkan created_at desc
-                ->get();
+        // $datas = PurchaseOrders::leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', '=', 'master_suppliers.id')
+        //         ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', '=', 'purchase_requisitions.id')
+        //         ->select('purchase_orders.*', 'master_suppliers.name', 'purchase_requisitions.request_number')
+        //         ->orderBy('purchase_orders.created_at', 'desc') // Menambahkan pengurutan berdasarkan created_at desc
+        //         ->get();
 
         $supplier = MstSupplier::get();
 
@@ -83,7 +126,52 @@ class PurchaseController extends Controller
         $activity='View List Purchase Order';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
-        return view('purchase.purchase_order',compact('datas','supplier'));
+        if (request()->ajax()) {
+            $orderColumn = $request->input('order')[0]['column'];
+            $orderDirection = $request->input('order')[0]['dir'];
+            $columns = ['id', 'request_number', 'date', 'name', 'nm_requester', 'qc_check', 'note', '', 'type', '', ''];
+
+            // Query dasar
+            $query = PurchaseOrders::leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', '=', 'master_suppliers.id')
+                    ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', '=', 'purchase_requisitions.id')
+                    ->select('purchase_orders.*', 'master_suppliers.name', 'purchase_requisitions.request_number')
+            ->orderBy($columns[$orderColumn], $orderDirection);
+
+            // Handle pencarian
+            if ($request->has('search') && $request->input('search')) {
+                $searchValue = $request->input('search');
+                $query->where(function ($query) use ($searchValue) {
+                    $query->where('request_number', 'like', '%' . $searchValue . '%')
+                        ->orWhere('date', 'like', '%' . $searchValue . '%')
+                        ->orWhere('b.name', 'like', '%' . $searchValue . '%')
+                        ->orWhere('c.nm_requester', 'like', '%' . $searchValue . '%')
+                        ->orWhere('qc_check', 'like', '%' . $searchValue . '%')
+                        ->orWhere('note', 'like', '%' . $searchValue . '%')
+                        ->orWhere('type', 'like', '%' . $searchValue . '%');
+                });
+            }
+
+            return DataTables::of($query)
+                ->addColumn('action', function ($data) {
+                    return view('purchase.action_po', compact('data'));
+                    // return 'ACTION';
+                })
+                ->addColumn('pr', function ($data) {
+                    return view('purchase.action_reference_number', compact('data'));
+                    // return 'ACTION';
+                })
+                ->addColumn('status', function ($data) {
+                    $badgeColor = $data->status == 'Request' ? 'info' : ($data->status == 'Un Posted' ? 'warning' : 'success');
+                    return '<span class="badge bg-' . $badgeColor . '" style="font-size: smaller;width: 100%">' . $data->status . '</span>';
+                })
+                ->addColumn('statusLabel', function ($data) {
+                    return $data->status;
+                })
+                ->rawColumns(['action', 'status', 'statusLabel','pr'])
+                ->make(true);
+        }
+
+        return view('purchase.purchase_order');
 
     }
     public function generateCode()
@@ -422,7 +510,7 @@ class PurchaseController extends Controller
     }
     public function get_supplier(){
         $data = DB::select("SELECT master_suppliers.name,master_suppliers.id  FROM master_suppliers");
-        $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions`");
+        $data['rn'] = DB::select("SELECT purchase_requisitions.request_number,purchase_requisitions.id FROM `purchase_requisitions` where purchase_requisitions.status not in ('Request','Closed','Created PO','Un Posted') ");
         $id = request()->get('id');
         $pr_detail = PurchaseRequisitions::with('masterSupplier')
             ->where('id', $id)
@@ -1880,16 +1968,16 @@ class PurchaseController extends Controller
 
         return view('purchase.print_pr',compact('datas','data_detail_rm','data_detail_ta','data_detail_wip',
         'data_detail_fg','PurchaseRequisitions'));
-    }public function purchase_requisition()
+    }public function purchase_requisition(Request $request)
     {
-        $data_detail_rm = DB::table('purchase_requisition_details as a')
-                        ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
-                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code')
-                        ->limit(100)
-                        ->get();
+        // $data_detail_rm = DB::table('purchase_requisition_details as a')
+        //                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+        //                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //                 ->select('a.*', 'b.description', 'c.unit_code')
+        //                 ->limit(100)
+        //                 ->get();
 
-        $data_requester = MstRequester::get();
+        // $data_requester = MstRequester::get();
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -1899,7 +1987,44 @@ class PurchaseController extends Controller
         $activity='View List Purchase';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
-        return view('purchase.purchase_requisition',compact('data_detail_rm','data_requester'));
+        if (request()->ajax()) {
+            $orderColumn = $request->input('order')[0]['column'];
+            $orderDirection = $request->input('order')[0]['dir'];
+            $columns = ['id', 'type_product', 'desc', 'qty', 'unit_code', 'required_date', 'cc_co', 'remarks'];
+
+            // Query dasar
+            $query = DB::table('purchase_requisition_details as a')
+                            ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+                            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                            ->select('a.*', 'b.description as desc', 'c.unit_code')
+            ->orderBy($columns[$orderColumn], $orderDirection);
+
+            // Handle pencarian
+            if ($request->has('search') && $request->input('search')) {
+                $searchValue = $request->input('search');
+                $query->where(function ($query) use ($searchValue) {
+                    $query->where('a.type_product', 'like', '%' . $searchValue . '%')
+                        ->orWhere('b.desc', 'like', '%' . $searchValue . '%')
+                        ->orWhere('a.qty', 'like', '%' . $searchValue . '%')
+                        ->orWhere('c.unit_code', 'like', '%' . $searchValue . '%')
+                        ->orWhere('a.required_date', 'like', '%' . $searchValue . '%')
+                        ->orWhere('a.cc_co', 'like', '%' . $searchValue . '%')
+                        ->orWhere('a.remarks', 'like', '%' . $searchValue . '%');
+                });
+            }
+            return DataTables::of($query)
+                
+               
+                ->addColumn('statusLabel', function ($data) {
+                    return $data->status;
+                })
+                ->rawColumns(['action', 'status', 'statusLabel'])
+                ->make(true);
+
+        
+        }
+
+        return view('purchase.purchase_requisition');
     }public function print_pr_ind($request_number)
     {
         // dd($request_number);
