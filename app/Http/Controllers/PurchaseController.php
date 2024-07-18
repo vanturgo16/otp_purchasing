@@ -561,6 +561,9 @@ class PurchaseController extends Controller
 
         PurchaseOrders::create($validatedData);
 
+    
+        $validatedData = DB::update("UPDATE `purchase_requisitions` SET `status` = 'Created PO' WHERE `id` = '$request->reference_number'");
+
         $reference_number = $request->input('reference_number');
         $po_number = $request->input('po_number');
 
