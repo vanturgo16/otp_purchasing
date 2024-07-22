@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Spatie\Permission\PermissionRegistrar;
-
 class ClearPermissionCache
 {
     /**

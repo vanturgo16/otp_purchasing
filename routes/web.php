@@ -24,7 +24,7 @@ Route::post('auth/login', [AuthController::class, 'postlogin'])->name('postlogin
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::group(['middleware' => ['clear.permission.cache']], function () {
+    Route::group(['middleware' => ['clear.permission.cache','permission:Purchasing|Purchasing_Requisition|Purchasing_Item|Purchasing_Order']], function () {
         
         //Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
