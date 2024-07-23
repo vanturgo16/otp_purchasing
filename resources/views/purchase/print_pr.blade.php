@@ -61,7 +61,8 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->rm_code }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                        {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
@@ -73,7 +74,8 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->code }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
@@ -85,7 +87,8 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->wip_code }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
@@ -97,7 +100,8 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->product_code }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>

@@ -73,23 +73,46 @@
                                 
                                
                                     <div class="row mb-4 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
+                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product..</label>
                                         <div class="col-sm-9">
-                                            <input type="radio" id="html" name="type" value="RM" checked>
-                                            <input type="hidden" id="html" name="type_product" value="RM" checked>
+                                            <input type="radio" id="html" name="type" value="{{ $findtype->type_product }}" checked>
+                                            <input type="hidden" id="html" name="type_product" value="{{ $findtype->type_product }}" checked>
                                             <input type="hidden" name="id_pr" class="form-control" value="{{ $reference_number }}" readonly>
-                                              <label for="html">RM</label>
+                                              <label for="html">{{ $findtype->type_product }}</label>
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
-                                        <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product RM</label>
+                                        <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product {{ $findtype->type_product }}</label>
                                         <div class="col-sm-9">
+                                        @if($findtype->type_product=='RM')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
                                                     <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
+                                        @elseif($findtype->type_product=='FG')
+                                            <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
+                                                    <option>Pilih Product FG</option>
+                                                @foreach ($fg as $data)
+                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
+                                                @endforeach
+                                            </select>
+                                        @elseif($findtype->type_product=='WIP')
+                                            <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
+                                                    <option>Pilih Product WIP</option>
+                                                @foreach ($wip as $data)
+                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                @endforeach
+                                            </select>
+                                        @elseif($findtype->type_product=='TA')
+                                            <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
+                                                    <option>Pilih Product TA</option>
+                                                @foreach ($ta as $data)
+                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">

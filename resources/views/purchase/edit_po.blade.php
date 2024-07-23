@@ -176,7 +176,7 @@
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option>{{ $data->description }} || {{ $data->perforasi }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($results[0]->type=='TA')
@@ -277,7 +277,7 @@
                                     <tr>
                                     <tr>
                                         <th>Type Product</th>
-                                        <th>Product WIP</th>
+                                        <th>Product</th>
                                         <th>Qty</th>
                                         <th>Units</th>
                                         <th>Price</th>

@@ -56,6 +56,7 @@ function request_number() {
     success: function (response) {
       // console.log(response);
       // Loop melalui data dan tambahkan opsi ke dalam select
+      // $('.request_number').select2("destroy");
       $('.request_number').empty()
       $('.request_number').append(` <option>Pilih Reference Number</option>`)
       $.each(response.data.rn, function (i, value) {
@@ -63,6 +64,11 @@ function request_number() {
           `<option value="` + value.id + `">` + value.request_number + `</option>`
         )
       });
+      $('.request_number').select2({
+        width: 'resolve', // need to override the changed default
+        theme: "classic",
+        dropdownParent: $("#myModal") 
+    });
     },
     error: function (xhr, status, error) {
       // Tangkap pesan error jika ada
