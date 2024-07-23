@@ -78,7 +78,7 @@
                                             <select class="form-select data-select2" name="master_products_id" id="">
                                                     <option>Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option value="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
