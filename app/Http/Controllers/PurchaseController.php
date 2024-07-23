@@ -615,7 +615,7 @@ class PurchaseController extends Controller
             'master_units_id' => 'required',
             'required_date' => 'required',
             'cc_co' => 'required',
-            'remarks' => 'required',
+            'remarks' => 'nullable',
             'request_number' => 'required',
 
         ], $pesan);
@@ -717,12 +717,16 @@ class PurchaseController extends Controller
         ,'request_number'));
     }
     public function simpan_detail_wip(Request $request, $request_number){
+
+        $id = PurchaseRequisitions::where('request_number', $request_number)->value('id');
         $request_number = $request_number;
         $request->merge([
             'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+            'id_purchase_requisitions' => $id,
         ]);
         if($request->has('save_detail')){
         $pesan = [
+            'id_purchase_requisitions' => 'id purchase',
             'type_product.required' => 'type masih kosong',
             'master_products_id.required' => 'master_products_id masih kosong',
             'qty.required' => 'qty masih kosong',
@@ -735,13 +739,14 @@ class PurchaseController extends Controller
         ];
 
         $validatedData = $request->validate([
+            'id_purchase_requisitions' => 'required',
             'type_product' => 'required',
             'master_products_id' => 'required',
             'qty' => 'required',
             'master_units_id' => 'required',
             'required_date' => 'required',
             'cc_co' => 'required',
-            'remarks' => 'required',
+            'remarks' => 'nullable',
             'request_number' => 'required',
 
         ], $pesan);
@@ -840,12 +845,16 @@ class PurchaseController extends Controller
     public function simpan_detail_fg(Request $request, $request_number){
         // dd($request_number);
         // die;
+
+        $id = PurchaseRequisitions::where('request_number', $request_number)->value('id');
         $request_number = $request_number;
         $request->merge([
             'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+            'id_purchase_requisitions' => $id,
         ]);
         if($request->has('save_detail')){
         $pesan = [
+            'id_purchase_requisitions' => 'id purchase',
             'type_product.required' => 'type masih kosong',
             'master_products_id.required' => 'master_products_id masih kosong',
             'qty.required' => 'qty masih kosong',
@@ -858,13 +867,14 @@ class PurchaseController extends Controller
         ];
 
         $validatedData = $request->validate([
+            'id_purchase_requisitions' => 'required',
             'type_product' => 'required',
             'master_products_id' => 'required',
             'qty' => 'required',
             'master_units_id' => 'required',
             'required_date' => 'required',
             'cc_co' => 'required',
-            'remarks' => 'required',
+            'remarks' => 'nullable',
             'request_number' => 'required',
 
         ], $pesan);
@@ -933,7 +943,7 @@ class PurchaseController extends Controller
         $datas = MstRequester::get();
         $supplier = MstSupplier::get();
         $fg = DB::table('master_product_fgs')
-                        ->select('description','id')
+                        ->select('description','id','perforasi')
                         ->get();
         $units = DB::table('master_units')
                         ->select('unit_code','id')
@@ -958,12 +968,16 @@ class PurchaseController extends Controller
         ,'request_number'));
     }
     public function simpan_detail_ta(Request $request, $request_number){
+
+        $id = PurchaseRequisitions::where('request_number', $request_number)->value('id');
         $request_number = $request_number;
         $request->merge([
             'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+            'id_purchase_requisitions' => $id,
         ]);
         if($request->has('save_detail')){
         $pesan = [
+            'id_purchase_requisitions' => 'id purchase',
             'type_product.required' => 'type masih kosong',
             'master_products_id.required' => 'master_products_id masih kosong',
             'qty.required' => 'qty masih kosong',
@@ -976,13 +990,14 @@ class PurchaseController extends Controller
         ];
 
         $validatedData = $request->validate([
+            'id_purchase_requisitions' => 'required',
             'type_product' => 'required',
             'master_products_id' => 'required',
             'qty' => 'required',
             'master_units_id' => 'required',
             'required_date' => 'required',
             'cc_co' => 'required',
-            'remarks' => 'required',
+            'remarks' => 'nullable',
             'request_number' => 'required',
 
         ], $pesan);
@@ -1421,24 +1436,83 @@ class PurchaseController extends Controller
         ,'reference_number','POSmt','id'));
     }
     public function tambah_detail_po($reference_number,$id){
-        // dd('test');
-        // die;
-       PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->delete(); 
 
-        $results = DB::table('purchase_requisition_details')
-        ->select(
-            'purchase_requisitions.id',
-            'purchase_requisition_details.type_product',
-            'master_raw_materials.description',
-            'purchase_requisition_details.qty',
-            'purchase_requisitions.request_number',
-            'master_units.unit'
-        )
-        ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
-        ->leftJoin('master_raw_materials', 'purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
-        ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
-        ->where('purchase_requisitions.id', '=', $reference_number)
-        ->get();
+        $findtype = DB::table('purchase_orders')
+            ->select('type')
+            ->where('id', $id)
+            ->first();
+
+        // dd($reference_number);
+        // die;
+
+        PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->delete(); 
+
+        if ($findtype->type == 'RM') {
+
+            $results = DB::table('purchase_requisition_details')
+            ->select(
+                'purchase_requisitions.id',
+                'purchase_requisition_details.type_product',
+                'master_raw_materials.description',
+                'purchase_requisition_details.qty',
+                'purchase_requisitions.request_number',
+                'master_units.unit'
+            )
+            ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
+            ->leftJoin('master_raw_materials', 'purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->where('purchase_requisitions.id', '=', $reference_number)
+            ->get();
+
+        
+        }elseif ($findtype->type == 'FG') {
+            $results = DB::table('purchase_requisition_details')
+            ->select(
+                'purchase_requisitions.id',
+                'purchase_requisition_details.type_product',
+                'master_product_fgs.description',
+                'purchase_requisition_details.qty',
+                'purchase_requisitions.request_number',
+                'master_units.unit'
+            )
+            ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
+            ->leftJoin('master_product_fgs', 'purchase_requisition_details.master_products_id', '=', 'master_product_fgs.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->where('purchase_requisitions.id', '=', $reference_number)
+            ->get();
+
+        }elseif ($findtype->type == 'WIP'){
+            $results = DB::table('purchase_requisition_details')
+            ->select(
+                'purchase_requisitions.id',
+                'purchase_requisition_details.type_product',
+                'master_wips.description',
+                'purchase_requisition_details.qty',
+                'purchase_requisitions.request_number',
+                'master_units.unit'
+            )
+            ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
+            ->leftJoin('master_wips', 'purchase_requisition_details.master_products_id', '=', 'master_wips.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->where('purchase_requisitions.id', '=', $reference_number)
+            ->get();
+
+        }elseif ($findtype->type == 'TA') {
+            $results = DB::table('purchase_requisition_details')
+            ->select(
+                'purchase_requisitions.id',
+                'purchase_requisition_details.type_product',
+                'master_tool_auxiliaries.description',
+                'purchase_requisition_details.qty',
+                'purchase_requisitions.request_number',
+                'master_units.unit'
+            )
+            ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
+            ->leftJoin('master_tool_auxiliaries', 'purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->where('purchase_requisitions.id', '=', $reference_number)
+            ->get();
+        }
 
         // dd($results);
         // die;
@@ -1497,27 +1571,96 @@ class PurchaseController extends Controller
         // dd($id);
         // die;
 
-        $results = DB::table('purchase_order_details_smt as a')
-                    ->select(
-                        DB::raw($id.' as id_purchase_order'),
-                        'a.type_product',
-                        'b.id as master_products_id',
-                        'a.note',
-                        'a.qty',
-                        'c.id as master_units_id',
-                        'a.price',
-                        'a.discount',
-                        'a.tax',
-                        'a.amount'
-                    )
-                    ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.description')
-                    ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
-                    ->where('a.id_pr', '=', $reference_number)
-                    ->get();
+        $findtype = DB::table('purchase_orders')
+            ->select('type')
+            ->where('id', $id)
+            ->first();
+
+        // dd($findtype->type);
+        // die;    
+
+        if ($findtype->type == 'RM') {
+
+            $results = DB::table('purchase_order_details_smt as a')
+                        ->select(
+                            DB::raw($id.' as id_purchase_order'),
+                            'a.type_product',
+                            'b.id as master_products_id',
+                            'a.note',
+                            'a.qty',
+                            'c.id as master_units_id',
+                            'a.price',
+                            'a.discount',
+                            'a.tax',
+                            'a.amount'
+                        )
+                        ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.description')
+                        ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+                        ->where('a.id_pr', '=', $reference_number)
+                        ->get();
+
+        }elseif ($findtype->type == 'FG') {
+            $results = DB::table('purchase_order_details_smt as a')
+            ->select(
+                DB::raw($id.' as id_purchase_order'),
+                'a.type_product',
+                'b.id as master_products_id',
+                'a.note',
+                'a.qty',
+                'c.id as master_units_id',
+                'a.price',
+                'a.discount',
+                'a.tax',
+                'a.amount'
+            )
+            ->leftJoin('master_product_fgs as b', 'a.description', '=', 'b.description')
+            ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+            ->where('a.id_pr', '=', $reference_number)
+            ->get();
+
+        }elseif ($findtype->type == 'WIP') {
+            $results = DB::table('purchase_order_details_smt as a')
+            ->select(
+                DB::raw($id.' as id_purchase_order'),
+                'a.type_product',
+                'b.id as master_products_id',
+                'a.note',
+                'a.qty',
+                'c.id as master_units_id',
+                'a.price',
+                'a.discount',
+                'a.tax',
+                'a.amount'
+            )
+            ->leftJoin('master_wips as b', 'a.description', '=', 'b.description')
+            ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+            ->where('a.id_pr', '=', $reference_number)
+            ->get();
+
+        }elseif ($findtype->type == 'TA') {
+            $results = DB::table('purchase_order_details_smt as a')
+            ->select(
+                DB::raw($id.' as id_purchase_order'),
+                'a.type_product',
+                'b.id as master_products_id',
+                'a.note',
+                'a.qty',
+                'c.id as master_units_id',
+                'a.price',
+                'a.discount',
+                'a.tax',
+                'a.amount'
+            )
+            ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.description')
+            ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+            ->where('a.id_pr', '=', $reference_number)
+            ->get();
+
+        }
 
 
-        // dd($results);
-        // die;
+        dd($results);
+        die;
         
         // Simpan hasil query ke dalam tabel purchase_order_details_smt
         foreach ($results as $result) {
@@ -1867,6 +2010,8 @@ class PurchaseController extends Controller
         return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
     }public function print_po($id)
     {
+        // dd ($id);
+        // die;
         $purchaseOrder = PurchaseOrders::findOrFail($id);
         $data_detail_rm = DB::table('purchase_order_details as a')
                 ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
