@@ -1411,13 +1411,30 @@ class PurchaseController extends Controller
         
     }
     public function detail_po($reference_number,$id){
-        // dd('test');
+        // dd($id);
         // die;
+        $findtype = DB::table('purchase_order_details_smt')
+                        ->select('type_product')
+                        ->where('id_pr', $reference_number)
+                        ->first();
+                        
         $datas = MstRequester::get();
         $supplier = MstSupplier::get();
         $rawMaterials = DB::table('master_raw_materials')
                         ->select('description','id')
                         ->get();
+
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description','id')
+                        ->get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id','perforasi')
+                        ->get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
+
+
         $units = DB::table('master_units')
                         ->select('unit_code','id','unit')
                         ->get();
@@ -1433,7 +1450,7 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.detail_po',compact('datas','supplier','rawMaterials','units'
-        ,'reference_number','POSmt','id'));
+        ,'reference_number','POSmt','id','ta','fg','wip','findtype'));
     }
     public function tambah_detail_po($reference_number,$id){
 
@@ -1453,7 +1470,7 @@ class PurchaseController extends Controller
             ->select(
                 'purchase_requisitions.id',
                 'purchase_requisition_details.type_product',
-                'master_raw_materials.description',
+                'master_raw_materials.id as id_produk',
                 'purchase_requisition_details.qty',
                 'purchase_requisitions.request_number',
                 'master_units.unit'
@@ -1470,7 +1487,7 @@ class PurchaseController extends Controller
             ->select(
                 'purchase_requisitions.id',
                 'purchase_requisition_details.type_product',
-                'master_product_fgs.description',
+                'master_product_fgs.id as id_produk',
                 'purchase_requisition_details.qty',
                 'purchase_requisitions.request_number',
                 'master_units.unit'
@@ -1486,7 +1503,7 @@ class PurchaseController extends Controller
             ->select(
                 'purchase_requisitions.id',
                 'purchase_requisition_details.type_product',
-                'master_wips.description',
+                'master_wips.id as id_produk',
                 'purchase_requisition_details.qty',
                 'purchase_requisitions.request_number',
                 'master_units.unit'
@@ -1502,7 +1519,7 @@ class PurchaseController extends Controller
             ->select(
                 'purchase_requisitions.id',
                 'purchase_requisition_details.type_product',
-                'master_tool_auxiliaries.description',
+                'master_tool_auxiliaries.id as id_produk',
                 'purchase_requisition_details.qty',
                 'purchase_requisitions.request_number',
                 'master_units.unit'
@@ -1522,7 +1539,7 @@ class PurchaseController extends Controller
             DB::table('purchase_order_details_smt')->insert([
                 'id_pr' => $result->id,
                 'type_product' => $result->type_product,
-                'description' => $result->description,
+                'description' => $result->id_produk,
                 'qty' => $result->qty,
                 'request_number' => $result->request_number,
                 'unit' => $result->unit,
@@ -1594,7 +1611,7 @@ class PurchaseController extends Controller
                             'a.tax',
                             'a.amount'
                         )
-                        ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.description')
+                        ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
                         ->where('a.id_pr', '=', $reference_number)
                         ->get();
@@ -1613,7 +1630,7 @@ class PurchaseController extends Controller
                 'a.tax',
                 'a.amount'
             )
-            ->leftJoin('master_product_fgs as b', 'a.description', '=', 'b.description')
+            ->leftJoin('master_product_fgs as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
             ->where('a.id_pr', '=', $reference_number)
             ->get();
@@ -1632,7 +1649,7 @@ class PurchaseController extends Controller
                 'a.tax',
                 'a.amount'
             )
-            ->leftJoin('master_wips as b', 'a.description', '=', 'b.description')
+            ->leftJoin('master_wips as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
             ->where('a.id_pr', '=', $reference_number)
             ->get();
@@ -1651,7 +1668,7 @@ class PurchaseController extends Controller
                 'a.tax',
                 'a.amount'
             )
-            ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.description')
+            ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
             ->where('a.id_pr', '=', $reference_number)
             ->get();
@@ -1659,8 +1676,8 @@ class PurchaseController extends Controller
         }
 
 
-        dd($results);
-        die;
+        // dd($results);
+        // die;
         
         // Simpan hasil query ke dalam tabel purchase_order_details_smt
         foreach ($results as $result) {
@@ -1753,7 +1770,7 @@ class PurchaseController extends Controller
                         ->select('description')
                         ->get();
         $fg = DB::table('master_product_fgs')
-                        ->select('description','id')
+                        ->select('description','id','perforasi')
                         ->get();
         $wip = DB::table('master_wips')
                         ->select('description','id')

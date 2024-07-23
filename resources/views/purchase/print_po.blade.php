@@ -214,7 +214,8 @@
                         @foreach ($data_detail_fg as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }} <br>
+                                        {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     <td>{{ number_format($data->price,3,',','.'); }}</td>
