@@ -34,11 +34,13 @@
             class="d-inline" data-id="">
             @method('PUT')
             @csrf
+            @can('PPIC_unposted')
             <button type="submit" class="btn btn-sm btn-primary"
             onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
                 <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
                 <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
             </button></center>
+            @endcan
         </form>
         @endif
 @elseif($data->status=='Created PO' or $data->status=='Closed')
@@ -59,10 +61,12 @@
             class="d-inline" data-id="">
             @method('PUT')
             @csrf
+            @can('PPIC_unposted')
             <button type="submit" class="btn btn-sm btn-primary"
             onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
                 <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
                 <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
             </button></center>
+            @endcan
         </form>
 @endif

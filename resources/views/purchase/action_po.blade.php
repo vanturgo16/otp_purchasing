@@ -36,11 +36,13 @@
             class="d-inline" data-id="">
             @method('PUT')
             @csrf
+            @can('PPIC_unposted')
             <button type="submit" class="btn btn-sm btn-primary"
             onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
                 <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
                 <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
             </button></center>
+            @endcan
         </form>
         @endif
  @elseif($data->status=='Posted')
@@ -54,11 +56,13 @@
             class="d-inline" data-id="">
             @method('PUT')
             @csrf
+            @can('PPIC_unposted')
             <button type="submit" class="btn btn-sm btn-primary"
             onclick="return confirm('Anda yakin mau Un Posted item ini ?')">
                 <!-- <i class="bx bx-paper-plane" title="Posted" ></i> -->
                 <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un Posted</i>
             </button></center>
+            @endcan
         </form>
 @elseif($data->status=='Closed')
         <a href="/print-po/{{ $data->id }}" class="btn btn-sm btn-info waves-effect waves-light">
