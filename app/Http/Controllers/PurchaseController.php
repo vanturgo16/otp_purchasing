@@ -73,9 +73,13 @@ class PurchaseController extends Controller
                     // return 'ACTION';
                 })
                 ->addColumn('status', function ($data) {
-                    $badgeColor = $data->status == 'Request' ? 'info' : ($data->status == 'Un Posted' ? 'warning' : 'success');
+                    $badgeColor = $data->status == 'Request' ? 'info' 
+                                : ($data->status == 'Un Posted' ? 'warning' 
+                                : ($data->status == 'Closed' ? 'primary' 
+                                : ($data->status == 'Create PO' ? 'purple' 
+                                : 'success')));
                     return '<span class="badge bg-' . $badgeColor . '" style="font-size: smaller;width: 100%">' . $data->status . '</span>';
-                })
+                })                
                 ->addColumn('statusLabel', function ($data) {
                     return $data->status;
                 })
