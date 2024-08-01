@@ -662,7 +662,6 @@ class PurchaseController extends Controller
                 'id_master_suppliers.required' => 'id master suppliers masih kosong',
                 'requester.required' => 'requester masih kosong',
                 'qc_check.required' => 'qc_check masih kosong',
-                'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
                 
@@ -674,7 +673,7 @@ class PurchaseController extends Controller
                 'id_master_suppliers' => 'required',
                 'requester' => 'required',
                 'qc_check' => 'required',
-                'note' => 'required',
+                'note' => 'nullable',
                 'status' => 'required',
                 'type' => 'required',
 
@@ -791,7 +790,6 @@ class PurchaseController extends Controller
                 'id_master_suppliers.required' => 'id master suppliers masih kosong',
                 'requester.required' => 'requester masih kosong',
                 'qc_check.required' => 'qc_check masih kosong',
-                'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
                 
@@ -803,7 +801,7 @@ class PurchaseController extends Controller
                 'id_master_suppliers' => 'required',
                 'requester' => 'required',
                 'qc_check' => 'required',
-                'note' => 'required',
+                'note' => 'nullable',
                 'status' => 'required',
                 'type' => 'required',
 
@@ -919,7 +917,6 @@ class PurchaseController extends Controller
                 'id_master_suppliers.required' => 'id master suppliers masih kosong',
                 'requester.required' => 'requester masih kosong',
                 'qc_check.required' => 'qc_check masih kosong',
-                'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
             ];
@@ -930,7 +927,7 @@ class PurchaseController extends Controller
                 'id_master_suppliers' => 'required',
                 'requester' => 'required',
                 'qc_check' => 'required',
-                'note' => 'required',
+                'note' => 'nullable',
                 'status' => 'required',
                 'type' => 'required',
 
@@ -1043,7 +1040,6 @@ class PurchaseController extends Controller
                 'id_master_suppliers.required' => 'id master suppliers masih kosong',
                 'requester.required' => 'requester masih kosong',
                 'qc_check.required' => 'qc_check masih kosong',
-                'note.required' => 'note masih kosong',
                 'status.required' => 'status masih kosong',
                 'type.required' => 'type masih kosong',
             ];
@@ -1054,7 +1050,7 @@ class PurchaseController extends Controller
                 'id_master_suppliers' => 'required',
                 'requester' => 'required',
                 'qc_check' => 'required',
-                'note' => 'required',
+                'note' => 'nullable',
                 'status' => 'required',
                 'type' => 'required',
 
