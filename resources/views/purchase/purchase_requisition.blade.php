@@ -141,8 +141,8 @@
                         orderable: true,
                     },
                     {
-                        data: 'cc_co',
-                        name: 'cc_co',
+                        data: 'nm_requester',
+                        name: 'nm_requester',
                         // className: 'align-middle',
                         orderable: true,
                     },

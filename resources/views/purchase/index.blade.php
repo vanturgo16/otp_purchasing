@@ -151,8 +151,8 @@
                         orderable: true,
                     },
                     {
-                        data: 'note',
-                        name: 'note',
+                        data: 'po_number',
+                        name: 'po_number',
                         // className: 'align-middle',
                         orderable: true,
                     },
