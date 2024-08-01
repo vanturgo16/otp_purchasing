@@ -699,16 +699,55 @@ class PurchaseController extends Controller
         $rawMaterials = DB::table('master_raw_materials')
                         ->select('description','id')
                         ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description','id')
+                        ->get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id')
+                        ->get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
         $units = DB::table('master_units')
                         ->select('unit_code','id')
                         ->get();
 
+        $findtype = DB::table('purchase_requisition_details as a')
+                        ->select('a.type_product')
+                        ->where('a.request_number', $request_number)
+                        ->first();
+
          $dt_detailSmt = DB::table('purchase_requisition_details as a')
          ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
          ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-         ->select('a.*', 'b.description', 'c.unit_code')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
          ->where('a.request_number', $request_number)
-         ->get();            
+         ->get();
+         
+         $data_detail_ta = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get();
+         
+         $data_detail_fg = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get();
+         
+         $data_detail_wip = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get(); 
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -719,7 +758,7 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.detail_pr',compact('datas','supplier','rawMaterials','units','dt_detailSmt'
-        ,'request_number'));
+        ,'request_number','data_detail_ta','data_detail_fg','data_detail_wip','findtype'));
     }
     public function simpan_detail_wip(Request $request, $request_number){
 
@@ -2030,8 +2069,39 @@ class PurchaseController extends Controller
         ->update($validatedData);
 
         $request_number = $request->input('request_number');
-        return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
-    }public function print_po($id)
+        $id_purchase_requisitions = $request->input('id_purchase_requisitions');
+        return Redirect::to('/edit-pr/'.$id_purchase_requisitions)->with('pesan', 'Data berhasil diupdate.');
+    }public function update_pr_detail_editx(Request $request, $id){
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'required_date.required' => 'required_date masih kosong',
+            'cc_co.required' => 'cc_co masih kosong',
+            'remarks.required' => 'remarks masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+            'remarks' => 'required',
+
+        ], $pesan);
+
+        PurchaseRequisitionsDetail::where('id', $id)
+        ->update($validatedData);
+
+        $request_number = $request->input('request_number');
+        $id_purchase_requisitions = $request->input('id_purchase_requisitions');
+        return Redirect::to('/detail-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+    }
+    public function print_po($id)
     {
         // dd ($id);
         // die;
@@ -2112,28 +2182,32 @@ class PurchaseController extends Controller
         $data_detail_rm = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.rm_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.rm_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_ta = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_wip = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.wip_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.wip_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_fg = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.product_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.product_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 

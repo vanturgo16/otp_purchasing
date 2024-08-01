@@ -375,13 +375,16 @@
                 <h5 class="modal-title" id="edit_poLabel">Edit Purchase Requisition Sementara</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="/update_pr_detail" class="form-material m-t-40" enctype="multipart/form-data">
+            <form method="post" action="/update_pr_detail_editx" class="form-material m-t-40" enctype="multipart/form-data"  id="form_pr_detail_edit">
+            @method('PUT')
             @csrf
             <div class="modal-body">
                 
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Type Product</label>
-                    <input type="radio" id="html" name="type" value="" checked>
+                    <input type="text" class="form-control" id="type_product_detail_pr" name="type_product">
+                    <input type="hidden" class="form-control" id="request_number_detail_pr" name="request_number">
+                    <input type="hidden" class="form-control" id="id_purchase_requisitions_detail_pr" name="id_purchase_requisitions">
                     @error('type')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -390,8 +393,8 @@
                 </div>
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Product</label>
-                    <select class="form-select" name="master_products_id" id="">
-                            <option>Pilih Product RM</option>
+                    <select class="form-select" name="master_products_id" id="master_products_id_detail_pr">
+                            <option>Pilih Product</option>
                     </select>
                     @error('master_products_id')
                         <div class="form-group has-danger mb-0">
@@ -401,7 +404,7 @@
                 </div>
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Qty</label>
-                    <input type="number" class="form-control" name="qty" value="">
+                    <input type="number" class="form-control" name="qty" id="qty_detail_pr">
                     @error('qty')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -411,7 +414,7 @@
 
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Units</label>
-                    <select class="form-select" name="master_units_id" id="">
+                    <select class="form-select" name="master_units_id" id="master_units_id_detail_pr">
                         <option>Pilih Units</option>
                     </select>
                     @error('master_units_id')
@@ -423,7 +426,7 @@
 
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">Required Date</label>
-                    <input type="date" class="form-control" name="required_date" value="{{ old('required_date') }}">
+                    <input type="date" class="form-control" name="required_date" id="required_date_detail_pr">
                     @error('required_date')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -432,7 +435,7 @@
                 </div>
                 <div class="mb-3 required-field">
                     <label for="example-text-input" class="form-label">CC / CO </label>
-                    <select class="form-select" name="cc_co" value="{{ old('cc_co') }}">
+                    <select class="form-select" name="cc_co" id="cc_co_detail_pr">
                         <option>Pilih CC / CO</option>
                     </select>
                     @error('cc_co')
@@ -444,7 +447,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">Remarks</label>
-                    <input type="text" class="form-control" name="remarks" value="{{ old('remarks') }}">
+                    <input type="text" class="form-control" name="remarks" id="remarks_detail_pr">
                     @error('own_remarks')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
@@ -480,6 +483,7 @@
                     <label for="example-text-input" class="form-label">Type Product</label>
                     <input type="text" class="form-control" id="type_product_pr" name="type_product">
                     <input type="hidden" class="form-control" id="request_number_pr" name="request_number">
+                    <input type="hidden" class="form-control" id="id_purchase_requisitions_pr" name="id_purchase_requisitions">
                     @error('type')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>
