@@ -45,12 +45,13 @@ class PurchaseController extends Controller
         if (request()->ajax()) {
             $orderColumn = $request->input('order')[0]['column'];
             $orderDirection = $request->input('order')[0]['dir'];
-            $columns = ['id', 'request_number', 'date', 'name', 'nm_requester', 'qc_check', 'note', '', 'type', '', ''];
+            $columns = ['id', 'request_number', 'date', 'name', 'nm_requester', 'qc_check', 'note', 'po_number', 'type', '', ''];
 
             // Query dasar
             $query = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
                     ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
-                    ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester')
+                    ->leftJoin('purchase_orders as d', 'purchase_requisitions.id', '=', 'd.reference_number')
+                    ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester','d.po_number')
             ->orderBy($columns[$orderColumn], $orderDirection);
 
             // Handle pencarian
@@ -63,6 +64,7 @@ class PurchaseController extends Controller
                         ->orWhere('c.nm_requester', 'like', '%' . $searchValue . '%')
                         ->orWhere('qc_check', 'like', '%' . $searchValue . '%')
                         ->orWhere('note', 'like', '%' . $searchValue . '%')
+                        ->orWhere('po_number', 'like', '%' . $searchValue . '%')
                         ->orWhere('type', 'like', '%' . $searchValue . '%');
                 });
             }
@@ -1241,28 +1243,32 @@ class PurchaseController extends Controller
         $data_detail_ta = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_rm = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_fg = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_wip = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
                     
@@ -2159,13 +2165,14 @@ class PurchaseController extends Controller
         if (request()->ajax()) {
             $orderColumn = $request->input('order')[0]['column'];
             $orderDirection = $request->input('order')[0]['dir'];
-            $columns = ['id', 'type_product', 'desc', 'qty', 'unit_code', 'required_date', 'cc_co', 'remarks'];
+            $columns = ['id', 'type_product', 'desc', 'qty', 'unit_code', 'required_date', 'nm_requester', 'remarks'];
 
             // Query dasar
             $query = DB::table('purchase_requisition_details as a')
                             ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                             ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                            ->select('a.*', 'b.description as desc', 'c.unit_code')
+                            ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                            ->select('a.*', 'b.description as desc', 'c.unit_code','d.nm_requester')
             ->orderBy($columns[$orderColumn], $orderDirection);
 
             // Handle pencarian
@@ -2177,7 +2184,7 @@ class PurchaseController extends Controller
                         ->orWhere('a.qty', 'like', '%' . $searchValue . '%')
                         ->orWhere('c.unit_code', 'like', '%' . $searchValue . '%')
                         ->orWhere('a.required_date', 'like', '%' . $searchValue . '%')
-                        ->orWhere('a.cc_co', 'like', '%' . $searchValue . '%')
+                        ->orWhere('d.nm_requester', 'like', '%' . $searchValue . '%')
                         ->orWhere('a.remarks', 'like', '%' . $searchValue . '%');
                 });
             }
