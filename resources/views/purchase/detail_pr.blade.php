@@ -173,7 +173,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @if($findtype->type_product=='RM')
+                                @if($findtype->type=='RM')
                                     @foreach ($dt_detailSmt as $data)
                                             <tr>
                                                 <td>{{ $data->type_product }}</td>
@@ -199,7 +199,7 @@
                                             </tr>
                                         <!-- Add more rows as needed -->
                                         @endforeach
-                                    @elseif($findtype->type_product=='TA')
+                                    @elseif($findtype->type=='TA')
                                         @foreach ($data_detail_ta as $data)
                                                 <tr>
                                                     <td>{{ $data->type_product }}</td>
@@ -225,7 +225,7 @@
                                                 </tr>
                                             <!-- Add more rows as needed -->
                                         @endforeach
-                                    @elseif($findtype->type_product=='WIP')
+                                    @elseif($findtype->type=='WIP')
                                         @foreach ($data_detail_wip as $data)
                                                 <tr>
                                                     <td>{{ $data->type_product }}</td>
@@ -251,7 +251,7 @@
                                                 </tr>
                                             <!-- Add more rows as needed -->
                                         @endforeach
-                                    @elseif($findtype->type_product=='FG')
+                                    @elseif($findtype->type=='FG')
                                         @foreach ($data_detail_fg as $data)
                                             <tr>
                                                 <td>{{ $data->type_product }}</td>

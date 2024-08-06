@@ -712,8 +712,8 @@ class PurchaseController extends Controller
                         ->select('unit_code','id')
                         ->get();
 
-        $findtype = DB::table('purchase_requisition_details as a')
-                        ->select('a.type_product')
+        $findtype = DB::table('purchase_requisitions as a')
+                        ->select('a.type')
                         ->where('a.request_number', $request_number)
                         ->first();
 
@@ -1279,7 +1279,7 @@ class PurchaseController extends Controller
                         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+                        ->select('a.*', 'b.description', 'c.unit','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
@@ -1287,7 +1287,7 @@ class PurchaseController extends Controller
                         ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+                        ->select('a.*', 'b.description', 'c.unit','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
@@ -1295,7 +1295,7 @@ class PurchaseController extends Controller
                         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+                        ->select('a.*', 'b.description', 'c.unit','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
@@ -1303,7 +1303,7 @@ class PurchaseController extends Controller
                         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+                        ->select('a.*', 'b.description', 'c.unit','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
                     
@@ -1322,15 +1322,17 @@ class PurchaseController extends Controller
         ,'data_detail_wip'));
 
     }
-    public function update_detail_rm(Request $request, $request_number){
-        //    dd($request);
+    public function update_detail_rm(Request $request, $request_number, $id){
+        //    dd($id);
         //     die;
         $request_number = $request_number;
         $request->merge([
-            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+            'request_number' => $request_number,
+            'id_purchase_requisitions' => $id // Ganti 'request_number' dengan nilai variabel buatan Anda
         ]);
         if($request->has('save_detail')){
             $pesan = [
+                'id_purchase_requisitions.required' => 'type masih kosong',
                 'type_product.required' => 'type masih kosong',
                 'master_products_id.required' => 'master_products_id masih kosong',
                 'qty.required' => 'qty masih kosong',
@@ -1343,6 +1345,7 @@ class PurchaseController extends Controller
             ];
     
             $validatedData = $request->validate([
+                'id_purchase_requisitions' => 'required',
                 'type_product' => 'required',
                 'master_products_id' => 'required',
                 'qty' => 'required',
@@ -1360,7 +1363,7 @@ class PurchaseController extends Controller
             PurchaseRequisitionsDetail::create($validatedData);
     
             // return "Tombol Save detail diklik.";
-            return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil disimpan.');
+            return Redirect::to('/edit-pr/'.$id)->with('pesan', 'Data berhasil disimpan.');
             // return Redirect::to('/detail-pr/'.$request_number);
         }elseif ($request->has('hapus_detail')){
             $validatedData = $request->input('hapus_detail');
@@ -2297,28 +2300,32 @@ class PurchaseController extends Controller
         $data_detail_rm = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.rm_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.rm_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_ta = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_wip = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.wip_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.wip_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
         $data_detail_fg = DB::table('purchase_requisition_details as a')
                         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','b.product_code')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.product_code','d.nm_requester')
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
