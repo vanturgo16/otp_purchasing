@@ -391,6 +391,7 @@ function edit_pr(id) {
       $('#cc_co_pr').val(response.data.find.cc_co)
       $('#remarks_pr').val(response.data.find.remarks)
       $('#request_number_pr').val(response.data.find.request_number)
+      $('#id_purchase_requisitions_pr').val(response.data.find.id_purchase_requisitions)
 
       let produkSelect = response.data.find.master_products_id
       let unitSelect = response.data.find.master_units_id
@@ -423,6 +424,80 @@ function edit_pr(id) {
         let isSelected = unitrequester == value.id ? 'selected' : ''
 
         $('#cc_co_pr').append(
+          `<option value="` + value.id + `"` + isSelected + `>` + value.nm_requester + `</option>`
+        )
+      });
+
+
+      // Contoh: Lakukan tindakan selanjutnya setelah data berhasil dikirim
+      // window.location.href = '/success-page';
+    },
+    error: function (xhr, status, error) {
+      // Tangkap pesan error jika ada
+      alert('Terjadi kesalahan saat mengirim data.');
+    }
+  });
+  // })
+}
+
+function edit_detail_pr(id) {
+  // $('.editPenjualan').click(function () {
+  //   let id = $(this).attr('data-id')
+  // alert('test');
+  // Kirim data melalui Ajax
+  $.ajax({
+    url: '/get-edit-pr/' + id,
+    method: 'GET',
+    data: {
+      id: id
+    },
+    success: function (response) {
+      // Tangkap pesan dari server dan tampilkan ke user
+      // console.log(response.data.find.cc_co);
+
+      $('#form_pr_detail_edit').attr('action', '/update_pr_detail_editx/' + response.data.find.id)
+      $('#id_detail_pr').val(response.data.find.id)
+      $('#type_product_detail_pr').val(response.data.find.type_product)
+      $('#master_products_id_detail_pr').val(response.data.find.master_products_id)
+      $('#qty_detail_pr').val(response.data.find.qty)
+      $('#master_units_id_detail_pr').val(response.data.find.master_units_id)
+      $('#required_date_detail_pr').val(response.data.find.required_date)
+      $('#cc_co_detail_pr').val(response.data.find.cc_co)
+      $('#remarks_detail_pr').val(response.data.find.remarks)
+      $('#request_number_detail_pr').val(response.data.find.request_number)
+      $('#id_purchase_requisitions_detail_pr').val(response.data.find.id_purchase_requisitions)
+
+      let produkSelect = response.data.find.master_products_id
+      let unitSelect = response.data.find.master_units_id
+      let unitrequester = response.data.find.cc_co
+
+      $('#master_products_id_detail_pr').empty()
+      $('#master_products_id_detail_pr').append(` <option>Pilih Produk</option>`)
+      $.each(response.data.produk, function (i, value) {
+        let isSelected = produkSelect == value.id ? 'selected' : ''
+
+        $('#master_products_id_detail_pr').append(
+          `<option value="` + value.id + `"` + isSelected + `>` + value.description + `</option>`
+        )
+      });
+
+      $('#master_units_id_detail_pr').empty()
+      $('#master_units_id_detail_pr').append(` <option>Pilih Unit</option>`)
+      $.each(response.data.unit, function (i, value) {
+        let isSelected = unitSelect == value.id ? 'selected' : ''
+
+        $('#master_units_id_detail_pr').append(
+          `<option value="` + value.id + `"` + isSelected + `>` + value.unit_code + `</option>`
+        )
+      });
+
+      
+      $('#cc_co_detail_pr').empty()
+      $('#cc_co_detail_pr').append(` <option>Pilih CC / CO</option>`)
+      $.each(response.data.requester, function (i, value) {
+        let isSelected = unitrequester == value.id ? 'selected' : ''
+
+        $('#cc_co_detail_pr').append(
           `<option value="` + value.id + `"` + isSelected + `>` + value.nm_requester + `</option>`
         )
       });

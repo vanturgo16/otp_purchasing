@@ -14,7 +14,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-8 d-flex align-items-center gap-10">
-                <img src="http://eks.olefinatifaplas.my.id/img/otp-icon.jpg" width="100" height="100">
+                <img src="http://eks.olefinatifaplas.my.id/img/otp-icon.jpg" width="50" height="50">
                 <small style="padding-left: 10px">
                     <b>PT OLEFINA TIFAPLAS POLIKEMINDO</b><br />
                     Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa<br />
@@ -28,7 +28,7 @@
         </div>
 
         <div class="row text-center">
-            <h1>PURCHASE REQUISITION</h1>
+            <h3>PURCHASE REQUISITION</h3>
         </div>
 
         <div class="row d-flex justify-content-between">
@@ -66,7 +66,7 @@
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
-                                    <td>{{ $data->cc_co }}</td>
+                                    <td>{{ $data->nm_requester }}</td>
                                 </tr>
                         @endforeach
                     @elseif($PurchaseRequisitions->type=='TA')
@@ -79,7 +79,7 @@
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
-                                    <td>{{ $data->cc_co }}</td>
+                                    <td>{{ $data->nm_requester }}</td>
                                 </tr>
                         @endforeach
                     @elseif($PurchaseRequisitions->type=='WIP')
@@ -92,7 +92,7 @@
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
-                                    <td>{{ $data->cc_co }}</td>
+                                    <td>{{ $data->nm_requester }}</td>
                                 </tr>
                         @endforeach
                     @elseif($PurchaseRequisitions->type=='FG')
@@ -105,7 +105,7 @@
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>
                                     <td>{{ $data->required_date }}</td>
-                                    <td>{{ $data->cc_co }}</td>
+                                    <td>{{ $data->nm_requester }}</td>
                                 </tr>
                         @endforeach
                     @endif
@@ -116,7 +116,7 @@
 
         <div class="row">
             <ul style="list-style-type: '- ';">
-          
+          Note : {{ $datas[0]->note; }}
             </ul>
         </div>
         <hr>

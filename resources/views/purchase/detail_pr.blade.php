@@ -173,31 +173,111 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($dt_detailSmt as $data)
-                                        <tr>
-                                            <td>{{ $data->type_product }}</td>
-                                            <td>{{ $data->description }}</td>
-                                            <td>{{ $data->qty }}</td>
-                                            <td>{{ $data->unit_code }}</td>
-                                            <td>{{ $data->required_date }}</td>
-                                            <td>{{ $data->cc_co }}</td>
-                                            <td>{{ $data->remarks }}</td>
-                                            <td>
-                                    
-                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
-                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
-                                                        data-bs-toggle="modal"
-                                                        onclick="edit_pr_smt('{{ $data->id }}')"
-                                                        data-bs-target="#edit-pr-smt" data-id="">
-                                                        <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
-                                                    @include('purchase.modal')
+                                @if($findtype->type_product=='RM')
+                                    @foreach ($dt_detailSmt as $data)
+                                            <tr>
+                                                <td>{{ $data->type_product }}</td>
+                                                <td>{{ $data->description }}</td>
+                                                <td>{{ $data->qty }}</td>
+                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->required_date }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
+                                                <td>{{ $data->remarks }}</td>
+                                                <td>
+                                        
+                                                        <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_detail_pr('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr-smt" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
+                                                        </button></center></td>
+                                                        @include('purchase.modal')
+                                                
+                                            </tr>
+                                        <!-- Add more rows as needed -->
+                                        @endforeach
+                                    @elseif($findtype->type_product=='TA')
+                                        @foreach ($data_detail_ta as $data)
+                                                <tr>
+                                                    <td>{{ $data->type_product }}</td>
+                                                    <td>{{ $data->description }}</td>
+                                                    <td>{{ $data->qty }}</td>
+                                                    <td>{{ $data->unit_code }}</td>
+                                                    <td>{{ $data->required_date }}</td>
+                                                    <td>{{ $data->cc_co }}</td>
+                                                    <td>{{ $data->remarks }}</td>
+                                                    <td>
                                             
-                                        </tr>
-                                    <!-- Add more rows as needed -->
-                                    @endforeach
+                                                            <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                                <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-info " id=""
+                                                                data-bs-toggle="modal"
+                                                                onclick="edit_pr_smt('{{ $data->id }}')"
+                                                                data-bs-target="#edit-pr-smt" data-id="">
+                                                                <i class="bx bx-edit-alt" title="edit data"></i>
+                                                            </button></center></td>
+                                                            @include('purchase.modal')
+                                                    
+                                                </tr>
+                                            <!-- Add more rows as needed -->
+                                        @endforeach
+                                    @elseif($findtype->type_product=='WIP')
+                                        @foreach ($data_detail_wip as $data)
+                                                <tr>
+                                                    <td>{{ $data->type_product }}</td>
+                                                    <td>{{ $data->description }}</td>
+                                                    <td>{{ $data->qty }}</td>
+                                                    <td>{{ $data->unit_code }}</td>
+                                                    <td>{{ $data->required_date }}</td>
+                                                    <td>{{ $data->cc_co }}</td>
+                                                    <td>{{ $data->remarks }}</td>
+                                                    <td>
+                                            
+                                                            <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                                <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-info " id=""
+                                                                data-bs-toggle="modal"
+                                                                onclick="edit_pr_smt('{{ $data->id }}')"
+                                                                data-bs-target="#edit-pr-smt" data-id="">
+                                                                <i class="bx bx-edit-alt" title="edit data"></i>
+                                                            </button></center></td>
+                                                            @include('purchase.modal')
+                                                    
+                                                </tr>
+                                            <!-- Add more rows as needed -->
+                                        @endforeach
+                                    @elseif($findtype->type_product=='FG')
+                                        @foreach ($data_detail_fg as $data)
+                                            <tr>
+                                                <td>{{ $data->type_product }}</td>
+                                                <td>{{ $data->description }}</td>
+                                                <td>{{ $data->qty }}</td>
+                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->required_date }}</td>
+                                                <td>{{ $data->cc_co }}</td>
+                                                <td>{{ $data->remarks }}</td>
+                                                <td>
+                                        
+                                                        <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_pr_smt('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr-smt" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
+                                                        </button></center></td>
+                                                        @include('purchase.modal')
+                                                
+                                            </tr>
+                                        <!-- Add more rows as needed -->
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
