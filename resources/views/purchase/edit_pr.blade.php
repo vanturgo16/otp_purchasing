@@ -46,6 +46,7 @@
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Request Number</label>
                                         <div class="col-sm-9">
                                             <input type="text" name="request_number" class="form-control" value="{{ $datas[0]->request_number; }}" readonly>
+                                            <input type="hidden" name="id" class="form-control" value="{{ $datas[0]->id; }}" readonly>
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
@@ -115,7 +116,7 @@
             </div>
         </div>
         </form>
-        <form method="post" action="/update_detail_rm/{{ $datas[0]->request_number; }}" class="form-material m-t-40" enctype="multipart/form-data">
+        <form method="post" action="/update_detail_rm/{{ $datas[0]->request_number; }}/{{ $datas[0]->id; }}" class="form-material m-t-40" enctype="multipart/form-data">
         @csrf
         <div class="row">
             <div class="col-lg-12">
@@ -201,8 +202,8 @@
                                         <div class="col-sm-9">
                                             <select class="form-select data-select2" name="cc_co" value="{{ old('cc_co') }}">
                                                 <option>Pilih CC / CO</option>
-                                                @foreach ($datas as $data)
-                                                    <option>{{ $data->nm_requester }}</option>
+                                                @foreach ($data_requester as $data)
+                                                    <option value="{{ $data->id }}">{{ $data->nm_requester }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -261,7 +262,7 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->nm_requester }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
@@ -287,7 +288,7 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
@@ -314,7 +315,7 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
@@ -341,7 +342,7 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>

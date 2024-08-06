@@ -52,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/detail-po/{reference_number}/{id}', [PurchaseController::class, 'detail_po'])->name('detail_po');
         Route::post('/simpan_pr_rm', [PurchaseController::class, 'simpan_pr_rm'])->name('simpan_pr_rm');
         Route::post('/simpan_detail_rm/{request_number}', [PurchaseController::class, 'simpan_detail_rm'])->name('simpan_detail_rm');
-        Route::post('/update_detail_rm/{request_number}', [PurchaseController::class, 'update_detail_rm'])->name('update_detail_rm');
+        Route::post('/update_detail_rm/{request_number}/{id}', [PurchaseController::class, 'update_detail_rm'])->name('update_detail_rm');
         Route::post('/simpan_pr_wip', [PurchaseController::class, 'simpan_pr_wip'])->name('simpan_pr_wip');
         Route::post('/simpan_detail_wip/{request_number}', [PurchaseController::class, 'simpan_detail_wip'])->name('simpan_detail_rm');
         Route::post('/simpan_pr_fg', [PurchaseController::class, 'simpan_pr_fg'])->name('simpan_pr_fg');

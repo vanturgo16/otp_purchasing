@@ -428,6 +428,30 @@
         radio.addEventListener('change', calculateAmount);
     });
 
+    // Fungsi untuk memformat angka
+    function numberFormat(number, decimals, dec_point, thousands_sep) {
+        number = (number + '').replace(',', '').replace(' ', '');
+        var n = !isFinite(+number) ? 0 : +number,
+            prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+            sep = (typeof thousands_sep === 'undefined') ? '.' : thousands_sep,
+            dec = (typeof dec_point === 'undefined') ? ',' : dec_point,
+            s = '',
+            toFixedFix = function (n, prec) {
+                var k = Math.pow(10, prec);
+                return '' + (Math.round(n * k) / k).toFixed(prec);
+            };
+        // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+        s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+        if (s[0].length > 3) {
+            s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+        }
+        if ((s[1] || '').length < prec) {
+            s[1] = s[1] || '';
+            s[1] += new Array(prec - s[1].length + 1).join('0');
+        }
+        return s.join(dec);
+    }
+
     // Fungsi untuk menghitung jumlah
     function calculateAmount() {
         const qty = parseFloat(qtyInput.value);
@@ -456,8 +480,12 @@
         const total_amount = amount + tax;
 
         // Masukkan hasil perhitungan ke dalam input amount dan total_amount
-        amountInput.value = isNaN(amount) ? '' : amount.toFixed(0); // 0 menghasilkan bilangan bulat
-        total_amountInput.value = isNaN(total_amount) ? '' : total_amount.toFixed(0); // 0 menghasilkan bilangan bulat
+        amountInput.value = isNaN(amount) ? '' : amount.toFixed(0); 
+        total_amountInput.value = isNaN(total_amount) ? '' : total_amount.toFixed(0); 
+
+         // Masukkan hasil perhitungan ke dalam input amount dan total_amount
+        // amountInput.value = isNaN(amount) ? '' : numberFormat(amount, 3, ',', '.');
+        // total_amountInput.value = isNaN(total_amount) ? '' : numberFormat(total_amount, 3, ',', '.');
     }
 </script>
 
