@@ -1932,6 +1932,7 @@ class PurchaseController extends Controller
     //    die;
        $request->merge([
         'id_purchase_orders' => $id, // Ganti 'request_number' dengan nilai variabel buatan Anda
+        'amount' => $request->total_amount,
        ]);
         if($request->has('save_detail')){
             $pesan = [
