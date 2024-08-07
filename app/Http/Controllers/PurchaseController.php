@@ -1136,6 +1136,12 @@ class PurchaseController extends Controller
     {
         // dd('test');
         // die;
+        $referenceNumber = DB::table('purchase_orders')
+        ->where('id', $id)
+        ->value('reference_number');
+
+        $validatedData = DB::update("UPDATE `purchase_requisitions` SET `status` = 'Posted' WHERE `id` = '$referenceNumber'");
+
         PurchaseOrders::destroy($id);
 
         PurchaseOrderDetails::where('id_purchase_orders', $id)->delete();
@@ -1461,9 +1467,9 @@ class PurchaseController extends Controller
     public function detail_po($reference_number,$id){
         // dd($id);
         // die;
-        $findtype = DB::table('purchase_order_details_smt')
-                        ->select('type_product')
-                        ->where('id_pr', $reference_number)
+        $findtype = DB::table('purchase_orders')
+                        ->select('type as type_product')
+                        ->where('id', $id)
                         ->first();
                         
         $datas = MstRequester::get();
@@ -1487,7 +1493,27 @@ class PurchaseController extends Controller
                         ->select('unit_code','id','unit')
                         ->get();
 
-        $POSmt = PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->get();
+        // $POSmt = PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->get();
+
+        $POSmt = PurchaseOrderDetailsSMT::select('purchase_order_details_smt.*', 'master_raw_materials.description as raw_material_description')
+        ->leftJoin('master_raw_materials', 'purchase_order_details_smt.description', '=', 'master_raw_materials.id')
+        ->where('id_pr', $reference_number)
+        ->get();
+
+        $POSmtTA = PurchaseOrderDetailsSMT::select('purchase_order_details_smt.*', 'master_tool_auxiliaries.description as raw_material_description')
+        ->leftJoin('master_tool_auxiliaries', 'purchase_order_details_smt.description', '=', 'master_tool_auxiliaries.id')
+        ->where('id_pr', $reference_number)
+        ->get();
+
+        $POSmtfg = PurchaseOrderDetailsSMT::select('purchase_order_details_smt.*', 'master_product_fgs.description as raw_material_description')
+        ->leftJoin('master_product_fgs', 'purchase_order_details_smt.description', '=', 'master_product_fgs.id')
+        ->where('id_pr', $reference_number)
+        ->get();
+
+        $POSmtwip = PurchaseOrderDetailsSMT::select('purchase_order_details_smt.*', 'master_wips.description as raw_material_description')
+        ->leftJoin('master_wips', 'purchase_order_details_smt.description', '=', 'master_wips.id')
+        ->where('id_pr', $reference_number)
+        ->get();
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -1498,7 +1524,7 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.detail_po',compact('datas','supplier','rawMaterials','units'
-        ,'reference_number','POSmt','id','ta','fg','wip','findtype'));
+        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg'));
     }
     public function tambah_detail_po($reference_number,$id){
 
@@ -1584,14 +1610,17 @@ class PurchaseController extends Controller
         
         // Simpan hasil query ke dalam tabel purchase_order_details_smt
         foreach ($results as $result) {
-            DB::table('purchase_order_details_smt')->insert([
-                'id_pr' => $result->id,
-                'type_product' => $result->type_product,
-                'description' => $result->id_produk,
-                'qty' => $result->qty,
-                'request_number' => $result->request_number,
-                'unit' => $result->unit,
-            ]);
+            // Pengecekan data yang tidak boleh kosong
+            if (!empty($result->type_product) && !empty($result->id_produk) && !empty($result->qty)) {
+                DB::table('purchase_order_details_smt')->insert([
+                    'id_pr' => $result->id,
+                    'type_product' => $result->type_product,
+                    'description' => $result->id_produk,
+                    'qty' => $result->qty,
+                    'request_number' => $result->request_number,
+                    'unit' => $result->unit,
+                ]);
+            }
         }
 
         return Redirect::to('/detail-po/'. $reference_number. '/' .$id);
@@ -1611,6 +1640,9 @@ class PurchaseController extends Controller
             // Handle jika hasil kueri tidak ditemukan
             return redirect()->back()->with('error', 'Data request tidak ditemukan');
         }
+        $request->merge([
+            'amount' => $request->total_amount,
+           ]);
     
         $validatedData = $request->validate([
             'id_pr' => 'required',
@@ -1622,7 +1654,7 @@ class PurchaseController extends Controller
             'discount' => 'required',
             'tax' => 'required',
             'amount' => 'required',
-            'note' => 'required',
+            'note' => 'nullable',
         ]);
     
         // Set nilai 'request_number' dengan hasil kueri database
@@ -1633,7 +1665,7 @@ class PurchaseController extends Controller
         return Redirect::to('/detail-po/'.$reference_number.'/'.$id)->with('pesan', 'Purchase Requisition Detail berhasil ditambahkan.');
     }public function simpan_detail_po_fix(Request $request, $id, $reference_number){
         
-        // dd($id);
+        // dd($reference_number);
         // die;
 
         $findtype = DB::table('purchase_orders')
@@ -1750,8 +1782,15 @@ class PurchaseController extends Controller
         // dd($total_discount);
         // die;
         
+        
+
+        $total_ppn = DB::table('purchase_order_details_smt')
+        ->where('id_pr', $reference_number)
+        ->sum(DB::raw("CASE WHEN tax = 'Y' THEN ((qty * price) - discount) * 0.11 ELSE 0 END"));
+
         $validatedData = DB::update("UPDATE `purchase_orders` SET `total_discount` = '$total_discount', 
-        `sub_total` = '$sub_total', `total_amount` = '$total_amount' WHERE `id` = '$id';");
+        `sub_total` = '$sub_total', `total_amount` = '$total_amount', total_ppn='$total_ppn' WHERE `id` = '$id';");
+
     
         return Redirect::to('/purchase-order')->with('pesan', 'Purchase Order berhasil ditambahkan.');
     }public function posted_po($id)
@@ -1962,7 +2001,7 @@ class PurchaseController extends Controller
                 'discount' => 'required',
                 'tax' => 'required',
                 'amount' => 'required',
-                'note' => 'required',
+                'note' => 'nullable',
                 
     
             ], $pesan);
@@ -1977,9 +2016,13 @@ class PurchaseController extends Controller
             $total_amount = $sub_total-$total_discount;
             // dd($total_discount);
             // die;
+
+            $total_ppn = DB::table('purchase_order_details')
+            ->where('id_purchase_orders', $id)
+            ->sum(DB::raw("CASE WHEN tax = 'Y' THEN ((qty * price) - discount) * 0.11 ELSE 0 END"));
             
             $validatedData = DB::update("UPDATE `purchase_orders` SET `total_discount` = '$total_discount', 
-            `sub_total` = '$sub_total', `total_amount` = '$total_amount' WHERE `id` = '$id';");
+            `sub_total` = '$sub_total', `total_amount` = '$total_amount', total_ppn = '$total_ppn' WHERE `id` = '$id';");
     
             // return "Tombol Save detail diklik.";
             return Redirect::to('/edit-po/'.$id)->with('pesan', 'Data berhasil disimpan.');
@@ -1998,9 +2041,13 @@ class PurchaseController extends Controller
             $total_amount = $sub_total-$total_discount;
             // dd($total_discount);
             // die;
+
+            $total_ppn = DB::table('purchase_order_details')
+            ->where('id_purchase_orders', $id)
+            ->sum(DB::raw("CASE WHEN tax = 'Y' THEN ((qty * price) - discount) * 0.11 ELSE 0 END"));
             
             $validatedData = DB::update("UPDATE `purchase_orders` SET `total_discount` = '$total_discount', 
-            `sub_total` = '$sub_total', `total_amount` = '$total_amount' WHERE `id` = '$id'");
+            `sub_total` = '$sub_total', `total_amount` = '$total_amount', total_ppn = '$total_ppn' WHERE `id` = '$id'");
 
             return Redirect::to('/edit-po/'.$id)->with('pesan', 'Data berhasil dihapus.');
 
@@ -2109,7 +2156,12 @@ class PurchaseController extends Controller
     {
         // dd ($id);
         // die;
-        $purchaseOrder = PurchaseOrders::findOrFail($id);
+        $purchaseOrder = DB::table('purchase_orders as a')
+            ->leftJoin('master_suppliers as b', 'a.id_master_suppliers', '=', 'b.id')
+            ->leftJoin('master_term_payments as c', 'b.id_master_term_payments', '=', 'c.id')
+            ->select('a.*', 'c.term_payment')
+            ->where('a.id', $id)
+            ->first();
         $data_detail_rm = DB::table('purchase_order_details as a')
                 ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
@@ -2333,7 +2385,13 @@ class PurchaseController extends Controller
                 'data_detail_fg','PurchaseRequisitions'));
     }public function print_po_ind($id)
     {
-        $purchaseOrder = PurchaseOrders::findOrFail($id);
+        // $purchaseOrder = PurchaseOrders::findOrFail($id);
+        $purchaseOrder = DB::table('purchase_orders as a')
+            ->leftJoin('master_suppliers as b', 'a.id_master_suppliers', '=', 'b.id')
+            ->leftJoin('master_term_payments as c', 'b.id_master_term_payments', '=', 'c.id')
+            ->select('a.*', 'c.term_payment')
+            ->where('a.id', $id)
+            ->first();
         $data_detail_rm = DB::table('purchase_order_details as a')
                 ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')

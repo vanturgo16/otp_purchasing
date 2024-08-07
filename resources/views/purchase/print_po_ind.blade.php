@@ -243,7 +243,7 @@
         <div class="row align-items-start">
             <div class="col-8">
                 <h6>#{{ ucfirst(numberToWords($total))." rupiah" }}#</h6>
-                <h6>Term Of Payment :</h6>
+                <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</h6>
                 <h6>Catatan &nbsp;&nbsp;:</h6>
             </div>
