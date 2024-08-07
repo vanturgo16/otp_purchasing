@@ -256,7 +256,8 @@
                     <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($total-$purchaseOrder->total_discount,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format(($total-$purchaseOrder->total_discount)-$purchaseOrder->down_payment-$purchaseOrder->total_ppn,3,',','.'); }}</h6>  
+                    <?php $total_final = ($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn ?>
+                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total_final,3,',','.'); }}</h6>  
                 </div>
             </div>
         </div>
