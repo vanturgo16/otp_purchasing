@@ -88,28 +88,28 @@
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
-                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                         @elseif($findtype->type_product=='FG')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
                                                 @endforeach
                                             </select>
                                         @elseif($findtype->type_product=='WIP')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product WIP</option>
                                                 @foreach ($wip as $data)
-                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                         @elseif($findtype->type_product=='TA')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product TA</option>
                                                 @foreach ($ta as $data)
-                                                    <option value="{{ $data->description }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                         @endif
@@ -221,10 +221,79 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($POSmt as $data)
+                                @if($findtype->type_product=='RM')    
+                                    @foreach ($POSmt as $data)
+                                            <tr>
+                                                <td>{{ $data->type_product }}</td>
+                                                <td>{{ $data->raw_material_description }}</td>
+                                                <td>{{ $data->qty }}</td>
+                                                <td>{{ $data->unit }}</td>
+                                                <td>{{ $data->price }}</td>
+                                                <td>{{ $data->discount }}</td>
+                                                <td>{{ $data->tax }}</td>
+                                                <td>{{ $data->amount }}</td>
+                                                <td>{{ $data->note }}</td>
+                                                <td>
+                                        
+                                                        <form action="/hapus_po_detail/{{ $data->id }}/{{ $id }}" method="post"
+                                                            class="d-inline">
+                                                            @method('delete')
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                            onclick="return confirm('Anda yakin mau menghapus item ini ?')">
+                                                                <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                            </button>
+                                                        </form>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_pr_smt('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr-smt" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
+                                                        </button></center></td>
+                                                        @include('purchase.modal')
+                                                
+                                            </tr>
+                                        <!-- Add more rows as needed -->
+                                        @endforeach
+                                @elseif($findtype->type_product=='TA')    
+                                        @foreach ($POSmtTA as $data)
                                         <tr>
                                             <td>{{ $data->type_product }}</td>
-                                            <td>{{ $data->description }}</td>
+                                            <td>{{ $data->raw_material_description }}</td>
+                                            <td>{{ $data->qty }}</td>
+                                            <td>{{ $data->unit }}</td>
+                                            <td>{{ $data->price }}</td>
+                                            <td>{{ $data->discount }}</td>
+                                            <td>{{ $data->tax }}</td>
+                                            <td>{{ $data->amount }}</td>
+                                            <td>{{ $data->note }}</td>
+                                            <td>
+                                    
+                                                    <form action="/hapus_po_detail/{{ $data->id }}/{{ $id }}" method="post"
+                                                        class="d-inline">
+                                                        @method('delete')
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Anda yakin mau menghapus item ini ?')">
+                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                        data-bs-toggle="modal"
+                                                        onclick="edit_pr_smt('{{ $data->id }}')"
+                                                        data-bs-target="#edit-pr-smt" data-id="">
+                                                        <i class="bx bx-edit-alt" title="edit data"></i>
+                                                    </button></center></td>
+                                                    @include('purchase.modal')
+                                            
+                                        </tr>
+                                        <!-- Add more rows as needed -->
+                                        @endforeach
+                                    @elseif($findtype->type_product=='WIP')    
+                                        @foreach ($POSmtwip as $data)
+                                        <tr>
+                                            <td>{{ $data->type_product }}</td>
+                                            <td>{{ $data->raw_material_description }}</td>
                                             <td>{{ $data->qty }}</td>
                                             <td>{{ $data->unit }}</td>
                                             <td>{{ $data->price }}</td>
@@ -253,7 +322,42 @@
                                             
                                         </tr>
                                     <!-- Add more rows as needed -->
-                                    @endforeach
+                                        @endforeach
+                                    @elseif($findtype->type_product=='FG')    
+                                        @foreach ($POSmtfg as $data)
+                                        <tr>
+                                            <td>{{ $data->type_product }}</td>
+                                            <td>{{ $data->raw_material_description }}</td>
+                                            <td>{{ $data->qty }}</td>
+                                            <td>{{ $data->unit }}</td>
+                                            <td>{{ $data->price }}</td>
+                                            <td>{{ $data->discount }}</td>
+                                            <td>{{ $data->tax }}</td>
+                                            <td>{{ $data->amount }}</td>
+                                            <td>{{ $data->note }}</td>
+                                            <td>
+                                    
+                                                    <form action="/hapus_po_detail/{{ $data->id }}/{{ $id }}" method="post"
+                                                        class="d-inline">
+                                                        @method('delete')
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Anda yakin mau menghapus item ini ?')">
+                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                        data-bs-toggle="modal"
+                                                        onclick="edit_pr_smt('{{ $data->id }}')"
+                                                        data-bs-target="#edit-pr-smt" data-id="">
+                                                        <i class="bx bx-edit-alt" title="edit data"></i>
+                                                    </button></center></td>
+                                                    @include('purchase.modal')
+                                            
+                                        </tr>
+                                    <!-- Add more rows as needed -->
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
