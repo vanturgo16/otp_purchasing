@@ -73,7 +73,7 @@
                                 
                                
                                     <div class="row mb-4 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product..</label>
+                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
                                         <div class="col-sm-9">
                                             <input type="radio" id="html" name="type" value="{{ $findtype->type_product }}" checked>
                                             <input type="hidden" id="html" name="type_product" value="{{ $findtype->type_product }}" checked>
@@ -147,10 +147,10 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax</label>
                                         <div class="col-sm-9">
-                                            <input type="radio" id="html" name="tax" value="Y" checked>
-                                              <label for="html">Y</label>
-                                              <input type="radio" id="css" name="tax" value="N">
-                                              <label for="css">N</label>
+                                            <input type="radio" id="tax_Y" name="tax" value="Y" checked>
+                                            <label for="tax_Y">Y</label>
+                                            <input type="radio" id="tax_N" name="tax" value="N">
+                                            <label for="tax_N">N</label>
                                         </div>
                                     </div>
                                     <style>
@@ -162,6 +162,12 @@
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Amount </label>
                                         <div class="col-sm-9">
                                             <input type="number" class="form-control custom-bg-gray" name="amount" id="amount">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4 field-wrapper required-field">
+                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Total Amount </label>
+                                        <div class="col-sm-9">
+                                            <input type="number" class="form-control custom-bg-gray" name="total_amount" id="total_amount" readonly>
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper">
@@ -280,11 +286,42 @@
     const priceInput = document.getElementById('price');
     const discountInput = document.getElementById('discount');
     const amountInput = document.getElementById('amount');
+    const total_amountInput = document.getElementById('total_amount');
+    const taxRadios = document.getElementsByName('tax');
 
     // Tambahkan event listener untuk menghitung jumlah saat nilai berubah
     [qtyInput, priceInput, discountInput].forEach(input => {
         input.addEventListener('input', calculateAmount);
     });
+
+    // Tambahkan event listener untuk menghitung jumlah saat radio button berubah
+    taxRadios.forEach(radio => {
+        radio.addEventListener('change', calculateAmount);
+    });
+
+    // Fungsi untuk memformat angka
+    function numberFormat(number, decimals, dec_point, thousands_sep) {
+        number = (number + '').replace(',', '').replace(' ', '');
+        var n = !isFinite(+number) ? 0 : +number,
+            prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+            sep = (typeof thousands_sep === 'undefined') ? '.' : thousands_sep,
+            dec = (typeof dec_point === 'undefined') ? ',' : dec_point,
+            s = '',
+            toFixedFix = function (n, prec) {
+                var k = Math.pow(10, prec);
+                return '' + (Math.round(n * k) / k).toFixed(prec);
+            };
+        // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+        s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+        if (s[0].length > 3) {
+            s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+        }
+        if ((s[1] || '').length < prec) {
+            s[1] = s[1] || '';
+            s[1] += new Array(prec - s[1].length + 1).join('0');
+        }
+        return s.join(dec);
+    }
 
     // Fungsi untuk menghitung jumlah
     function calculateAmount() {
@@ -292,16 +329,34 @@
         const price = parseFloat(priceInput.value);
         const discount = parseFloat(discountInput.value);
 
+        if (isNaN(qty) || isNaN(price) || isNaN(discount)) {
+            amountInput.value = '';
+            total_amountInput.value = '';
+            return;
+        }
+
         // Hitung jumlah diskon dalam persen
         const discountAmount = (price * discount) / 100;
 
-        // Hitung jumlah
-        const amount = (qty * price) - discount;
+        // Hitung jumlah setelah diskon
+        const amount = ((qty * price) - discount);
 
-         // Masukkan hasil perhitungan ke dalam input amount dengan format ribuan
-          //  amountInput.value = isNaN(amount) ? '' : amount.toLocaleString('id-ID');
+        // Tentukan apakah pajak dihitung atau tidak
+        const isTaxed = document.querySelector('input[name="tax"]:checked').value === 'Y';
 
-          amountInput.value = isNaN(amount) ? '' : amount.toFixed(0); // 0 menghasilkan bilangan bulat
+        // Hitung pajak 11% dari amount jika applicable
+        const tax = isTaxed ? (amount * 11) / 100 : 0;
+
+        // Hitung total amount
+        const total_amount = amount + tax;
+
+        // Masukkan hasil perhitungan ke dalam input amount dan total_amount
+        amountInput.value = isNaN(amount) ? '' : amount.toFixed(0); 
+        total_amountInput.value = isNaN(total_amount) ? '' : total_amount.toFixed(0); 
+
+         // Masukkan hasil perhitungan ke dalam input amount dan total_amount
+        // amountInput.value = isNaN(amount) ? '' : numberFormat(amount, 3, ',', '.');
+        // total_amountInput.value = isNaN(total_amount) ? '' : numberFormat(total_amount, 3, ',', '.');
     }
 </script>
 @endsection

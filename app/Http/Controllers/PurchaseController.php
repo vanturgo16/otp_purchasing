@@ -1136,6 +1136,12 @@ class PurchaseController extends Controller
     {
         // dd('test');
         // die;
+        $referenceNumber = DB::table('purchase_orders')
+        ->where('id', $id)
+        ->value('reference_number');
+
+        $validatedData = DB::update("UPDATE `purchase_requisitions` SET `status` = 'Posted' WHERE `id` = '$referenceNumber'");
+
         PurchaseOrders::destroy($id);
 
         PurchaseOrderDetails::where('id_purchase_orders', $id)->delete();
@@ -1461,9 +1467,9 @@ class PurchaseController extends Controller
     public function detail_po($reference_number,$id){
         // dd($id);
         // die;
-        $findtype = DB::table('purchase_order_details_smt')
-                        ->select('type_product')
-                        ->where('id_pr', $reference_number)
+        $findtype = DB::table('purchase_orders')
+                        ->select('type as type_product')
+                        ->where('id', $id)
                         ->first();
                         
         $datas = MstRequester::get();
@@ -1584,14 +1590,17 @@ class PurchaseController extends Controller
         
         // Simpan hasil query ke dalam tabel purchase_order_details_smt
         foreach ($results as $result) {
-            DB::table('purchase_order_details_smt')->insert([
-                'id_pr' => $result->id,
-                'type_product' => $result->type_product,
-                'description' => $result->id_produk,
-                'qty' => $result->qty,
-                'request_number' => $result->request_number,
-                'unit' => $result->unit,
-            ]);
+            // Pengecekan data yang tidak boleh kosong
+            if (!empty($result->type_product) && !empty($result->id_produk) && !empty($result->qty)) {
+                DB::table('purchase_order_details_smt')->insert([
+                    'id_pr' => $result->id,
+                    'type_product' => $result->type_product,
+                    'description' => $result->id_produk,
+                    'qty' => $result->qty,
+                    'request_number' => $result->request_number,
+                    'unit' => $result->unit,
+                ]);
+            }
         }
 
         return Redirect::to('/detail-po/'. $reference_number. '/' .$id);
@@ -1611,6 +1620,9 @@ class PurchaseController extends Controller
             // Handle jika hasil kueri tidak ditemukan
             return redirect()->back()->with('error', 'Data request tidak ditemukan');
         }
+        $request->merge([
+            'amount' => $request->total_amount,
+           ]);
     
         $validatedData = $request->validate([
             'id_pr' => 'required',
@@ -1622,7 +1634,7 @@ class PurchaseController extends Controller
             'discount' => 'required',
             'tax' => 'required',
             'amount' => 'required',
-            'note' => 'required',
+            'note' => 'nullable',
         ]);
     
         // Set nilai 'request_number' dengan hasil kueri database
@@ -1633,7 +1645,7 @@ class PurchaseController extends Controller
         return Redirect::to('/detail-po/'.$reference_number.'/'.$id)->with('pesan', 'Purchase Requisition Detail berhasil ditambahkan.');
     }public function simpan_detail_po_fix(Request $request, $id, $reference_number){
         
-        // dd($id);
+        // dd($reference_number);
         // die;
 
         $findtype = DB::table('purchase_orders')
@@ -1750,8 +1762,15 @@ class PurchaseController extends Controller
         // dd($total_discount);
         // die;
         
+        
+
+        $total_ppn = DB::table('purchase_order_details_smt')
+        ->where('id_pr', $reference_number)
+        ->sum(DB::raw("CASE WHEN tax = 'Y' THEN ((qty * price) - discount) * 0.11 ELSE 0 END"));
+
         $validatedData = DB::update("UPDATE `purchase_orders` SET `total_discount` = '$total_discount', 
-        `sub_total` = '$sub_total', `total_amount` = '$total_amount' WHERE `id` = '$id';");
+        `sub_total` = '$sub_total', `total_amount` = '$total_amount', total_ppn='$total_ppn' WHERE `id` = '$id';");
+
     
         return Redirect::to('/purchase-order')->with('pesan', 'Purchase Order berhasil ditambahkan.');
     }public function posted_po($id)
