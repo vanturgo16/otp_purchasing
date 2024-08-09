@@ -52,6 +52,12 @@
                                         <input type="date" name="date" class="form-control" value="{{ $results[0]->date; }}">
                                     </div>
                                 </div>
+                                <div class="row mb-4 field-wrapper required-field">
+                                    <label for="horizontal-email-input" class="col-sm-3 col-form-label">Delivery Date</label>
+                                    <div class="col-sm-9">
+                                        <input type="date" name="delivery_date" class="form-control" value="{{ $results[0]->delivery_date; }}">
+                                    </div>
+                                </div>
                                 <div class="row mb-4 field-wrapper">
                                     <label for="horizontal-password-input" class="col-sm-3 col-form-label">Reference Number (PR) </label>
                                     <div class="col-sm-9">

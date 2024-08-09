@@ -29,6 +29,15 @@
                     @enderror
                 </div>
                 <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Delivery Date</label>
+                    <input class="form-control" type="date" name="delivery_date" value="{{ date('Y-m-d'), old('delivery_date') }}">
+                    @error('delivery_date')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
                     <label for="example-text-input" class="form-label">Reference Number (PR) *</label>
                     <select class="form-select request_number" name="reference_number" onchange="get_supplier()">
                         <option>Pilih Reference Number</option>

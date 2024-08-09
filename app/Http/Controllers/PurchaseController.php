@@ -537,6 +537,7 @@ class PurchaseController extends Controller
         $pesan = [
             'po_number.required' => 'po number masih kosong',
             'date.required' => 'date masih kosong',
+            'delivery_date.required' => 'date masih kosong',
             'reference_number.required' => 'reference number masih kosong',
             'id_master_suppliers.required' => 'id master suppliers masih kosong',
             'qc_check.required' => 'qc check masih kosong',
@@ -552,14 +553,15 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'po_number' => 'required',
             'date' => 'required',
+            'delivery_date' => 'nullable',
             'reference_number' => 'required',
             'id_master_suppliers' => 'required',
             'qc_check' => 'required',
             'non_invoiceable' => 'required',
             'vendor_taxable' => 'required',
             'down_payment' => 'required',
-            'own_remarks' => 'required',
-            'supplier_remarks' => 'required',
+            'own_remarks' => 'nullable',
+            'supplier_remarks' => 'nullable',
             'status' => 'required',
             'type' => 'required',
 
@@ -1896,6 +1898,7 @@ class PurchaseController extends Controller
                     'a.id',
                     'a.po_number',
                     'a.date',
+                    'a.delivery_date',
                     'b.request_number',
                     'c.name',
                     'a.qc_check',
@@ -1937,6 +1940,7 @@ class PurchaseController extends Controller
         $pesan = [
             'po_number.required' => 'po number masih kosong',
             'date.required' => 'date masih kosong',
+            'delivery_date.required' => 'date masih kosong',
             'reference_number.required' => 'reference number masih kosong',
             'id_master_suppliers.required' => 'id_master_suppliers masih kosong',
             'qc_check.required' => 'qc_check masih kosong',
@@ -1951,12 +1955,13 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'po_number' => 'required',
             'date' => 'required',
+            'delivery_date' => 'nullable',
             'reference_number' => 'required',
             'id_master_suppliers' => 'required',
             'qc_check' => 'required',
             'down_payment' => 'required',
-            'own_remarks' => 'required',
-            'supplier_remarks' => 'required',
+            'own_remarks' => 'nullable',
+            'supplier_remarks' => 'nullable',
             'status' => 'required',
             'type' => 'required',
 
