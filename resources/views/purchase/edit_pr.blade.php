@@ -246,7 +246,7 @@
                                     <tr>
                                     <tr>
                                         <th>Type Product</th>
-                                        <th>Product WIP</th>
+                                        <th>Product</th>
                                         <th>Qty</th>
                                         <th>Units</th>
                                         <th>Required Date</th>

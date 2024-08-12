@@ -555,7 +555,7 @@ class PurchaseController extends Controller
             'date' => 'required',
             'delivery_date' => 'nullable',
             'reference_number' => 'required',
-            'id_master_suppliers' => 'required',
+            'id_master_suppliers' => 'nullable',
             'qc_check' => 'required',
             'non_invoiceable' => 'required',
             'vendor_taxable' => 'required',
@@ -672,7 +672,7 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'request_number' => 'required',
                 'date' => 'required',
-                'id_master_suppliers' => 'required',
+                'id_master_suppliers' => 'nullable',
                 'requester' => 'required',
                 'qc_check' => 'required',
                 'note' => 'nullable',
@@ -839,7 +839,7 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'request_number' => 'required',
                 'date' => 'required',
-                'id_master_suppliers' => 'required',
+                'id_master_suppliers' => 'nullable',
                 'requester' => 'required',
                 'qc_check' => 'required',
                 'note' => 'nullable',
@@ -965,7 +965,7 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'request_number' => 'required',
                 'date' => 'required',
-                'id_master_suppliers' => 'required',
+                'id_master_suppliers' => 'nullable',
                 'requester' => 'required',
                 'qc_check' => 'required',
                 'note' => 'nullable',
@@ -1088,7 +1088,7 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'request_number' => 'required',
                 'date' => 'required',
-                'id_master_suppliers' => 'required',
+                'id_master_suppliers' => 'nullable',
                 'requester' => 'required',
                 'qc_check' => 'required',
                 'note' => 'nullable',
@@ -1403,7 +1403,7 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'request_number' => 'required',
             'date' => 'required',
-            'id_master_suppliers' => 'required',
+            'id_master_suppliers' => 'nullable',
             'requester' => 'required',
             'qc_check' => 'required',
             'note' => 'required',
@@ -1957,7 +1957,7 @@ class PurchaseController extends Controller
             'date' => 'required',
             'delivery_date' => 'nullable',
             'reference_number' => 'required',
-            'id_master_suppliers' => 'required',
+            'id_master_suppliers' => 'nullable',
             'qc_check' => 'required',
             'down_payment' => 'required',
             'own_remarks' => 'nullable',
