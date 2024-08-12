@@ -51,7 +51,7 @@
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Suppliers </label>
                                         <div class="col-sm-9">
                                             <select class="form-select data-select2" name="id_master_suppliers" id="">
-                                                <option>Pilih Suppliers</option>
+                                                <option value="">Pilih Suppliers</option>
                                                 @foreach ($supplier as $data)
                                                     <option value="{{ $data->id }}">{{ $data->name }}</option>
                                                 @endforeach

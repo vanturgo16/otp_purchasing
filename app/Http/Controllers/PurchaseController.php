@@ -661,7 +661,6 @@ class PurchaseController extends Controller
             $pesan = [
                 'request_number.required' => 'request number masih kosong',
                 'date.required' => 'date masih kosong',
-                'id_master_suppliers.required' => 'id master suppliers masih kosong',
                 'requester.required' => 'requester masih kosong',
                 'qc_check.required' => 'qc_check masih kosong',
                 'status.required' => 'status masih kosong',
