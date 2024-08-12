@@ -111,13 +111,13 @@
                     Tlp. +62 21 5960801/05, Fax. +62 21 5960776<br />
                 </small>
             </div>
-            <div class="col-4 d-flex justify-content-end">
+            <div class="col-4 d-flex justify-content-end" style="font-size: 0.7rem;">
                 FM-SM-MKT-02, Rev. 0, 01 September 2021
             </div>
         </div>
 
         <div class="row text-center">
-            <h4>PESANAN PEMBELIAN</h4>
+            <h4 style="margin-top: 3rem;">PESANAN PEMBELIAN</h4>
         </div>
 
         <div class="row d-flex justify-content-between">
@@ -254,7 +254,8 @@
                     <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($total-$purchaseOrder->total_discount,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format(($total-$purchaseOrder->total_discount)-$purchaseOrder->down_payment-$purchaseOrder->total_ppn,3,',','.'); }}</h6>   
+                    <?php $total_final = ($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn ?>
+                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total_final,3,',','.'); }}</h6>   
                 </div>
             </div>
         </div>
