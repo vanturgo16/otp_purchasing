@@ -103,7 +103,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-8 d-flex align-items-center gap-10">
-                <img src="http://eks.olefinatifaplas.my.id/img/otp-icon.jpg" width="50" height="50">
+                <img src="http://eks.olefinatifaplas.my.id/img/otp-icon.jpg" width="70" height="70">
                 <small style="padding-left: 10px">
                     <b>PT OLEFINA TIFAPLAS POLIKEMINDO</b><br />
                     Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa<br />
@@ -117,7 +117,7 @@
         </div>
 
         <div class="row text-center">
-            <h1>PURCHASE ORDER</h1>
+            <h4>PURCHASE ORDER</h4>
         </div>
 
         <div class="row d-flex justify-content-between">
