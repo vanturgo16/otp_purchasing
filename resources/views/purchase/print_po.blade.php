@@ -111,14 +111,15 @@
                     Tlp. +62 21 5960801/05, Fax. +62 21 5960776<br />
                 </small>
             </div>
-            <div class="col-4 d-flex justify-content-end">
+            <div class="col-4 d-flex justify-content-end" style="font-size: 0.7rem;">
                 FM-SM-MKT-02, Rev. 0, 01 September 2021
             </div>
         </div>
 
         <div class="row text-center">
-            <h4>PURCHASE ORDER</h4>
+            <h4 style="margin-top: 3rem;">PURCHASE ORDER</h4>
         </div>
+
 
         <div class="row d-flex justify-content-between">
             <div class="col-8">Supplier  &nbsp;&nbsp; &nbsp;&nbsp;: {{ $results[0]->name; }}</div>
