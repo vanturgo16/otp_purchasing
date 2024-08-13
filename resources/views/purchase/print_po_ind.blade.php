@@ -121,28 +121,28 @@
         </div>
 
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Pemasok &nbsp;: {{ $results[0]->name; }}</div>
+            <div class="col-8">Pemasok &nbsp;&nbsp;: {{ $results[0]->name; }}</div>
             <div class="col-4">
-                <p class="mb-1">PO &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->po_number; }}</p>
+                <p class="mb-1">PO &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->po_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
             <div class="col-4">
-                <p class="mb-1">PR No : {{ $results[0]->request_number; }}</p>
+                <p class="mb-1">PR No  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->request_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
             <div class="col-4">
                 <p class="mb-1">Tanggal &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between pb-3">
-            <div class="col-8">Alamat PT : Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
+            <div class="col-8">Alamat PT &nbsp;: Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
         </div>
 
         <div class="row">
@@ -244,8 +244,8 @@
             <div class="col-8">
                 <h6>#{{ ucfirst(numberToWords($total))." rupiah" }}#</h6>
                 <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
-                <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
-                <h6>Catatan &nbsp;&nbsp;:</h6>
+                <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
+                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp:</h6>
             </div>
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">
