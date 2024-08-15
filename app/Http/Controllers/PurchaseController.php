@@ -1133,6 +1133,193 @@ class PurchaseController extends Controller
         return view('purchase.detail_pr_sparepart',compact('datas','supplier','ta','units','dt_detailSmt'
         ,'request_number'));
     }
+    public function simpan_pr_other(Request $request){
+        // dd($request);
+        // die;
+
+        if ($request->has('savemore')) {
+            // Tombol "Save & Add More" diklik
+            // Lakukan tindakan yang sesuai di sini
+            return "Tombol Save & Add More diklik.";
+        } elseif ($request->has('save')) {
+            // dd($request->has('save'));
+            // die;
+            $pesan = [
+                'request_number.required' => 'request number masih kosong',
+                'date.required' => 'date masih kosong',
+                'requester.required' => 'requester masih kosong',
+                'qc_check.required' => 'qc_check masih kosong',
+                'status.required' => 'status masih kosong',
+                'type.required' => 'type masih kosong',
+                
+            ];
+
+            $validatedData = $request->validate([
+                'request_number' => 'required',
+                'date' => 'required',
+                'id_master_suppliers' => 'nullable',
+                'requester' => 'required',
+                'qc_check' => 'required',
+                'note' => 'nullable',
+                'status' => 'required',
+                'type' => 'required',
+
+            ], $pesan);
+
+            // dd($validatedData);
+            // die;
+            $request_number = $request->input('request_number');
+
+            PurchaseRequisitions::create($validatedData);
+
+            return Redirect::to('/detail-pr-other/'.$request_number);
+       
+
+        }
+        
+    }
+    public function simpan_detail_other(Request $request, $request_number){
+
+        // dd($request_number);
+        // die;
+
+        $id = PurchaseRequisitions::where('request_number', $request_number)->value('id');
+        $request_number = $request_number;
+        $request->merge([
+            'request_number' => $request_number, // Ganti 'request_number' dengan nilai variabel buatan Anda
+            'id_purchase_requisitions' => $id,
+        ]);
+
+        if($request->has('save_detail')){
+        $pesan = [
+            'id_purchase_requisitions' => 'id purchase',
+            'type_product.required' => 'type masih kosong',
+            'master_products_id.required' => 'master_products_id masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'master_units_id.required' => 'master_units_id masih kosong',
+            'required_date.required' => 'required_date masih kosong',
+            'cc_co.required' => 'cc_co masih kosong',
+            'remarks.required' => 'remarks masih kosong',
+            'request_number.required' => 'type masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'id_purchase_requisitions' => 'required',
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+            'remarks' => 'nullable',
+            'request_number' => 'required',
+
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+        PurchaseRequisitionsDetail::create($validatedData);
+
+        // return "Tombol Save detail diklik.";
+        return Redirect::to('/detail-pr-other/'.$request_number)->with('pesan', 'Data berhasil disimpan.');
+        // return Redirect::to('/detail-pr/'.$request_number);
+        }elseif ($request->has('hapus_detail')){
+            $validatedData = $request->input('hapus_detail');
+
+            // dd($id);
+            // die;
+            PurchaseRequisitionsDetail::destroy($validatedData);
+            return Redirect::to('/detail-pr-other/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
+
+            // return "Tombol Save detail diklik.";
+        }
+
+    }
+    public function detail_pr_other($request_number){
+        // dd($request_number);
+        // die;
+        $datas = MstRequester::get();
+        $supplier = MstSupplier::get();
+        $rawMaterials = DB::table('master_raw_materials')
+                        ->select('description','id')
+                        ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description','id')
+                        ->get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id')
+                        ->get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+
+        $other = DB::table('master_tool_auxiliaries')
+                        ->select('description', 'id')
+                        ->where('type', 'Other') // Ganti 'column_name' dengan nama kolom dan 'value' dengan nilai yang ingin dicari
+                        ->get();
+
+
+        $findtype = DB::table('purchase_requisitions as a')
+                        ->select('a.type')
+                        ->where('a.request_number', $request_number)
+                        ->first();
+
+         $dt_detailSmt = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get();
+         
+         $data_detail_ta = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get();
+         
+         $data_detail_fg = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get();
+         
+         $data_detail_wip = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->get();
+
+         $data_detail_other = DB::table('purchase_requisition_details as a')
+         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+         ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
+         ->where('a.request_number', $request_number)
+         ->where('b.type', 'Other') // Kondisi where berdasarkan 'type' dari 'master_tool_auxiliaries'
+         ->get();
+
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='Add Purchase Order RM';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        return view('purchase.detail_pr_other',compact('datas','supplier','rawMaterials','units','dt_detailSmt'
+        ,'request_number','data_detail_ta','data_detail_fg','data_detail_wip','findtype','other','data_detail_other'));
+    }
     public function hapus_po(Request $request, $id)
     {
         // dd('test');

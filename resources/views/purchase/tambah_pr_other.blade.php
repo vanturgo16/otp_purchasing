@@ -3,7 +3,7 @@
 @section('konten')
 <div class="page-content">
     <div class="container-fluid">
-    <form method="post" action="/simpan_pr_rm" class="form-material m-t-40" enctype="multipart/form-data">
+    <form method="post" action="/simpan_pr_other" class="form-material m-t-40" enctype="multipart/form-data">
     @csrf
         <div class="row">
             <div class="col-12">
@@ -38,7 +38,7 @@
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Request Number</label>
                                         <div class="col-sm-9">
                                             <input type="text" name="request_number" class="form-control" value="{{ $formattedCode }}" readonly>
-                                            <input type="hidden" id="html" name="type" value="RM">
+                                            <input type="hidden" id="html" name="type" value="Other">
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
