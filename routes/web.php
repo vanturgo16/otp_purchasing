@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/add-pr-sparepart', [PurchaseController::class, 'tambah_pr_sparepart'])->name('tambah_pr_sparepart');
         Route::get('/detail-pr-sparepart/{request_number}', [PurchaseController::class, 'detail_pr_sparepart'])->name('detail_pr_sparepart');
         Route::get('/add-pr-other', [PurchaseController::class, 'tambah_pr_other'])->name('tambah_pr_other');
+        Route::get('/detail-pr-other/{request_number}', [PurchaseController::class, 'detail_pr_other'])->name('detail_pr_other');
         Route::get('/get-supplier', [PurchaseController::class, 'get_supplier'])->name('get_supplier');
         Route::get('/get-unit', [PurchaseController::class, 'get_unit'])->name('get_unit');
         Route::post('/simpan_po', [PurchaseController::class, 'simpan_po'])->name('simpan_po');
@@ -59,6 +60,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/simpan_detail_fg/{request_number}', [PurchaseController::class, 'simpan_detail_fg'])->name('simpan_detail_fg');
         Route::post('/simpan_pr_ta', [PurchaseController::class, 'simpan_pr_ta'])->name('simpan_pr_ta');
         Route::post('/simpan_detail_ta/{request_number}', [PurchaseController::class, 'simpan_detail_ta'])->name('simpan_detail_ta');
+        Route::post('/simpan_pr_other', [PurchaseController::class, 'simpan_pr_other'])->name('simpan_pr_other');
+        Route::post('/simpan_detail_other/{request_number}', [PurchaseController::class, 'simpan_detail_other'])->name('simpan_detail_other');
         Route::get('/generate-code', [PurchaseController::class, 'generateCode'])->name('generateCode');
         Route::delete('/hapus_po/{id}', [PurchaseController::class, 'hapus_po'])->name('hapus_po');
         Route::delete('/hapus_po_detail/{id}/{idx}', [PurchaseController::class, 'hapus_po_detail'])->name('hapus_po_detail');
