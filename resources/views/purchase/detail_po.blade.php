@@ -112,6 +112,13 @@
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
+                                        @elseif($findtype->type_product=='Other')
+                                        <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
+                                                <option>Pilih Product Other</option>
+                                            @foreach ($other as $data)
+                                                <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                            @endforeach
+                                        </select>
                                         @endif
                                         </div>
                                     </div>
@@ -325,6 +332,40 @@
                                         @endforeach
                                     @elseif($findtype->type_product=='FG')    
                                         @foreach ($POSmtfg as $data)
+                                        <tr>
+                                            <td>{{ $data->type_product }}</td>
+                                            <td>{{ $data->raw_material_description }}</td>
+                                            <td>{{ $data->qty }}</td>
+                                            <td>{{ $data->unit }}</td>
+                                            <td>{{ $data->price }}</td>
+                                            <td>{{ $data->discount }}</td>
+                                            <td>{{ $data->tax }}</td>
+                                            <td>{{ $data->amount }}</td>
+                                            <td>{{ $data->note }}</td>
+                                            <td>
+                                    
+                                                    <form action="/hapus_po_detail/{{ $data->id }}/{{ $id }}" method="post"
+                                                        class="d-inline">
+                                                        @method('delete')
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Anda yakin mau menghapus item ini ?')">
+                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                        data-bs-toggle="modal"
+                                                        onclick="edit_pr_smt('{{ $data->id }}')"
+                                                        data-bs-target="#edit-pr-smt" data-id="">
+                                                        <i class="bx bx-edit-alt" title="edit data"></i>
+                                                    </button></center></td>
+                                                    @include('purchase.modal')
+                                            
+                                        </tr>
+                                    <!-- Add more rows as needed -->
+                                        @endforeach
+                                        @elseif($findtype->type_product=='Other')    
+                                        @foreach ($POSmtother as $data)
                                         <tr>
                                             <td>{{ $data->type_product }}</td>
                                             <td>{{ $data->raw_material_description }}</td>

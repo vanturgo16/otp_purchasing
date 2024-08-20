@@ -171,7 +171,7 @@
                                         <td>{{ $data->qty }}</td>
                                         <td>{{ $data->unit_code }}</td>
                                         <td>{{ $data->required_date }}</td>
-                                        <td>{{ $data->cc_co }}</td>
+                                        <td>{{ $data->nm_requester }}</td>
                                         <td>{{ $data->remarks }}</td>
                                             <td>
                                             <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
