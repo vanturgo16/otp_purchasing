@@ -32,7 +32,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-8 d-flex align-items-center gap-10">
-                <img src="http://eks.olefinatifaplas.my.id/img/otp-icon.jpg" width="70" height="70">
+                <img src="{{ asset('assets/css/bootstrap.min.css') }}" width="80" height="80">
                 <small style="padding-left: 10px">
                     <b>PT OLEFINA TIFAPLAS POLIKEMINDO</b><br />
                     Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa<br />
@@ -147,7 +147,7 @@
 
         <div class="row">
             <ul style="list-style-type: '- ';">
-          
+            Note : {{ $datas[0]->note; }}
             </ul>
         </div>
         <hr>

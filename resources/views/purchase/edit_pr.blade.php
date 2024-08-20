@@ -18,7 +18,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Add Purchase RM</li>
+                            <li class="breadcrumb-item active"> Add Purchase {{ $datas[0]->type; }}</li>
                         </ol>
                     </div>
                 </div>
@@ -151,23 +151,30 @@
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='WIP')
-                                            <select class="form-select data-select2" name="master_products_id" id="">
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option>Pilih Product WIP</option>
                                                 @foreach ($wip as $data)
                                                     <option value="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='FG')
-                                            <select class="form-select data-select2" name="master_products_id" id="">
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option value="{{ $data->id }}">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
                                                     <option>{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='TA')
-                                            <select class="form-select data-select2" name="product" id="">
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option value="{{ $data->id }}">Pilih Product Sparepart & Auxiliaries</option>
                                                 @foreach ($ta as $data)
+                                                    <option>{{ $data->description }}</option>
+                                                @endforeach
+                                            </select>
+                                            @elseif($datas[0]->type=='Other')
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                                    <option value="{{ $data->id }}">Pilih Product Other</option>
+                                                @foreach ($other as $data)
                                                     <option>{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
@@ -338,6 +345,33 @@
                                     @endforeach
                                 @elseif($datas[0]->type=='TA')
                                  @foreach ($data_detail_ta as $data)
+                                            <tr>
+                                                <td>{{ $data->type_product }}</td>
+                                                <td>{{ $data->description }}</td>
+                                                <td>{{ $data->qty }}</td>
+                                                <td>{{ $data->unit }}</td>
+                                                <td>{{ $data->required_date }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
+                                                <td>{{ $data->remarks }}</td>
+                                                <td>
+                                                        <button type="button" class="btn btn-sm btn-danger"
+                                                            onclick="hapusData($(this).closest('form'))">
+                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_pr('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
+                                                        </button>
+                                                            </center>
+                                                        </td>
+                                                        @include('purchase.modal')
+                                            </tr>
+                                        <!-- Add more rows as needed -->
+                                    @endforeach
+                                @elseif($datas[0]->type=='Other')
+                                 @foreach ($data_detail_other as $data)
                                             <tr>
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
