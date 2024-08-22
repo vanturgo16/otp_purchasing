@@ -8,10 +8,29 @@
     <title>PRINT PURCHASE REQUISITION</title>
     <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <style>
+        /* CSS untuk watermark */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            color: rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
 </head>
 
 <body>
+    @if($datas[0]->status != 'Posted')
+        <div class="watermark">DRAFT</div>
+    @endif
+
     <div class="container-fluid">
+        <!-- Konten Anda yang sudah ada -->
         <div class="row">
             <div class="col-8 d-flex align-items-center gap-10">
                 <img src="{{ asset('assets/images/icon-otp.png') }}" width="80" height="80">
@@ -134,9 +153,6 @@
                 <p>(.............)</p>
             </div>
         </div>
-
-
-
     </div>
 </body>
 
