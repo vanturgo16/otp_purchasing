@@ -92,6 +92,26 @@ class PurchaseController extends Controller
         return view('purchase.index');
 
     }
+    public function purchase_requisition_cari(Request $request, $request_number){
+    
+        //Audit Log
+        $username= auth()->user()->email; 
+        $ipAddress=$_SERVER['REMOTE_ADDR'];
+        $location='0';
+        $access_from=Browser::browserName();
+        $activity='View List Purchase';
+        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+
+        $datas = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
+                ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
+                ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester')
+                ->where('purchase_requisitions.request_number', '=', $request_number) // Kondisi WHERE
+                ->orderBy('purchase_requisitions.created_at', 'desc')
+                ->get();
+
+        return view('purchase.purchase_purchase_cari',compact('datas'));
+
+    }
     // Fungsi untuk mengonversi bulan dalam format angka menjadi format romawi
     private function romanMonth($month)
     {
@@ -1463,7 +1483,7 @@ class PurchaseController extends Controller
                         ->select('description','id')
                         ->get();
         $ta = DB::table('master_tool_auxiliaries')
-                        ->select('description')
+                        ->select('description','id')
                         ->get();
         $fg = DB::table('master_product_fgs')
                         ->select('description','id')
@@ -1513,8 +1533,8 @@ class PurchaseController extends Controller
                         ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                         ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-                        ->select('a.*', 'b.description', 'c.unit_code','d.nm_requester')
-                        ->where('a.request_number', $request_number)
+                        ->select('a.*', 'b.description', 'c.unit','d.nm_requester')
+                        ->where('a.id_purchase_requisitions', $request_number)
                         ->where('b.type', 'Other') // Kondisi where berdasarkan 'type' dari 'master_tool_auxiliaries'
                         ->get();
                     
@@ -1562,8 +1582,8 @@ class PurchaseController extends Controller
                 'qty' => 'required',
                 'master_units_id' => 'required',
                 'required_date' => 'required',
-                'cc_co' => 'required',
-                'remarks' => 'required',
+                'cc_co' => 'nullable',
+                'remarks' => 'nullable',
                 'request_number' => 'required',
     
             ], $pesan);
@@ -1583,13 +1603,13 @@ class PurchaseController extends Controller
             // die;
             $request_number = $request->input('request_number');
             PurchaseRequisitionsDetail::destroy($validatedData);
-            return Redirect::to('/edit-pr/'.$request_number)->with('pesan', 'Data berhasil dihapus.');
+            return Redirect::to('/edit-pr/'.$id)->with('pesan', 'Data berhasil dihapus.');
 
             // return "Tombol Save detail diklik.";
         }
     }public function update_pr(Request $request, $request_number){
         $request_number = $request_number;
-        // dd($request);
+        // dd($request->id);
         // die;
         $pesan = [
             'request_number.required' => 'request number masih kosong',
@@ -1622,7 +1642,7 @@ class PurchaseController extends Controller
             ->update($validatedData);
 
         $request_number = $request->input('request_number');
-        return Redirect::to('/edit-pr/'.$request_number);
+        return Redirect::to('/edit-pr/'.$request->id)->with('pesan', 'Data berhasil diupdate.');
     }
     public function posted_pr($request_number)
     {
@@ -1741,7 +1761,7 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.detail_po',compact('datas','supplier','rawMaterials','units'
-        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg','POSmtother'));
+        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg','POSmtother','other'));
     }
     public function tambah_detail_po($reference_number,$id){
 
@@ -1819,6 +1839,22 @@ class PurchaseController extends Controller
             ->leftJoin('master_tool_auxiliaries', 'purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
             ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
             ->where('purchase_requisitions.id', '=', $reference_number)
+            ->get();
+        }elseif ($findtype->type == 'Other') {
+            $results = DB::table('purchase_requisition_details')
+            ->select(
+                'purchase_requisitions.id',
+                'purchase_requisition_details.type_product',
+                'master_tool_auxiliaries.id as id_produk',
+                'purchase_requisition_details.qty',
+                'purchase_requisitions.request_number',
+                'master_units.unit'
+            )
+            ->rightJoin('purchase_requisitions', 'purchase_requisition_details.request_number', '=', 'purchase_requisitions.request_number')
+            ->leftJoin('master_tool_auxiliaries', 'purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->where('purchase_requisitions.id', '=', $reference_number)
+            ->where('master_tool_auxiliaries.type', '=', 'Other')
             ->get();
         }
 
@@ -1968,6 +2004,26 @@ class PurchaseController extends Controller
             ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
             ->where('a.id_pr', '=', $reference_number)
+            ->get();
+
+        }elseif ($findtype->type == 'Other') {
+            $results = DB::table('purchase_order_details_smt as a')
+            ->select(
+                DB::raw($id.' as id_purchase_order'),
+                'a.type_product',
+                'b.id as master_products_id',
+                'a.note',
+                'a.qty',
+                'c.id as master_units_id',
+                'a.price',
+                'a.discount',
+                'a.tax',
+                'a.amount'
+            )
+            ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
+            ->where('a.id_pr', '=', $reference_number)
+            ->where('b.type', '=', 'Other')
             ->get();
 
         }
@@ -2500,8 +2556,17 @@ class PurchaseController extends Controller
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
+        $data_detail_other = DB::table('purchase_requisition_details as a')
+                        ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.code','d.nm_requester')
+                        ->where('a.id_purchase_requisitions', $request_number)
+                        ->where('b.type', 'Other') // Kondisi where berdasarkan 'type' dari 'master_tool_auxiliaries'
+                        ->get();
+
         return view('purchase.print_pr',compact('datas','data_detail_rm','data_detail_ta','data_detail_wip',
-        'data_detail_fg','PurchaseRequisitions'));
+        'data_detail_fg','PurchaseRequisitions','data_detail_other'));
     }public function purchase_requisition(Request $request)
     {
         // $data_detail_rm = DB::table('purchase_requisition_details as a')
@@ -2614,8 +2679,17 @@ class PurchaseController extends Controller
                         ->where('a.id_purchase_requisitions', $request_number)
                         ->get();
 
+        $data_detail_other = DB::table('purchase_requisition_details as a')
+                        ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+                        ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                        ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+                        ->select('a.*', 'b.description', 'c.unit_code','b.code','d.nm_requester')
+                        ->where('a.id_purchase_requisitions', $request_number)
+                        ->where('b.type', 'Other') // Kondisi where berdasarkan 'type' dari 'master_tool_auxiliaries'
+                        ->get();
+
         return view('purchase.print_pr_ind',compact('datas','data_detail_rm','data_detail_ta','data_detail_wip',
-                'data_detail_fg','PurchaseRequisitions'));
+                'data_detail_fg','PurchaseRequisitions','data_detail_other'));
     }public function print_po_ind($id)
     {
         // $purchaseOrder = PurchaseOrders::findOrFail($id);
