@@ -30,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         //Purchase
         Route::get('/purchase', [PurchaseController::class, 'index'])->name('purchase');
+        Route::get('/purchase-requisition-cari/{request_number}', [PurchaseController::class, 'purchase_requisition_cari'])->name('purchase_requisition_cari');
         Route::get('/purchase-order', [PurchaseController::class, 'purchase_order'])->name('purchase_order');
         Route::get('/purchase-requisition-items', [PurchaseController::class, 'purchase_requisition'])->name('purchase_requisition');
         Route::get('/hapus_request_number', [PurchaseController::class, 'hapus_request_number'])->name('hapus_request_number');

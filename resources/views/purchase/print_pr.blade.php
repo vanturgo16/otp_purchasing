@@ -9,9 +9,27 @@
     <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <style>
-        /* CSS untuk watermark */
+    /* CSS untuk watermark */
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 5rem;
+        color: rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* CSS khusus untuk cetak */
+    @media print {
+        body {
+            position: relative;
+        }
+
         .watermark {
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -20,8 +38,11 @@
             z-index: 1000;
             pointer-events: none;
             user-select: none;
+            page-break-inside: avoid;
         }
-    </style>
+    }
+</style>
+
 </head>
 
 <body>
@@ -119,6 +140,19 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->product_code }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit_code }}</td>
+                                    <td>{{ $data->required_date }}</td>
+                                    <td>{{ $data->nm_requester }}</td>
+                                </tr>
+                        @endforeach
+                    @elseif($PurchaseRequisitions->type=='Other')
+                        @foreach ($data_detail_other as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->code }}</td>
                                     <td>{{ $data->description }}<br>
                                     {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>

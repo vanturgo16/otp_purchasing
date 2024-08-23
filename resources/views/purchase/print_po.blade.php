@@ -8,6 +8,40 @@
     <title>PRINT PURCHASE ORDER</title>
     <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <style>
+    /* CSS untuk watermark */
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 5rem;
+        color: rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    /* CSS khusus untuk cetak */
+    @media print {
+        body {
+            position: relative;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            color: rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            pointer-events: none;
+            user-select: none;
+            page-break-inside: avoid;
+        }
+    }
+</style>
 </head>
 
 <body>
@@ -100,10 +134,14 @@
                 }
 
                     @endphp
+    
+    @if($results[0]->status != 'Posted')
+    <div class="watermark">DRAFT</div>
+    @endif
     <div class="container-fluid">
         <div class="row">
             <div class="col-8 d-flex align-items-center gap-10">
-                <img src="{{ asset('assets/css/bootstrap.min.css') }}" width="80" height="80">
+                <img src="{{ asset('assets/images/icon-otp.png') }}" width="80" height="80">
                 <small style="padding-left: 10px">
                     <b>PT OLEFINA TIFAPLAS POLIKEMINDO</b><br />
                     Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa<br />

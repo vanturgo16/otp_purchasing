@@ -152,30 +152,30 @@
                                             </select>
                                             @elseif($datas[0]->type=='WIP')
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
-                                                    <option>Pilih Product WIP</option>
+                                                    <option value="">Pilih Product WIP</option>
                                                 @foreach ($wip as $data)
-                                                    <option value="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='FG')
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
-                                                    <option value="{{ $data->id }}">Pilih Product FG</option>
+                                                    <option value="">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='TA')
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
-                                                    <option value="{{ $data->id }}">Pilih Product Sparepart & Auxiliaries</option>
+                                                    <option value="">Pilih Product Sparepart & Auxiliaries</option>
                                                 @foreach ($ta as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='Other')
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
-                                                    <option value="{{ $data->id }}">Pilih Product Other</option>
+                                                    <option value="">Pilih Product Other</option>
                                                 @foreach ($other as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @endif
@@ -300,10 +300,9 @@
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
                                                         <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr_smt('{{ $data->id }}')"
@@ -327,10 +326,9 @@
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
+                                                     <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
                                                         <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr_smt('{{ $data->id }}')"
@@ -354,10 +352,9 @@
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
                                                         <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr('{{ $data->id }}')"
@@ -381,10 +378,9 @@
                                                 <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
                                                         <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr('{{ $data->id }}')"
