@@ -1424,10 +1424,24 @@ class PurchaseController extends Controller
         //                 ->select('a.*', 'b.description', 'c.unit_code')
         //                 ->where('a.id', $id)
         //                 ->get();
-        $data['find'] = PurchaseRequisitionsDetail::find($id);
-        $data['produk'] = DB::select("SELECT master_raw_materials.description, master_raw_materials.id FROM master_raw_materials");
-        $data['unit'] = DB::select("SELECT master_units.unit_code, master_units.id FROM master_units");
-        $data['requester'] = DB::select("SELECT master_requester.nm_requester, master_requester.id FROM master_requester");
+            $typeProduk = PurchaseRequisitionsDetail::select('type_product')
+            ->where('id', $id)
+            ->first();
+
+            $data['find'] = PurchaseRequisitionsDetail::find($id);
+        if ($typeProduk->type_product=='RM') {
+            $data['produk'] = DB::select("SELECT master_raw_materials.description, master_raw_materials.id FROM master_raw_materials");
+        }elseif ($typeProduk->type_product=='TA') {
+            $data['produk'] = DB::select("SELECT master_tool_auxiliaries.description, master_tool_auxiliaries.id FROM master_tool_auxiliaries");
+        }elseif ($typeProduk->type_product=='WIP') {
+            $data['produk'] = DB::select("SELECT master_wips.description, master_wips.id FROM master_wips");
+        }elseif ($typeProduk->type_product=='FG') {
+            $data['produk'] = DB::select("SELECT master_product_fgs.description, master_product_fgs.id FROM master_product_fgs");
+        }elseif ($typeProduk->type_product=='Other') {
+            $data['produk'] = DB::select("SELECT master_tool_auxiliaries.description, master_tool_auxiliaries.id FROM master_tool_auxiliaries where type='Other'");
+        }
+            $data['unit'] = DB::select("SELECT master_units.unit_code, master_units.id FROM master_units");
+            $data['requester'] = DB::select("SELECT master_requester.nm_requester, master_requester.id FROM master_requester");
         return response()->json(['data' => $data]);
     }
     public function hapus_pr(Request $request, $request_number)
