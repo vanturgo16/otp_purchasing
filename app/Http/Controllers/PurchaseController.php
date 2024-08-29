@@ -1710,6 +1710,11 @@ class PurchaseController extends Controller
                         ->select('type as type_product')
                         ->where('id', $id)
                         ->first();
+
+        $request_number = DB::table('purchase_requisitions')
+                        ->select('request_number')
+                        ->where('id', $reference_number)
+                        ->first();
                         
         $datas = MstRequester::get();
         $supplier = MstSupplier::get();
@@ -1775,7 +1780,7 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.detail_po',compact('datas','supplier','rawMaterials','units'
-        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg','POSmtother','other'));
+        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg','POSmtother','other','request_number'));
     }
     public function tambah_detail_po($reference_number,$id){
 

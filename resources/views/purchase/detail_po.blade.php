@@ -43,7 +43,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Request Number</label>
                                         <div class="col-sm-9">
-                                            <input type="text" name="request_number" class="form-control" value="{{ $reference_number }}" readonly>
+                                            <input type="text" name="request_number" class="form-control" value="{{ $request_number->request_number }}" readonly>
                                         </div>
                                     </div>
                                     
