@@ -78,7 +78,7 @@
                     <b>PT OLEFINA TIFAPLAS POLIKEMINDO</b><br />
                     Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa<br />
                     Tangerang-Banten 15710<br />
-                    Tlp. +62 21 5960801/05, Fax. +62 21 5960776<br />
+                    Tlp. +62 21 595663567, Fax. 0<br />
                 </small>
             </div>
             <div class="col-4 d-flex justify-content-end" style="font-size: 0.7rem;">

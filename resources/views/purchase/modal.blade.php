@@ -376,6 +376,125 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- edit Purchase Order Detail smt -->
+<div id="edit-po-detail-smt" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_poLabel">Purchase Order Detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/update_po_detail_smt" class="form-material m-t-40" enctype="multipart/form-data" id="form_po_detail_smt">
+            @method('PUT')
+            @csrf
+            <div class="modal-body">
+                
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Type Product</label>
+                    <input class="form-control" type="text" name="type_product" id="type_product_po_detail_smt" readonly>
+                    <input class="form-control" type="hidden" name="id_pr" id="id_purchase_orders_po_detail_smt" readonly>
+                    <input class="form-control" type="hidden" name="id" id="id_po_detail_smt" readonly>
+                    @error('type_product')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Product RM</label>
+                    
+                    <select class="form-select" name="description" id="master_products_id_po_detail_smt">
+                        <option>Pilih Product</option>
+                    </select>
+                    @error('description')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Qty *</label>
+                    <input class="form-control" type="text" name="qty"  id="qty_po_detail_smt">
+                    @error('qty')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Units *</label>
+                    <select class="form-select " name="unit" id="master_units_id_po_detail_smt">
+                        <option>Pilih Unit</option>
+                    </select>
+                    @error('master_units_id')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Price</label>
+                    <input class="form-control" type="number"  name="price" id="price_po_detail_smt">
+                    @error('price')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Discount </label>
+                    <input class="form-control" type="number" name="discount" id="discount_po_detail_smt">
+                    @error('discount')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Tax</label>
+                    <input class="form-control" type="text" name="tax" id="tax_po_detail_smt">
+                    
+                    @error('tax')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Amount</label>
+                    <input class="form-control" type="text" name="amount" id="amount_po_detail_smt">
+                    @error('amount')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="example-text-input" class="form-label">Note </label>
+                    <textarea class="form-control" name="note" rows="4" cols="50" id="note_po_detail_smt"></textarea>
+                    @error('note')
+                        <div class="form-group has-danger mb-0">
+                            <div class="form-control-feedback">{{ $message }}</div>
+                        </div>
+                    @enderror
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Back</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Update</button>
+            </div>
+
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!-- edit Purchase RRequisition Sementara -->
 <div id="edit-pr-smt" class="modal fade" tabindex="-1" aria-labelledby="edit_poLabel" aria-hidden="true" data-bs-scroll="true">
     <div class="modal-dialog">

@@ -19,11 +19,11 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Add Purchase RM</li>
+                            <li class="breadcrumb-item active"> Add Purchase Order {{ $findtype->type_product }}</li>
                         </ol>
                     </div>
                 </div>
-                <a href="/purchase" class="btn btn-info waves-effect waves-light">Back To List Data Purchase Requisition</a>
+                <a href="/purchase" class="btn btn-info waves-effect waves-light">Back To List Data Purchase Order</a>
                 <div></div>
             </div>
         </div>
@@ -31,7 +31,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Add Purchase Requisition</h4>
+                        <h4 class="card-title">Add Purchase Order</h4>
                         <!--  <p class="card-title-desc"> layout options : from inline, horizontal & custom grid implementations</p> -->
                     </div>
                     <div class="card-body p-4">
@@ -63,7 +63,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Purchase Requisition Detail</h4>
+                        <h4 class="card-title">Purchase Order Detail</h4>
                         <!--  <p class="card-title-desc"> layout options : from inline, horizontal & custom grid implementations</p> -->
                     </div>
                     <div class="card-body p-4">
@@ -389,8 +389,8 @@
                                                     </form>
                                                     <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
-                                                        onclick="edit_pr_smt('{{ $data->id }}')"
-                                                        data-bs-target="#edit-pr-smt" data-id="">
+                                                        onclick="edit_po_detail_smt('{{ $data->id }}')"
+                                                        data-bs-target="#edit-po-detail-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
                                                     </button></center></td>
                                                     @include('purchase.modal')
