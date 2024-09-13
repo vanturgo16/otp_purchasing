@@ -1416,6 +1416,29 @@ class PurchaseController extends Controller
         $data['unit'] = DB::select("SELECT master_units.unit_code, master_units.id FROM master_units");
         return response()->json(['data' => $data]);
     }
+    public function get_edit_po_smt($id)
+    {
+        $data['find'] = PurchaseOrders::find($id);
+        $data['finddetail'] = PurchaseOrderDetailsSMT::find($id);
+
+        $typeProduk = PurchaseOrderDetailsSMT::select('type_product')
+            ->where('id', $id)
+            ->first();
+        
+        if ($typeProduk->type_product=='RM') {
+            $data['produk'] = DB::select("SELECT master_raw_materials.description, master_raw_materials.id FROM master_raw_materials");
+        }elseif ($typeProduk->type_product=='TA') {
+            $data['produk'] = DB::select("SELECT master_tool_auxiliaries.description, master_tool_auxiliaries.id FROM master_tool_auxiliaries");
+        }elseif ($typeProduk->type_product=='WIP') {
+            $data['produk'] = DB::select("SELECT master_wips.description, master_wips.id FROM master_wips");
+        }elseif ($typeProduk->type_product=='FG') {
+            $data['produk'] = DB::select("SELECT master_product_fgs.description, master_product_fgs.id FROM master_product_fgs");
+        }elseif ($typeProduk->type_product=='Other') {
+            $data['produk'] = DB::select("SELECT master_tool_auxiliaries.description, master_tool_auxiliaries.id FROM master_tool_auxiliaries where type='Other'");
+        }
+        $data['unit'] = DB::select("SELECT master_units.unit_code, master_units.id,master_units.unit FROM master_units");
+        return response()->json(['data' => $data]);
+    }
     public function get_edit_pr($id)
     {
         // $data['find'] = DB::table('purchase_requisition_details as a')
@@ -2401,6 +2424,55 @@ class PurchaseController extends Controller
 
         $id_purchase_orders = $request->input('id_purchase_orders');
         return Redirect::to('/edit-po/'.$id_purchase_orders)->with('pesan', 'Data berhasil diupdate.');
+    }public function update_po_detail_smt(Request $request, $id){
+        // dd($id);
+        // die;
+
+        // $id = $id_pr;
+
+        $id_purchase_orders = $request->input('id_pr');
+        
+        $id_po = PurchaseOrders::select('id')
+        ->where('reference_number', $id_purchase_orders)
+        ->first();
+
+        // dd($id_po->id);
+        // die;
+
+
+        $pesan = [
+            'type_product.required' => 'type masih kosong',
+            'description.required' => 'description masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'unit.required' => 'unit masih kosong',
+            'price.required' => 'price masih kosong',
+            'discount.required' => 'discount masih kosong',
+            'tax.required' => 'tax masih kosong',
+            'amount.required' => 'amount masih kosong',
+            'note.required' => 'note masih kosong',
+            
+        ];
+
+        $validatedData = $request->validate([
+            'type_product' => 'required',
+            'description' => 'required',
+            'qty' => 'required',
+            'unit' => 'required',
+            'price' => 'required',
+            'discount' => 'required',
+            'tax' => 'required',
+            'amount' => 'required',
+            'note' => 'required',
+        ], $pesan);
+
+        // dd($validatedData);
+        // die;
+
+        PurchaseOrderDetailsSMT::where('id', $id)
+            ->update($validatedData);   
+
+        $id_purchase_orders = $request->input('id_pr');
+        return Redirect::to('/detail-po/'.$id_purchase_orders.'/'.$id_po->id)->with('pesan', 'Data berhasil diupdate.');
     }public function update_pr_detailx(Request $request, $id){
         $pesan = [
             'type_product.required' => 'type masih kosong',

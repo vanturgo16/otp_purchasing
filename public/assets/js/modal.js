@@ -304,7 +304,7 @@ function edit_po(id) {
 }
 
 function edit_po_detail(id) {
-  // alert('test')
+  // alert(id)
   // $('.editPenjualan').click(function () {
   //   let id = $(this).attr('data-id')
   // Kirim data melalui Ajax
@@ -352,6 +352,69 @@ function edit_po_detail(id) {
 
         $('#master_units_id_po_detail').append(
           `<option value="` + value.id + `"` + isSelected + `>` + value.unit_code + `</option>`
+        )
+      });
+
+      // Contoh: Lakukan tindakan selanjutnya setelah data berhasil dikirim
+      // window.location.href = '/success-page';
+    },
+    error: function (xhr, status, error) {
+      // Tangkap pesan error jika ada
+      alert('Terjadi kesalahan saat mengirim data.');
+    }
+  });
+  // })
+}
+
+function edit_po_detail_smt(id) {
+  // alert(id)
+  // $('.editPenjualan').click(function () {
+  //   let id = $(this).attr('data-id')
+  // Kirim data melalui Ajax
+  $.ajax({
+    url: '/get-edit-po-smt/' + id,
+    method: 'GET',
+    data: {
+      id: id
+    },
+    success: function (response) {
+      // Tangkap pesan dari server dan tampilkan ke user
+      console.log(response.data.finddetail.qty);
+
+      $('#form_po_detail_smt').attr('action', '/update_po_detail_smt/' + response.data.finddetail.id)
+      $('#id_po_detail_smt').val(response.data.finddetail.id)
+      $('#id_purchase_orders_po_detail_smt').val(response.data.finddetail.id_pr)
+      $('#type_product_po_detail_smt').val(response.data.finddetail.type_product)
+      $('#master_products_id_po_detail_smt').val(response.data.finddetail.description)
+      $('#qty_po_detail_smt').val(response.data.finddetail.qty)
+      $('#master_units_id_po_detail_smt').val(response.data.finddetail.unit)
+      $('#price_po_detail_smt').val(response.data.finddetail.price)
+      $('#discount_po_detail_smt').val(response.data.finddetail.discount)
+      $('#tax_po_detail_smt').val(response.data.finddetail.tax)
+      $('#amount_po_detail_smt').val(response.data.finddetail.amount)
+      $('#note_po_detail_smt').val(response.data.finddetail.note)
+
+      let produkSelect = response.data.finddetail.description
+      let unitSelect = response.data.finddetail.unit
+      
+
+      $('#master_products_id_po_detail_smt').empty()
+      $('#master_products_id_po_detail_smt').append(` <option>Pilih Produk</option>`)
+      $.each(response.data.produk, function (i, value) {
+        let isSelected = produkSelect == value.id ? 'selected' : ''
+
+        $('#master_products_id_po_detail_smt').append(
+          `<option value="` + value.id + `"` + isSelected + `>` + value.description + `</option>`
+        )
+      });
+
+      $('#master_units_id_po_detail_smt').empty()
+      $('#master_units_id_po_detail_smt').append(` <option>Pilih Unit</option>`)
+      $.each(response.data.unit, function (i, value) {
+        let isSelected = unitSelect == value.unit ? 'selected' : ''
+
+        $('#master_units_id_po_detail_smt').append(
+          `<option value="` + value.unit + `"` + isSelected + `>` + value.unit_code + `</option>`
         )
       });
 
