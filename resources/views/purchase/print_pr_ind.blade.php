@@ -65,7 +65,7 @@
 </head>
 
 <body>
-<div class="watermark">DRAFT</div>
+
 @if(($datas[0]->status != 'Posted') && ($datas[0]->status != 'Created PO'))
     <div class="watermark">DRAFT</div>
 @endif
