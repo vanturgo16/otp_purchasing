@@ -313,12 +313,16 @@
                                                 <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                     <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info " id=""
+                                                <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                     data-bs-toggle="modal"
                                                     onclick="edit_po_detail('{{ $data->id }}')"
                                                     data-bs-target="#edit-po-detail" data-id="">
                                                     <i class="bx bx-edit-alt" title="edit data"></i>
-                                                </button>
+                                                </button> -->
+                                                <a href="/edit-po-item/{{ $data->id; }}">
+                                                    <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+
                                                 @include('purchase.modal')
                                             </td>
                                         </tr>
@@ -339,12 +343,15 @@
                                                 <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                     <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info " id=""
+                                                <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                     data-bs-toggle="modal"
                                                     onclick="edit_po_detail('{{ $data->id }}')"
                                                     data-bs-target="#edit-po-detail" data-id="">
                                                     <i class="bx bx-edit-alt" title="edit data"></i>
-                                                </button>
+                                                </button> -->
+                                                <a href="/edit-po-item/{{ $data->id; }}">
+                                                    <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
                                                 @include('purchase.modal')
                                             </td>
                                         </tr>
@@ -365,12 +372,15 @@
                                                 <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                     <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info " id=""
+                                                <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                     data-bs-toggle="modal"
                                                     onclick="edit_po_detail('{{ $data->id }}')"
                                                     data-bs-target="#edit-po-detail" data-id="">
                                                     <i class="bx bx-edit-alt" title="edit data"></i>
-                                                </button>
+                                                </button> -->
+                                                <a href="/edit-po-item/{{ $data->id; }}">
+                                                    <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
                                                 @include('purchase.modal')
                                             </td>
                                         </tr>
@@ -391,12 +401,15 @@
                                                 <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                     <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info " id=""
+                                                <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                     data-bs-toggle="modal"
                                                     onclick="edit_po_detail('{{ $data->id }}')"
                                                     data-bs-target="#edit-po-detail" data-id="">
                                                     <i class="bx bx-edit-alt" title="edit data"></i>
-                                                </button>
+                                                </button> -->
+                                                <a href="/edit-po-item/{{ $data->id; }}">
+                                                    <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
                                                 @include('purchase.modal')
                                             </td>
                                         </tr>
@@ -417,12 +430,15 @@
                                                 <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                     <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info " id=""
+                                                <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                     data-bs-toggle="modal"
                                                     onclick="edit_po_detail('{{ $data->id }}')"
                                                     data-bs-target="#edit-po-detail" data-id="">
                                                     <i class="bx bx-edit-alt" title="edit data"></i>
-                                                </button>
+                                                </button> -->
+                                                <a href="/edit-po-item/{{ $data->id; }}">
+                                                    <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
                                                 @include('purchase.modal')
                                             </td>
                                         </tr>
@@ -435,7 +451,7 @@
                     <div class="row left-content-end">
                         <div class="col-sm-9">
                             <div>
-                                <a href="/purchase-order" class="btn btn-info w-md">Back</a>  
+                                <a href="/purchase-order" class="btn btn-info w-md">Back</a>
                             </div>
                         </div>
                     </div>
