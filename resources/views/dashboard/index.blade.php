@@ -32,7 +32,7 @@
                         <div class="row justify-content-center mt-3">
                             <div class="col-xl-5 col-lg-8">
                                 <div class="text-center">
-                                    <h5>Welcome to the "Configuration Dashboard"</h5>
+                                    <h5>Welcome to the "Purchasing Dashboard"</h5>
                                     <p class="text-muted">Here you can manage users to access SSO PT Olefina Tifaplas Polikemindo, & You are able to manage your Master Data on the system</p>
                                 </div>
                             </div>

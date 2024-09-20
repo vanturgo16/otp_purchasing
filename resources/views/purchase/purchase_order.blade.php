@@ -4,6 +4,12 @@
 
 <div class="page-content">
         <div class="container-fluid">
+        @if (session('pesan'))
+            <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
+                <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('pesan') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
             <div class="row">
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -34,7 +40,7 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
+                                <table id="so_ppic_table" class="table table-bordered dt-responsive  nowrap w-100">
                                     <thead>
                                         <tr>
                                         <tr>
@@ -48,55 +54,10 @@
                                             <th>QC Check</th>
                                             <th>Type</th>
                                             <th>Status</th>
-                                            <th>Un Posted</th>
-                                            <th>Aksi</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                    @foreach ($datas as $data)
-                                            <tr>
-                                                <td></td>
-                                                <td>{{ $data->po_number }}</td>
-                                                <td>{{ $data->date }}</td>
-                                                <td>{{ $data->name }}</td>
-                                                <td>{{ $data->request_number }}</td>
-                                                <td>{{ $data->down_payment }}</td>
-                                                <td>{{ $data->total_amount }}</td>
-                                                <td>{{ $data->qc_check }}</td>
-                                                <td>{{ $data->type }}</td>
-                                                <td>{{ $data->status }}</td>
-                                                <td></td>
-                                                <td><form action="/hapus_po/{{ $data->id }}" method="post"
-                                                        class="d-inline">
-                                                        @method('delete')
-                                                        @csrf
-                                                        <!-- <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))"> -->
-                                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Anda yakin mau menghapus item ini ?')">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
-                                                    </form>
-                                                    <form action="/submit_bulan_pgb/" method="post"
-                                                        class="d-inline" data-id="">
-                                                        @method('PUT')
-                                                        @csrf
-                                                        <button type="button" class="btn btn-sm btn-success"
-                                                            onclick="kirimData($(this).closest('form'))">
-                                                            <i class="bx bx-printer" title="Kirim data"></i>
-                                                        </button></center>
-                                                    </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
-                                                            data-bs-toggle="modal"
-                                                            onclick="edit_po('{{ $data->id }}')"
-                                                            data-bs-target="#edit-po" data-id="">
-                                                            <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button></td>
-                                             
-                                            </tr>
-                                        <!-- Add more rows as needed -->
-                                        @endforeach
-                                    </tbody>
+                                   
                                 </table>
                             </div>
                         </div>
@@ -107,3 +68,139 @@
     </div>
 
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            // alert('test')
+            var i = 1;
+            let dataTable = $('#so_ppic_table').DataTable({
+                dom: '<"top d-flex"<"position-absolute top-0 end-0 d-flex"fl>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>><"clear:both">',
+                initComplete: function(settings, json) {
+                    // Setelah DataTable selesai diinisialisasi
+                    // Tambahkan elemen kustom ke dalam DOM
+                    $('.top').prepend(
+                        `<div class='pull-left col-sm-12 col-md-5'><div class="btn-group mb-4"></div></div>`
+                    );
+                },
+                processing: true,
+                serverSide: true,
+                // scrollX: true,
+                language: {
+                    lengthMenu: "_MENU_",
+                    search: "",
+                    searchPlaceholder: "Search",
+                },
+                pageLength: 5,
+                lengthMenu: [
+                    [5, 10, 20, 25, 50, 100],
+                    [5, 10, 20, 25, 50, 100]
+                ],
+                aaSorting: [
+                    [1, 'desc']
+                ], // start to sort data in second column 
+                ajax: {
+                    url: baseRoute + '/purchase-order',
+                    data: function(d) {
+                        d.search = $('input[type="search"]').val(); // Kirim nilai pencarian
+                    }
+                },
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                        // className: 'align-middle text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'po_number',
+                        name: 'po_number',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'date',
+                        name: 'date',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'name',
+                        name: 'name',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'pr',
+                        name: 'pr',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'down_payment',
+                        name: 'down_payment',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'total_amount',
+                        name: 'total_amount',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'qc_check',
+                        name: 'qc_check',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'type',
+                        name: 'type',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        // className: 'align-middle',
+                        orderable: true,
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        // className: 'align-middle text-center',
+                        orderable: false,
+                        searchable: false
+                    },
+                    
+                ],
+                createdRow: function(row, data, dataIndex) {
+                    // Tambahkan class "table-success" ke tr jika statusnya "Posted"
+                    if (data.statusLabel === 'Posted') {
+                        $(row).addClass('table-success');
+                    }
+                },
+                bAutoWidth: false,
+                columnDefs: [{
+                        width: "10%",
+                        targets: [3]
+                    }, {
+                        width: '100px', // Menetapkan min-width ke 150px
+                        targets: [6, 7], // Menggunakan class 'progress' pada kolom
+                    },
+                    {
+                        width: '60px', // Menetapkan min-width ke 150px
+                        targets: [4], // Menggunakan class 'progress' pada kolom
+                    }, {
+                        orderable: false,
+                        targets: [0]
+                    }
+                ],
+            });
+        });
+    </script>
+@endpush
+
+<!--jajang.jpr@gmail.com @Jaysyoungstar14  php artisan serve --port=9040 -->

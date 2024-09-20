@@ -13,7 +13,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                        <h4 class="mb-sm-0 font-size-18"> Purchase Requisition</h4>
+                        <h4 class="mb-sm-0 font-size-18"> Purchase Requisition Item</h4>
                         <div class="page-title-right">
                             <ol class="breadcrumb m-0">
                                 <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
@@ -45,18 +45,14 @@
                                 <table id="so_ppic_table" class="table table-bordered dt-responsive  nowrap w-100">
                                     <thead>
                                         <tr>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Request Number</th>
-                                            <th>Date</th>
-                                            <th>Suppliers</th>
-                                            <th>Requester</th>
-                                            <th>QC Check</th>
-                                            <th>Note</th>
-                                            <th>PO Number</th>
-                                            <th>Type</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
+                                            <th>NO</th>
+                                            <th>Type Product</th>
+                                            <th>Product WIP</th>
+                                            <th>Qty</th>
+                                            <th>Units</th>
+                                            <th>Required Date</th>
+                                            <th>CC / CO</th>
+                                            <th>Remarks</th>
                                         </tr>
                                     </thead>
                                     
@@ -100,7 +96,7 @@
                     [1, 'desc']
                 ], // start to sort data in second column 
                 ajax: {
-                    url: baseRoute + '/purchase',
+                    url: baseRoute + '/purchase-requisition-items',
                     data: function(d) {
                         d.search = $('input[type="search"]').val(); // Kirim nilai pencarian
                     }
@@ -115,66 +111,48 @@
                         searchable: false
                     },
                     {
-                        data: 'request_number',
-                        name: 'request_number',
+                        data: 'type_product',
+                        name: 'type_product',
                         // className: 'align-middle text-center',
                         orderable: true,
                     },
                     {
-                        data: 'date',
-                        name: 'date',
+                        data: 'desc',
+                        name: 'desc',
                         // className: 'align-middle text-center',
                         orderable: true,
                     },
                     {
-                        data: 'name',
-                        name: 'name',
+                        data: 'qty',
+                        name: 'qty',
                         // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'unit_code',
+                        name: 'unit_code',
+                        // className: 'align-middle text-center',
+                        orderable: true,
+                    },
+                    {
+                        data: 'required_date',
+                        name: 'required_date',
+                        // className: 'align-middle',
                         orderable: true,
                     },
                     {
                         data: 'nm_requester',
                         name: 'nm_requester',
-                        // className: 'align-middle text-center',
-                        orderable: true,
-                    },
-                    {
-                        data: 'qc_check',
-                        name: 'qc_check',
                         // className: 'align-middle',
                         orderable: true,
                     },
                     {
-                        data: 'note',
-                        name: 'note',
+                        data: 'remarks',
+                        name: 'remarks',
                         // className: 'align-middle',
                         orderable: true,
                     },
-                    {
-                        data: 'po_number',
-                        name: 'po_number',
-                        // className: 'align-middle',
-                        orderable: true,
-                    },
-                    {
-                        data: 'type',
-                        name: 'type',
-                        orderable: true,
-                        searchable: false
-                    },
-                    {
-                        data: 'status',
-                        name: 'status',
-                        orderable: true,
-                        searchable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        // className: 'align-middle text-center',
-                        orderable: false,
-                        searchable: false
-                    },
+                    
                 ],
                 createdRow: function(row, data, dataIndex) {
                     // Tambahkan class "table-success" ke tr jika statusnya "Posted"
@@ -189,12 +167,6 @@
                     }, {
                         width: '100px', // Menetapkan min-width ke 150px
                         targets: [6, 7], // Menggunakan class 'progress' pada kolom
-                    }, {
-                        width: '120px', // Menetapkan min-width ke 150px
-                        targets: [9], // Menggunakan class 'progress' pada kolom
-                    }, {
-                        width: '150px', // Menetapkan min-width ke 150px
-                        targets: [10], // Menggunakan class 'progress' pada kolom
                     },
                     {
                         width: '60px', // Menetapkan min-width ke 150px

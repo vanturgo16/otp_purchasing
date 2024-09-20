@@ -4,9 +4,12 @@
 
 <div class="page-content">
     <div class="container-fluid">
-    <form method="post" action="/update" class="form-material m-t-40" enctype="multipart/form-data">
-    @csrf
-   
+         @if (session('pesan'))
+            <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
+                <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('pesan') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+         @endif
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -15,7 +18,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Add Purchase RM</li>
+                            <li class="breadcrumb-item active"> Add Purchase {{ $datas[0]->type; }}</li>
                         </ol>
                     </div>
                 </div>
@@ -23,6 +26,9 @@
                 <div></div>
             </div>
         </div>
+        <form method="post" action="/update_pr/{{ $datas[0]->request_number; }}" class="form-material m-t-40" enctype="multipart/form-data" id="form_ekpor">
+            @method('PUT')
+            @csrf
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
@@ -40,6 +46,7 @@
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Request Number</label>
                                         <div class="col-sm-9">
                                             <input type="text" name="request_number" class="form-control" value="{{ $datas[0]->request_number; }}" readonly>
+                                            <input type="hidden" name="id" class="form-control" value="{{ $datas[0]->id; }}" readonly>
                                         </div>
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
@@ -51,7 +58,7 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Suppliers </label>
                                         <div class="col-sm-9">
-                                        <select class="form-select" name="id_master_suppliers" id="">
+                                        <select class="form-select data-select2" name="id_master_suppliers" id="">
                                             <option value="">Pilih Suppliers</option>
                                             @foreach ($supplier as $data)
                                                 <option value="{{ $data->id }}" {{ $data->id == $selectedId ? 'selected' : '' }}>{{ $data->name }}</option>
@@ -62,7 +69,7 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Requester </label>
                                         <div class="col-sm-9">
-                                        <select class="form-select" name="requester" id="">
+                                        <select class="form-select data-select2" name="requester" id="">
                                         <option>Pilih Requester</option>
                                         @foreach ($data_requester as $data)
                                             <option value="{{ $data->id }}" {{ $data->id == $selectedIdreques ? 'selected' : '' }}>{{ $data->nm_requester }}</option>
@@ -89,9 +96,17 @@
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Status </label>
                                         <div class="col-sm-9">
                                             <input type="text" class="form-control" name="status" value="Request" readonly>
+                                            <input type="hidden" class="form-control" name="type" value="{{ $datas[0]->type; }}">
                                         </div>
                                     </div>
-
+                                    <div class="row justify-content-end">
+                                        <div class="col-sm-9">
+                                            <div>
+                                                <!-- <button type="reset" class="btn btn-info w-md">Reset</button> -->
+                                                <button type="submit" class="btn btn-primary w-md">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                     
                                     
                             </div>
@@ -100,7 +115,9 @@
                 </div>
             </div>
         </div>
-
+        </form>
+        <form method="post" action="/update_detail_rm/{{ $datas[0]->request_number; }}/{{ $datas[0]->id; }}" class="form-material m-t-40" enctype="multipart/form-data">
+        @csrf
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
@@ -118,6 +135,8 @@
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
                                         <div class="col-sm-9">
                                             <input type="radio" id="html" name="type" value="{{ $datas[0]->type; }}" checked>
+                                            <input type="hidden" id="hidden" name="type_product" value="{{ $datas[0]->type; }}" checked>
+                                            <!-- <input type="text" name="request_number" class="form-control" value="{{ $datas[0]->request_number; }}"> -->
                                               <label for="html">{{ $datas[0]->type; }}</label>
                                         </div>
                                     </div>
@@ -125,31 +144,38 @@
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product {{ $datas[0]->type; }}</label>
                                         <div class="col-sm-9">
                                             @if($datas[0]->type=='RM')
-                                            <select class="form-select" name="master_products_id" id="">
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='WIP')
-                                            <select class="form-select" name="master_products_id" id="">
-                                                    <option>Pilih Product WIP</option>
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                                    <option value="">Pilih Product WIP</option>
                                                 @foreach ($wip as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='FG')
-                                            <select class="form-select" name="master_products_id" id="">
-                                                    <option>Pilih Product FG</option>
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                                    <option value="">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='TA')
-                                            <select class="form-select" name="product" id="">
-                                                    <option>Pilih Product Sparepart & Auxiliaries</option>
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                                    <option value="">Pilih Product Sparepart & Auxiliaries</option>
                                                 @foreach ($ta as $data)
-                                                    <option>{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                @endforeach
+                                            </select>
+                                            @elseif($datas[0]->type=='Other')
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                                    <option value="">Pilih Product Other</option>
+                                                @foreach ($other as $data)
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
                                             @endif
@@ -164,10 +190,10 @@
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="master_units_id" id="">
+                                            <select class="form-select data-select2" name="master_units_id" id="unit_code">
                                                 <option>Pilih Units</option>
                                                 @foreach ($units as $data)
-                                                    <option>{{ $data->unit_code }}</option>
+                                                    <option value="{{ $data->id }}">{{ $data->unit_code }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -181,10 +207,10 @@
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">CC / CO</label>
                                         <div class="col-sm-9">
-                                            <select class="form-select" name="cc_co" value="{{ old('cc_co') }}">
+                                            <select class="form-select data-select2" name="cc_co" value="{{ old('cc_co') }}">
                                                 <option>Pilih CC / CO</option>
-                                                @foreach ($datas as $data)
-                                                    <option>{{ $data->nm_requester }}</option>
+                                                @foreach ($data_requester as $data)
+                                                    <option value="{{ $data->id }}">{{ $data->nm_requester }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -200,7 +226,7 @@
                                         <div class="col-sm-9">
                                             <div>
                                                 <button type="reset" class="btn btn-info w-md">Reset</button>
-                                                <button type="submit" class="btn btn-primary w-md">Add To Table</button>
+                                                <button type="submit" class="btn btn-primary w-md" name="save_detail">Add To Table</button>
                                             </div>
                                         </div>
                                     </div>
@@ -227,7 +253,7 @@
                                     <tr>
                                     <tr>
                                         <th>Type Product</th>
-                                        <th>Product WIP</th>
+                                        <th>Product</th>
                                         <th>Qty</th>
                                         <th>Units</th>
                                         <th>Required Date</th>
@@ -243,23 +269,21 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
-                                                <td>{{ $data->cc_co }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
-                                                    
-                                                
-                                                    
-                                                
-                                                    <a href="/pengangkutan-gas-bumi/show/"
-                                                        class="btn btn-sm btn-info"><i class="bx bx-edit"
-                                                            title="Revisi"></i></a>
-                                                            </center>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                        data-bs-toggle="modal"
+                                                        onclick="edit_pr('{{ $data->id }}')"
+                                                        data-bs-target="#edit-pr" data-id="">
+                                                        <i class="bx bx-edit-alt" title="edit data"></i>
+                                                    </button></center>
+                                                    @include('purchase.modal')
                                                         </td>
                                                 
                                             </tr>
@@ -271,23 +295,21 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
-                                                <td>{{ $data->cc_co }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
-                                                    
-                                                
-                                                    
-                                                
-                                                    <a href="/pengangkutan-gas-bumi/show/"
-                                                        class="btn btn-sm btn-info"><i class="bx bx-edit"
-                                                            title="Revisi"></i></a>
-                                                            </center>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_pr_smt('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr-smt" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
+                                                        </button></center>
+                                                        @include('purchase.modal')
                                                         </td>
                                                 
                                             </tr>
@@ -299,23 +321,21 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
-                                                <td>{{ $data->cc_co }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
-                                                        </button>
-                                                    
-                                                
-                                                    
-                                                
-                                                    <a href="/pengangkutan-gas-bumi/show/"
-                                                        class="btn btn-sm btn-info"><i class="bx bx-edit"
-                                                            title="Revisi"></i></a>
-                                                            </center>
+                                                     <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_pr_smt('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr-smt" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
+                                                        </button></center>
+                                                        @include('purchase.modal')
                                                         </td>
                                                 
                                             </tr>
@@ -327,15 +347,40 @@
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
                                                 <td>{{ $data->qty }}</td>
-                                                <td>{{ $data->unit_code }}</td>
+                                                <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
-                                                <td>{{ $data->cc_co }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
                                                 <td>{{ $data->remarks }}</td>
                                                 <td>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="hapusData($(this).closest('form'))">
-                                                            <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
+                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                            data-bs-toggle="modal"
+                                                            onclick="edit_pr('{{ $data->id }}')"
+                                                            data-bs-target="#edit-pr" data-id="">
+                                                            <i class="bx bx-edit-alt" title="edit data"></i>
                                                         </button>
+                                                            </center>
+                                                        </td>
+                                                        @include('purchase.modal')
+                                            </tr>
+                                        <!-- Add more rows as needed -->
+                                    @endforeach
+                                @elseif($datas[0]->type=='Other')
+                                 @foreach ($data_detail_other as $data)
+                                            <tr>
+                                                <td>{{ $data->type_product }}</td>
+                                                <td>{{ $data->description }}</td>
+                                                <td>{{ $data->qty }}</td>
+                                                <td>{{ $data->unit }}</td>
+                                                <td>{{ $data->required_date }}</td>
+                                                <td>{{ $data->nm_requester }}</td>
+                                                <td>{{ $data->remarks }}</td>
+                                                <td>
+                                                    <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
+                                                        <i class="bx bx-trash-alt" title="Hapus data" ></i>
+                                                    </button>
                                                         <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr('{{ $data->id }}')"
@@ -356,8 +401,7 @@
                     <div class="row left-content-end">
                         <div class="col-sm-9">
                             <div>
-                                <a href="/purchase" class="btn btn-info w-md">Back</a>
-                                <button type="submit" class="btn btn-primary w-md">Save</button>
+                                <a href="/purchase" class="btn btn-info w-md">Back</a>  
                             </div>
                         </div>
                     </div>
