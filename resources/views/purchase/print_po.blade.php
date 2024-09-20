@@ -45,95 +45,101 @@
 </head>
 
 <body>
-                    @php
-                    function numberToWords($number) {
-                    $words = [
-                        0 => 'nol',
-                        1 => 'satu',
-                        2 => 'dua',
-                        3 => 'tiga',
-                        4 => 'empat',
-                        5 => 'lima',
-                        6 => 'enam',
-                        7 => 'tujuh',
-                        8 => 'delapan',
-                        9 => 'sembilan',
-                        10 => 'sepuluh',
-                        11 => 'sebelas',
-                        12 => 'dua belas',
-                        13 => 'tiga belas',
-                        14 => 'empat belas',
-                        15 => 'lima belas',
-                        16 => 'enam belas',
-                        17 => 'tujuh belas',
-                        18 => 'delapan belas',
-                        19 => 'sembilan belas',
-                        20 => 'dua puluh',
-                        30 => 'tiga puluh',
-                        40 => 'empat puluh',
-                        50 => 'lima puluh',
-                        60 => 'enam puluh',
-                        70 => 'tujuh puluh',
-                        80 => 'delapan puluh',
-                        90 => 'sembilan puluh',
-                    ];
+@php
+if (!function_exists('numberToWords')) {
+    function numberToWords($number) {
+        $words = [
+            0 => 'nol',
+            1 => 'satu',
+            2 => 'dua',
+            3 => 'tiga',
+            4 => 'empat',
+            5 => 'lima',
+            6 => 'enam',
+            7 => 'tujuh',
+            8 => 'delapan',
+            9 => 'sembilan',
+            10 => 'sepuluh',
+            11 => 'sebelas',
+            12 => 'dua belas',
+            13 => 'tiga belas',
+            14 => 'empat belas',
+            15 => 'lima belas',
+            16 => 'enam belas',
+            17 => 'tujuh belas',
+            18 => 'delapan belas',
+            19 => 'sembilan belas',
+            20 => 'dua puluh',
+            30 => 'tiga puluh',
+            40 => 'empat puluh',
+            50 => 'lima puluh',
+            60 => 'enam puluh',
+            70 => 'tujuh puluh',
+            80 => 'delapan puluh',
+            90 => 'sembilan puluh',
+        ];
 
-                    if ($number < 20) {
-                        return $words[$number];
-                    }
+        // Cek angka negatif
+        if ($number < 0) {
+            return 'minus ' . numberToWords(abs($number));
+        }
 
-                    if ($number < 100) {
-                        $result = $words[10 * floor($number / 10)];
-                        if ($number % 10 !== 0) {
-                            $result .= ' ' . $words[$number % 10];
-                        }
-                        return $result;
-                    }
+        if ($number < 20) {
+            return $words[$number];
+        }
 
-                    if ($number < 200) {
-                        $result = 'seratus';
-                        if ($number % 100 !== 0) {
-                            $result .= ' ' . numberToWords($number % 100);
-                        }
-                        return $result;
-                    }
+        if ($number < 100) {
+            $result = $words[10 * floor($number / 10)];
+            if ($number % 10 !== 0) {
+                $result .= ' ' . $words[$number % 10];
+            }
+            return $result;
+        }
 
-                    if ($number < 1000) {
-                        $result = $words[floor($number / 100)] . ' ratus';
-                        if ($number % 100 !== 0) {
-                            $result .= ' ' . numberToWords($number % 100);
-                        }
-                        return $result;
-                    }
+        if ($number < 200) {
+            $result = 'seratus';
+            if ($number % 100 !== 0) {
+                $result .= ' ' . numberToWords($number % 100);
+            }
+            return $result;
+        }
 
-                    if ($number < 1000000) {
-                        $result = numberToWords(floor($number / 1000)) . ' ribu';
-                        if ($number % 1000 !== 0) {
-                            $result .= ' ' . numberToWords($number % 1000);
-                        }
-                        return $result;
-                    }
+        if ($number < 1000) {
+            $result = $words[floor($number / 100)] . ' ratus';
+            if ($number % 100 !== 0) {
+                $result .= ' ' . numberToWords($number % 100);
+            }
+            return $result;
+        }
 
-                    if ($number < 1000000000) {
-                        $result = numberToWords(floor($number / 1000000)) . ' juta';
-                        if ($number % 1000000 !== 0) {
-                            $result .= ' ' . numberToWords($number % 1000000);
-                        }
-                        return $result;
-                    }
+        if ($number < 1000000) {
+            $result = numberToWords(floor($number / 1000)) . ' ribu';
+            if ($number % 1000 !== 0) {
+                $result .= ' ' . numberToWords($number % 1000);
+            }
+            return $result;
+        }
 
-                    if ($number < 1000000000000) {
-                        $result = numberToWords(floor($number / 1000000000)) . ' milyar';
-                        if ($number % 1000000000 !== 0) {
-                            $result .= ' ' . numberToWords($number % 1000000000);
-                        }
-                        return $result;
-                    }
+        if ($number < 1000000000) {
+            $result = numberToWords(floor($number / 1000000)) . ' juta';
+            if ($number % 1000000 !== 0) {
+                $result .= ' ' . numberToWords($number % 1000000);
+            }
+            return $result;
+        }
 
-                    return numberToWords(floor($number / 1000000000000)) . ' trilyun ' . numberToWords($number % 1000000000000);
-                }
+        if ($number < 1000000000000) {
+            $result = numberToWords(floor($number / 1000000000)) . ' milyar';
+            if ($number % 1000000000 !== 0) {
+                $result .= ' ' . numberToWords($number % 1000000000);
+            }
+            return $result;
+        }
 
-                    @endphp
+        return numberToWords(floor($number / 1000000000000)) . ' trilyun ' . numberToWords($number % 1000000000000);
+    }
+}
+    @endphp
     
     @if($results[0]->status != 'Posted')
     <div class="watermark">DRAFT</div>
@@ -254,7 +260,24 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->description }} <br>
-                                        {{ $data->remarks }}</td>
+                                    </td>
+                                    <td>{{ $data->qty }}</td>
+                                    <td>{{ $data->unit }}</td>
+                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
+                                    @php
+                                        $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
+                                    @endphp
+                                </tr>
+                        @endforeach
+                    @elseif($purchaseOrder->type=='Other')
+                        
+                        @foreach ($data_detail_other as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $data->description }} <br>
+                                     
+                                    </td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     <td>{{ number_format($data->price,3,',','.'); }}</td>

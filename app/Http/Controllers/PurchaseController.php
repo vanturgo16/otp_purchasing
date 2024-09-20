@@ -2259,6 +2259,40 @@ class PurchaseController extends Controller
         'reference_number','selectedId','selectedsupplier','radioselectted','rawMaterials','ta','fg','wip',
         'data_detail_ta','data_detail_fg','data_detail_wip','other','data_detail_other'));
 
+    }public function edit_po_item($id)
+    {
+        // dd($id);
+        // die;
+        $units = DB::table('master_units')
+                        ->select('unit_code','id')
+                        ->get();
+        $rawMaterials = DB::table('master_raw_materials')
+                        ->select('description','id')
+                        ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description')
+                        ->get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id','perforasi')
+                        ->get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
+
+        $other = DB::table('master_tool_auxiliaries')
+                        ->select('description', 'id')
+                        ->where('type', 'Other') // Ganti 'column_name' dengan nama kolom dan 'value' dengan nilai yang ingin dicari
+                        ->get();
+
+        $results = DB::table('purchase_order_details as a')
+                ->select(
+                    'a.*')
+                ->where('a.id', '=', $id)
+                ->get();
+
+
+        return view('purchase.edit_po_item',compact('id','results','other','wip','fg','ta','rawMaterials'
+    ,'units'));
     }public function update_po(Request $request, $id){
         $id = $id;
         // dd($request);
@@ -2384,12 +2418,19 @@ class PurchaseController extends Controller
 
             // return "Tombol Save detail diklik.";
         }
+    }public function update_detail_po_item (Request $request, $id) {
+
+
+       // return "Tombol Save detail diklik.";
+       return Redirect::to('/edit-po/'.$id)->with('pesan', 'Data berhasil diupdate.'); 
+        
     }public function update_po_detail(Request $request, $id){
         // dd($id);
         // die;
+        $id_po = $request->input('id_purchase_orders');
 
         $id = $id;
-        // dd($request);
+        // dd($id_po);
         // die;
         $pesan = [
             'type_product.required' => 'type masih kosong',
@@ -2421,6 +2462,23 @@ class PurchaseController extends Controller
 
         PurchaseOrderDetails::where('id', $id)
             ->update($validatedData);
+
+        $total_discount = PurchaseOrderDetails::where('id_purchase_orders', $id_po)->sum('discount');
+        $sub_total = PurchaseOrderDetails::where('id_purchase_orders', $id_po)->sum('amount');
+
+        $total_amount = $sub_total-$total_discount;
+        // dd($total_discount);
+        // die;
+
+        $total_ppn = DB::table('purchase_order_details')
+        ->where('id_purchase_orders', $id_po)
+        ->sum(DB::raw("CASE WHEN tax = 'Y' THEN ((qty * price) - discount) * 0.11 ELSE 0 END"));
+        
+        $validatedData = DB::update("UPDATE `purchase_orders` SET `total_discount` = '$total_discount', 
+        `sub_total` = '$sub_total', `total_amount` = '$total_amount', total_ppn = '$total_ppn' WHERE `id` = '$id_po'");
+
+        // dd($validatedData);
+        // die;
 
         $id_purchase_orders = $request->input('id_purchase_orders');
         return Redirect::to('/edit-po/'.$id_purchase_orders)->with('pesan', 'Data berhasil diupdate.');
@@ -2570,6 +2628,14 @@ class PurchaseController extends Controller
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
+        $data_detail_other = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->where('b.type', '=', 'Other')
+                ->get();
+
         $results = DB::table('purchase_orders as a')
                 ->select(
                     'a.id',
@@ -2591,7 +2657,7 @@ class PurchaseController extends Controller
                 ->where('a.id', '=', $id)
                 ->get();
 
-        return view('purchase.print_po',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results'));
+        return view('purchase.print_po',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results','data_detail_other'));
     }public function print_pr($request_number)
     {
         // dd($request_number);
@@ -2818,6 +2884,14 @@ class PurchaseController extends Controller
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
+        $data_detail_other = DB::table('purchase_order_details as a')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->where('a.id_purchase_orders', '=', $id)
+                ->where('b.type', '=', 'Other')
+                ->get();
+
         $results = DB::table('purchase_orders as a')
                 ->select(
                     'a.id',
@@ -2839,7 +2913,7 @@ class PurchaseController extends Controller
                 ->where('a.id', '=', $id)
                 ->get();
 
-        return view('purchase.print_po_ind',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results'));
+        return view('purchase.print_po_ind',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results','data_detail_other'));
     }
     
 
