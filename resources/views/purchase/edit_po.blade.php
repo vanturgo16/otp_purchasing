@@ -164,6 +164,11 @@
                                                 <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                             @endforeach
                                         </select>
+                                        @error('master_products_id')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                         @elseif($results[0]->type=='WIP')
                                         <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product WIP</option>
@@ -171,6 +176,11 @@
                                                 <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                             @endforeach
                                         </select>
+                                        @error('master_products_id')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                         @elseif($results[0]->type=='FG')
                                         <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product FG</option>
@@ -178,6 +188,11 @@
                                                 <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
                                             @endforeach
                                         </select>
+                                        @error('master_products_id')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                         @elseif($results[0]->type=='TA')
                                         <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product Sparepart & Auxiliaries</option>
@@ -185,6 +200,11 @@
                                                 <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                             @endforeach
                                         </select>
+                                        @error('master_products_id')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                         @elseif($results[0]->type=='Other')
                                         <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product Other</option>
@@ -192,7 +212,13 @@
                                                 <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                             @endforeach
                                         </select>
+                                        @error('master_products_id')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                         @endif
+                                        
                                     </div>
                                 </div>
                                 <div class="row mb-4 field-wrapper required-field">
@@ -200,6 +226,11 @@
                                     <div class="col-sm-9">
                                         <input type="number" class="form-control" name="qty" id="qty" value="{{ old('qty') }}">
                                     </div>
+                                    @error('qty')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
                                 </div>
                                 <div class="row mb-4 field-wrapper required-field">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
@@ -210,19 +241,60 @@
                                                 <option value="{{ $data->id }}">{{ $data->unit_code }}</option>
                                             @endforeach
                                         </select>
+                                        @error('master_units_id')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                     </div>
+                                </div>
+                                <div class="row mb-4 field-wrapper">
+                                    <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
+                                    <div class="col-sm-9">
+                                        <input type="radio" id="USD" name="currency" value="USD">
+                                        <label for="USD">USD</label>
+                                        <input type="radio" id="IDR" name="currency" value="IDR">
+                                        <label for="IDR">IDR</label>
+                                    </div>
+                                    @error('currency')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
                                 </div>
                                 <div class="row mb-4 field-wrapper required-field">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                     <div class="col-sm-9">
-                                        <input type="number" class="form-control" name="price" id="price" value="{{ old('price') }}">
+                                        <input type="text" class="form-control" name="price" id="price" value="{{ old('price') }}">
+                                        <input type="hidden" name="currency_value" id="currency_value"> <!-- Hidden field untuk mata uang -->
                                     </div>
+                                    @error('price')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
                                 </div>
                                 <div class="row mb-4 field-wrapper required-field">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                     <div class="col-sm-9">
                                         <input type="number" class="form-control" name="discount" id="discount" value="{{ old('discount') }}">
                                     </div>
+                                    @error('discount')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
+                                </div>
+                                <div class="row mb-4 field-wrapper required-field">
+                                    <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax Rate (%)</label>
+                                    <div class="col-sm-9">
+                                        <input type="number" class="form-control" name="tax_rate" id="tax_rate" value="11">
+                                    </div>
+                                    @error('tax_rate')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
                                 </div>
                                 <div class="row mb-4 field-wrapper">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax</label>
@@ -232,6 +304,11 @@
                                         <input type="radio" id="tax_N" name="tax" value="N">
                                         <label for="tax_N">N</label>
                                     </div>
+                                    @error('tax')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
                                 </div>
                                 <style>
                                     .custom-bg-gray {
@@ -472,15 +549,23 @@
     const amountInput = document.getElementById('amount');
     const total_amountInput = document.getElementById('total_amount');
     const taxRadios = document.getElementsByName('tax');
+    const taxRateInput = document.getElementById('tax_rate'); // Tambahkan ini untuk nilai pajak
+    const currencyRadios = document.querySelectorAll('input[name="currency"]');
+    const currencyValueInput = document.getElementById('currency_value'); // Hidden input untuk mata uang
 
     // Tambahkan event listener untuk menghitung jumlah saat nilai berubah
-    [qtyInput, priceInput, discountInput].forEach(input => {
+    [qtyInput, priceInput, discountInput, taxRateInput].forEach(input => {
         input.addEventListener('input', calculateAmount);
     });
 
     // Tambahkan event listener untuk menghitung jumlah saat radio button berubah
     taxRadios.forEach(radio => {
         radio.addEventListener('change', calculateAmount);
+    });
+
+    // Tambahkan event listener ke setiap radio button
+    currencyRadios.forEach(radio => {
+        radio.addEventListener('change', formatPrice);
     });
 
     // Fungsi untuk memformat angka
@@ -507,11 +592,33 @@
         return s.join(dec);
     }
 
+    // Fungsi untuk memformat angka sesuai dengan mata uang yang dipilih
+    function formatPrice() {
+        const selectedCurrency = document.querySelector('input[name="currency"]:checked').value;
+        let priceValue = parseFloat(priceInput.value);
+
+        if (isNaN(priceValue)) {
+            priceInput.value = '';
+            return;
+        }
+
+        // Format angka berdasarkan mata uang
+        if (selectedCurrency === 'USD') {
+            priceInput.value = priceValue.toFixed(3);  // Tampilkan tanpa format teks "USD"
+        } else if (selectedCurrency === 'IDR') {
+            priceInput.value = priceValue.toFixed(0);  // Tampilkan angka tanpa teks IDR
+        }
+
+        // Simpan mata uang yang dipilih ke dalam hidden field
+        currencyValueInput.value = selectedCurrency;
+    }
+
     // Fungsi untuk menghitung jumlah
     function calculateAmount() {
         const qty = parseFloat(qtyInput.value);
         const price = parseFloat(priceInput.value);
         const discount = parseFloat(discountInput.value);
+        const taxRate = parseFloat(taxRateInput.value); // Ambil nilai pajak dari input
 
         if (isNaN(qty) || isNaN(price) || isNaN(discount)) {
             amountInput.value = '';
@@ -529,7 +636,7 @@
         const isTaxed = document.querySelector('input[name="tax"]:checked').value === 'Y';
 
         // Hitung pajak 11% dari amount jika applicable
-        const tax = isTaxed ? (amount * 11) / 100 : 0;
+        const tax = isTaxed ? (amount * taxRate) / 100 : 0;
 
         // Hitung total amount
         const total_amount = amount + tax;
