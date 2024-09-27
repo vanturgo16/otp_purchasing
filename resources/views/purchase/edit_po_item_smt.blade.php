@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <form method="post" action="/update_po_detail/{{ $results[0]->id; }}" class="form-material m-t-40" enctype="multipart/form-data">
+        <form method="post" action="/update_po_detail_smt/{{ $results[0]->id; }}" class="form-material m-t-40" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">
@@ -45,7 +45,8 @@
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
                                     <div class="col-sm-9">
                                         <input type="radio" id="html" name="type_product" value="{{ $results[0]->type_product }}" checked>
-                                        <input type="hidden" name="id_purchase_orders" value="{{ $results[0]->id_purchase_orders }}">
+                                        <input type="hidden" name="id_purchase_orders" value="{{ $results[0]->id_po }}">
+                                        <input type="hidden" name="id_pr" value="{{ $results[0]->id_pr }}">
                                         <label for="html">{{ $results[0]->type_product; }}</label>
                                     </div>
                                 </div>
@@ -53,52 +54,52 @@
                                     <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product {{ $results[0]->type_product; }}</label>
                                     <div class="col-sm-9">
                                         @if($results[0]->type_product=='RM')
-                                        <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                        <select class="form-select request_number data-select2" name="description" id="" onchange="get_unit()">
                                                 <option>Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
-                                                        @if($results[0]->master_products_id == $data->id) selected @endif>
+                                                        @if($results[0]->description == $data->id) selected @endif>
                                                         {{ $data->description }}
                                                     </option>
                                                 @endforeach
 
                                         </select>
                                         @elseif($results[0]->type_product=='WIP')
-                                        <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                        <select class="form-select request_number data-select2" name="description" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product WIP</option>
                                             @foreach ($wip as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
-                                                        @if($results[0]->master_products_id == $data->id) selected @endif>
+                                                        @if($results[0]->description == $data->id) selected @endif>
                                                         {{ $data->description }}
                                                     </option>
                                             @endforeach
                                         </select>
                                         @elseif($results[0]->type_product=='FG')
-                                        <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                        <select class="form-select request_number data-select2" name="description" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product FG</option>
                                             @foreach ($fg as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
-                                                        @if($results[0]->master_products_id == $data->id) selected @endif>
+                                                        @if($results[0]->description == $data->id) selected @endif>
                                                         {{ $data->description }}
                                                     </option>
                                             @endforeach
                                         </select>
                                         @elseif($results[0]->type_product=='TA')
-                                        <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                        <select class="form-select request_number data-select2" name="description" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product Sparepart & Auxiliaries</option>
                                             @foreach ($ta as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
-                                                        @if($results[0]->master_products_id == $data->id) selected @endif>
+                                                        @if($results[0]->description == $data->id) selected @endif>
                                                         {{ $data->description }}
                                                     </option>
                                             @endforeach
                                         </select>
                                         @elseif($results[0]->type_product=='Other')
-                                        <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
+                                        <select class="form-select request_number data-select2" name="description" id="" onchange="get_unit()">
                                                 <option value="">Pilih Product Other</option>
                                             @foreach ($other as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
-                                                        @if($results[0]->master_products_id == $data->id) selected @endif>
+                                                        @if($results[0]->description == $data->id) selected @endif>
                                                         {{ $data->description }}
                                                     </option>
                                             @endforeach
@@ -115,10 +116,10 @@
                                 <div class="row mb-4 field-wrapper required-field">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                     <div class="col-sm-9">
-                                    <select class="form-select data-select2" name="master_units_id" id="unit_code">
+                                    <select class="form-select data-select2" name="unit" id="unit_code">
                                         <option>Pilih Units</option>
                                         @foreach ($units as $data)
-                                            <option value="{{ $data->id }}" @if($results[0]->master_units_id == $data->id) selected @endif>
+                                            <option value="{{ $data->unit }}" @if($results[0]->unit == $data->unit) selected @endif>
                                                 {{ $data->unit_code }}
                                             </option>
                                         @endforeach

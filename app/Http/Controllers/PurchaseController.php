@@ -1941,6 +1941,7 @@ class PurchaseController extends Controller
     
         $validatedData = $request->validate([
             'id_pr' => 'required',
+            'id_po' => 'required',
             'type_product' => 'required',
             'description' => 'required',
             'qty' => 'required',
@@ -1950,6 +1951,7 @@ class PurchaseController extends Controller
             'tax' => 'required',
             'amount' => 'required',
             'note' => 'nullable',
+            'currency' => 'required',
         ]);
     
         // Set nilai 'request_number' dengan hasil kueri database
@@ -1984,7 +1986,8 @@ class PurchaseController extends Controller
                             'a.price',
                             'a.discount',
                             'a.tax',
-                            'a.amount'
+                            'a.amount',
+                            'a.currency'
                         )
                         ->leftJoin('master_raw_materials as b', 'a.description', '=', 'b.id')
                         ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
@@ -2003,7 +2006,8 @@ class PurchaseController extends Controller
                 'a.price',
                 'a.discount',
                 'a.tax',
-                'a.amount'
+                'a.amount',
+                'a.currency'
             )
             ->leftJoin('master_product_fgs as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
@@ -2022,7 +2026,8 @@ class PurchaseController extends Controller
                 'a.price',
                 'a.discount',
                 'a.tax',
-                'a.amount'
+                'a.amount',
+                'a.currency'
             )
             ->leftJoin('master_wips as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
@@ -2041,7 +2046,8 @@ class PurchaseController extends Controller
                 'a.price',
                 'a.discount',
                 'a.tax',
-                'a.amount'
+                'a.amount',
+                'a.currency'
             )
             ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
@@ -2060,7 +2066,9 @@ class PurchaseController extends Controller
                 'a.price',
                 'a.discount',
                 'a.tax',
-                'a.amount'
+                'a.amount',
+                'a.currency'
+                
             )
             ->leftJoin('master_tool_auxiliaries as b', 'a.description', '=', 'b.id')
             ->leftJoin('master_units as c', 'a.unit', '=', 'c.unit')
@@ -2087,6 +2095,7 @@ class PurchaseController extends Controller
                 'discount' => $result->discount,
                 'tax' => $result->tax,
                 'amount' => $result->amount,
+                'currency' => $result->currency
             ]);
         }
 
@@ -2293,7 +2302,41 @@ class PurchaseController extends Controller
 
         return view('purchase.edit_po_item',compact('id','results','other','wip','fg','ta','rawMaterials'
     ,'units'));
-    }public function update_po(Request $request, $id){
+    }public function edit_po_item_smt($id){
+// dd($id);
+        // die;
+        $units = DB::table('master_units')
+                        ->select('unit_code','id','unit')
+                        ->get();
+        $rawMaterials = DB::table('master_raw_materials')
+                        ->select('description','id')
+                        ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+                        ->select('description')
+                        ->get();
+        $fg = DB::table('master_product_fgs')
+                        ->select('description','id','perforasi')
+                        ->get();
+        $wip = DB::table('master_wips')
+                        ->select('description','id')
+                        ->get();
+
+        $other = DB::table('master_tool_auxiliaries')
+                        ->select('description', 'id')
+                        ->where('type', 'Other') // Ganti 'column_name' dengan nama kolom dan 'value' dengan nilai yang ingin dicari
+                        ->get();
+
+        $results = DB::table('purchase_order_details_smt as a')
+                ->select(
+                    'a.*')
+                ->where('a.id', '=', $id)
+                ->get();
+
+
+        return view('purchase.edit_po_item_smt',compact('id','results','other','wip','fg','ta','rawMaterials'
+    ,'units'));
+    }
+    public function update_po(Request $request, $id){
         $id = $id;
         // dd($request);
         // die;
@@ -2353,6 +2396,7 @@ class PurchaseController extends Controller
                 'tax.required' => 'tax masih kosong',
                 'amount.required' => 'amount masih kosong',
                 'note.required' => 'note masih kosong',
+                'currency.required' => 'currency masih kosong',
                 
             ];
     
@@ -2367,6 +2411,7 @@ class PurchaseController extends Controller
                 'tax' => 'required',
                 'amount' => 'required',
                 'note' => 'nullable',
+                'currency' => 'required'
                 
     
             ], $pesan);
@@ -2454,7 +2499,8 @@ class PurchaseController extends Controller
             'discount' => 'required',
             'tax' => 'required',
             'amount' => 'required',
-            'note' => 'required',
+            'note' => 'nullable',
+            'currency' => 'required'
         ], $pesan);
 
         // dd($validatedData);
@@ -2489,6 +2535,8 @@ class PurchaseController extends Controller
         // $id = $id_pr;
 
         $id_purchase_orders = $request->input('id_pr');
+        // dd($id_purchase_orders);
+        // die;
         
         $id_po = PurchaseOrders::select('id')
         ->where('reference_number', $id_purchase_orders)
@@ -2496,9 +2544,12 @@ class PurchaseController extends Controller
 
         // dd($id_po->id);
         // die;
-
+        $request->merge([
+            'id_po' =>  $id_po->id, // Ganti 'id_po' dengan nilai variabel buatan Anda
+        ]);
 
         $pesan = [
+            'id_po.required' => 'type masih kosong',
             'type_product.required' => 'type masih kosong',
             'description.required' => 'description masih kosong',
             'qty.required' => 'qty masih kosong',
@@ -2507,11 +2558,12 @@ class PurchaseController extends Controller
             'discount.required' => 'discount masih kosong',
             'tax.required' => 'tax masih kosong',
             'amount.required' => 'amount masih kosong',
-            'note.required' => 'note masih kosong',
+            'note.nullable' => 'note masih kosong',
             
         ];
 
         $validatedData = $request->validate([
+            'id_po' => 'nullable',
             'type_product' => 'required',
             'description' => 'required',
             'qty' => 'required',
@@ -2520,7 +2572,7 @@ class PurchaseController extends Controller
             'discount' => 'required',
             'tax' => 'required',
             'amount' => 'required',
-            'note' => 'required',
+            'note' => 'nullable',
         ], $pesan);
 
         // dd($validatedData);
@@ -2601,35 +2653,35 @@ class PurchaseController extends Controller
             ->where('a.id', $id)
             ->first();
         $data_detail_rm = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_ta = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_wip = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_fg = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_other = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
@@ -2650,7 +2702,8 @@ class PurchaseController extends Controller
                     'a.status',
                     'a.type',
                     'a.reference_number',
-                    'a.id_master_suppliers'
+                    'a.id_master_suppliers',
+                    'b.note'
                 )
                 ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
                 ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
@@ -2857,35 +2910,35 @@ class PurchaseController extends Controller
             ->where('a.id', $id)
             ->first();
         $data_detail_rm = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
                 
         $data_detail_ta = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_wip = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_fg = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_other = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
                 ->where('a.id_purchase_orders', '=', $id)
@@ -2906,7 +2959,8 @@ class PurchaseController extends Controller
                     'a.status',
                     'a.type',
                     'a.reference_number',
-                    'a.id_master_suppliers'
+                    'a.id_master_suppliers',
+                    'b.note'
                 )
                 ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
                 ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')

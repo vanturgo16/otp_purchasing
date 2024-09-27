@@ -214,7 +214,13 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -230,7 +236,13 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -245,7 +257,13 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -260,7 +278,13 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -275,7 +299,13 @@
                                     <td>{{ $data->description }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -304,7 +334,7 @@
                 <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))." rupiah" }}#</h6>
                 <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
-                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp:</h6>
+                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp: {{ $results[0]->note ?? '-' }}</h6>
             </div>
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">
@@ -319,15 +349,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Purchasing,</p>
                 <p>(.............)</p>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Direktur,</p>
                 <p>(.............)</p>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Supplier</p>
                 <p>(.............)</p>
             </div>
