@@ -354,12 +354,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>
@@ -388,12 +392,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>
@@ -422,12 +430,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>
@@ -456,12 +468,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_po_detail_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-po-detail-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>

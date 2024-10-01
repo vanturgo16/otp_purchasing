@@ -339,7 +339,11 @@ if (!function_exists('numberToWords')) {
         <hr>
         <div class="row align-items-start">
         <div class="col-8">
-    <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))." rupiah" }}#</h6>
+    <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))}} @if($purchaseOrder_currency->currency == 'IDR')
+    {{ 'rupiah' }}
+@else
+    {{ 'dolar' }}
+@endif#</h6>
     <table style="width: 150%; border-collapse: collapse; border: 0;">
         <tr>
             <td style="width: 15%; border: 0; padding: 5px 0;">Term Of Payment</td>

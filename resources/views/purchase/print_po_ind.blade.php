@@ -331,7 +331,11 @@
         <hr>
         <div class="row align-items-start">
             <div class="col-8">
-                <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))." rupiah" }}#</h6>
+                <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }}@if($purchaseOrder_currency->currency == 'IDR')
+    {{ 'rupiah' }}
+@else
+    {{ 'dolar' }}
+@endif#</h6>
                 <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
                 <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp: {{ $results[0]->note ?? '-' }}</h6>
