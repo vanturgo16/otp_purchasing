@@ -2710,7 +2710,12 @@ class PurchaseController extends Controller
                 ->where('a.id', '=', $id)
                 ->get();
 
-        return view('purchase.print_po',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results','data_detail_other'));
+        $purchaseOrder_currency = DB::table('purchase_order_details as a')
+            ->select('a.currency')
+            ->where('a.id_purchase_orders', $id)
+            ->first();
+
+        return view('purchase.print_po',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results','data_detail_other','purchaseOrder_currency'));
     }public function print_pr($request_number)
     {
         // dd($request_number);
@@ -2967,7 +2972,12 @@ class PurchaseController extends Controller
                 ->where('a.id', '=', $id)
                 ->get();
 
-        return view('purchase.print_po_ind',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results','data_detail_other'));
+        $purchaseOrder_currency = DB::table('purchase_order_details as a')
+            ->select('a.currency')
+            ->where('a.id_purchase_orders', $id)
+            ->first();
+
+        return view('purchase.print_po_ind',compact('purchaseOrder','data_detail_rm','data_detail_ta','data_detail_wip','data_detail_fg','results','data_detail_other','purchaseOrder_currency'));
     }
     
 

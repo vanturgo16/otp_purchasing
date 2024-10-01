@@ -63,7 +63,7 @@
 
                 <div class="mb-3">
                     <label for="example-text-input" class="form-label">QC Check *</label>
-                    <input class="form-control" type="text"  name="qc_check" value="N" readonly>
+                    <input class="form-control" type="text" id="qc_check" name="qc_check" readonly>
                     @error('qc_check')
                         <div class="form-group has-danger mb-0">
                             <div class="form-control-feedback">{{ $message }}</div>

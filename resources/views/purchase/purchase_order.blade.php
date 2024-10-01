@@ -202,5 +202,3 @@
         });
     </script>
 @endpush
-
-<!--jajang.jpr@gmail.com @Jaysyoungstar14  php artisan serve --port=9040 -->
