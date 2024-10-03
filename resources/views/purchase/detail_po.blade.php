@@ -411,7 +411,7 @@
                                         @foreach ($POSmtfg as $data)
                                         <tr>
                                             <td>{{ $data->type_product }}</td>
-                                            <td>{{ $data->raw_material_description }}</td>
+                                            <td>{{ $data->raw_material_description }} || {{ $data->perforasi }}</td>
                                             <td>{{ $data->qty }}</td>
                                             <td>{{ $data->unit }}</td>
                                             <td>{{ $data->price }}</td>

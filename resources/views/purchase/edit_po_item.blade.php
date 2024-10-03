@@ -79,7 +79,7 @@
                                             @foreach ($fg as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
                                                         @if($results[0]->master_products_id == $data->id) selected @endif>
-                                                        {{ $data->description }}
+                                                        {{ $data->description }} || {{ $data->perforasi }}
                                                     </option>
                                             @endforeach
                                         </select>
