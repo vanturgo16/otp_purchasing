@@ -281,7 +281,7 @@ if (!function_exists('numberToWords')) {
                         @foreach ($data_detail_fg as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }} <br>
+                                    <td>{{ $data->description }} || {{ $data->perforasi }}<br>
                                     {{ $data->note }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
@@ -339,11 +339,13 @@ if (!function_exists('numberToWords')) {
         <hr>
         <div class="row align-items-start">
         <div class="col-8">
-    <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))}} @if($purchaseOrder_currency->currency == 'IDR')
-    {{ 'rupiah' }}
+        <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }} 
+@if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+    {{ 'USD' }}
 @else
-    {{ 'dolar' }}
+    {{ 'rupiah' }}
 @endif#</h6>
+
     <table style="width: 150%; border-collapse: collapse; border: 0;">
         <tr>
             <td style="width: 15%; border: 0; padding: 5px 0;">Term Of Payment</td>
