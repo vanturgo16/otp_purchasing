@@ -123,7 +123,7 @@
                             <td>Keterangan</td>
                             <td>Jumlah</td>
                             <td>Satuan</td>
-                            <td>Deiperlukan</td>
+                            <td>Diperlukan</td>
                             <td>CC/CO</td>
                         </tr>
                     </thead>
