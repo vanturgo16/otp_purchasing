@@ -172,7 +172,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->product_code }}</td>
-                                    <td>{{ $data->description }}<br>
+                                    <td>{{ $data->description }} || {{ $data->perforasi }}<br>
                                     {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit_code }}</td>

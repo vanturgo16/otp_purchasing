@@ -161,7 +161,7 @@
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option value="">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='TA')
@@ -277,12 +277,13 @@
                                                     <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                         <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center>
+                                                    </button> -->
+                                                </center>
                                                     @include('purchase.modal')
                                                         </td>
                                                 
@@ -303,12 +304,13 @@
                                                     <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                         <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                     </button>
-                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                        <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr_smt('{{ $data->id }}')"
                                                             data-bs-target="#edit-pr-smt" data-id="">
                                                             <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button></center>
+                                                        </button> -->
+                                                    </center>
                                                         @include('purchase.modal')
                                                         </td>
                                                 
@@ -319,7 +321,7 @@
                                     @foreach ($data_detail_fg as $data)
                                             <tr>
                                                 <td>{{ $data->type_product }}</td>
-                                                <td>{{ $data->description }}</td>
+                                                <td>{{ $data->description }} || {{ $data->perforasi }}</td>
                                                 <td>{{ $data->qty }}</td>
                                                 <td>{{ $data->unit }}</td>
                                                 <td>{{ $data->required_date }}</td>
@@ -329,12 +331,13 @@
                                                      <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                         <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                     </button>
-                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                        <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr_smt('{{ $data->id }}')"
                                                             data-bs-target="#edit-pr-smt" data-id="">
                                                             <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button></center>
+                                                        </button> -->
+                                                    </center>
                                                         @include('purchase.modal')
                                                         </td>
                                                 
@@ -355,12 +358,12 @@
                                                     <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                         <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                     </button>
-                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                        <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr('{{ $data->id }}')"
                                                             data-bs-target="#edit-pr" data-id="">
                                                             <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button>
+                                                        </button> -->
                                                             </center>
                                                         </td>
                                                         @include('purchase.modal')
@@ -381,12 +384,12 @@
                                                     <button type="submit" class="btn btn-sm btn-danger" name="hapus_detail" value="{{ $data->id }}">
                                                         <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                     </button>
-                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                        <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr('{{ $data->id }}')"
                                                             data-bs-target="#edit-pr" data-id="">
                                                             <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button>
+                                                        </button> -->
                                                             </center>
                                                         </td>
                                                         @include('purchase.modal')

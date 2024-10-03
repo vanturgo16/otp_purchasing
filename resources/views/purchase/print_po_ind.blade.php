@@ -275,7 +275,7 @@
                         @foreach ($data_detail_fg as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }} || {{ $data->perforasi }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -331,11 +331,13 @@
         <hr>
         <div class="row align-items-start">
             <div class="col-8">
-                <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }}@if($purchaseOrder_currency->currency == 'IDR')
-    {{ 'rupiah' }}
+            <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }} 
+@if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+    {{ 'USD' }}
 @else
-    {{ 'dolar' }}
+    {{ 'rupiah' }}
 @endif#</h6>
+
                 <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
                 <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp: {{ $results[0]->note ?? '-' }}</h6>
