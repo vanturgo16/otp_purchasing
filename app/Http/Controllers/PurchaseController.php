@@ -1765,6 +1765,10 @@ class PurchaseController extends Controller
                         ->select('unit_code','id','unit')
                         ->get();
 
+        $currency = DB::table('master_currencies')
+                        ->select('currency_code','id','currency')
+                        ->get();
+
         // $POSmt = PurchaseOrderDetailsSMT::where('id_pr', $reference_number)->get();
 
         $POSmt = PurchaseOrderDetailsSMT::select('purchase_order_details_smt.*', 'master_raw_materials.description as raw_material_description')
@@ -1803,7 +1807,7 @@ class PurchaseController extends Controller
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
         return view('purchase.detail_po',compact('datas','supplier','rawMaterials','units'
-        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg','POSmtother','other','request_number'));
+        ,'reference_number','POSmt','id','ta','fg','wip','findtype','POSmtTA','POSmtwip','POSmtfg','POSmtother','other','request_number','currency'));
     }
     public function tambah_detail_po($reference_number,$id){
 
@@ -2166,6 +2170,10 @@ class PurchaseController extends Controller
     {
         // dd($id);
         //  die;
+        $currency = DB::table('master_currencies')
+                        ->select('currency_code','id','currency')
+                        ->get();
+
         $supplier = MstSupplier::get();
         $data_requester = MstRequester::get();
         $units = DB::table('master_units')
@@ -2266,12 +2274,15 @@ class PurchaseController extends Controller
 
         return view('purchase.edit_po',compact('supplier','data_requester','units','data_detail_rm','results',
         'reference_number','selectedId','selectedsupplier','radioselectted','rawMaterials','ta','fg','wip',
-        'data_detail_ta','data_detail_fg','data_detail_wip','other','data_detail_other'));
+        'data_detail_ta','data_detail_fg','data_detail_wip','other','data_detail_other','currency'));
 
     }public function edit_po_item($id)
     {
         // dd($id);
         // die;
+        $currency = DB::table('master_currencies')
+                        ->select('currency_code','id','currency')
+                        ->get();
         $units = DB::table('master_units')
                         ->select('unit_code','id')
                         ->get();
@@ -2301,10 +2312,14 @@ class PurchaseController extends Controller
 
 
         return view('purchase.edit_po_item',compact('id','results','other','wip','fg','ta','rawMaterials'
-    ,'units'));
+    ,'units','currency'));
     }public function edit_po_item_smt($id){
 // dd($id);
         // die;
+        $currency = DB::table('master_currencies')
+                        ->select('currency_code','id','currency')
+                        ->get();
+
         $units = DB::table('master_units')
                         ->select('unit_code','id','unit')
                         ->get();
@@ -2334,7 +2349,7 @@ class PurchaseController extends Controller
 
 
         return view('purchase.edit_po_item_smt',compact('id','results','other','wip','fg','ta','rawMaterials'
-    ,'units'));
+    ,'units','currency'));
     }
     public function update_po(Request $request, $id){
         $id = $id;
@@ -2554,6 +2569,7 @@ class PurchaseController extends Controller
             'description.required' => 'description masih kosong',
             'qty.required' => 'qty masih kosong',
             'unit.required' => 'unit masih kosong',
+            'currency.required' => 'currency masih kosong',
             'price.required' => 'price masih kosong',
             'discount.required' => 'discount masih kosong',
             'tax.required' => 'tax masih kosong',
@@ -2568,6 +2584,7 @@ class PurchaseController extends Controller
             'description' => 'required',
             'qty' => 'required',
             'unit' => 'required',
+            'currency' => 'required',
             'price' => 'required',
             'discount' => 'required',
             'tax' => 'required',

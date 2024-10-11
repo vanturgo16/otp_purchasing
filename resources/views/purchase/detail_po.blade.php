@@ -178,10 +178,12 @@
                                     <div class="row mb-4 field-wrapper">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
                                     <div class="col-sm-9">
-                                        <input type="radio" id="USD" name="currency" value="USD">
-                                        <label for="USD">USD</label>
-                                        <input type="radio" id="IDR" name="currency" value="IDR">
-                                        <label for="IDR">IDR</label>
+                                            <select class="form-select" name="currency">
+                                                <option>Select Currency</option>
+                                                @foreach ($currency as $data)
+                                                <option value="{{ $data->currency_code }}">{{ $data->currency_code }}</option>
+                                                @endforeach
+                                            </select>
                                     </div>
                                     @error('currency')
                                             <div class="form-group has-danger mb-0">
