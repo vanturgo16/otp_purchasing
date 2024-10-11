@@ -129,12 +129,14 @@
                                 <div class="row mb-4 field-wrapper">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
                                     <div class="col-sm-9">
-                                        <input type="radio" id="USD" name="currency" value="USD"
-                                        @if($results[0]->currency == 'USD') checked @endif>
-                                        <label for="USD">USD</label>
-                                        <input type="radio" id="IDR" name="currency" value="IDR"
-                                        @if($results[0]->currency == 'IDR') checked @endif>
-                                        <label for="IDR">IDR</label>
+                                        <select class="form-select data-select2" name="currency" id="">
+                                            <option>Pilih Currency</option>
+                                            @foreach ($currency as $data)
+                                                <option value="{{ $data->currency_code }}" @if($results[0]->currency == $data->currency_code) selected @endif>
+                                                    {{ $data->currency_code }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row mb-4 field-wrapper required-field">

@@ -291,7 +291,7 @@
                                         <!-- Add more rows as needed -->
                                     @endforeach
                                 @elseif($datas[0]->type=='WIP')
-                                    @foreach ($data_detail_rm as $data)
+                                    @foreach ($data_detail_wip as $data)
                                             <tr>
                                                 <td>{{ $data->type_product }}</td>
                                                 <td>{{ $data->description }}</td>
