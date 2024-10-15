@@ -2327,7 +2327,7 @@ class PurchaseController extends Controller
                         ->select('description','id')
                         ->get();
         $ta = DB::table('master_tool_auxiliaries')
-                        ->select('description')
+                        ->select('description','id')
                         ->get();
         $fg = DB::table('master_product_fgs')
                         ->select('description','id','perforasi')
@@ -2657,7 +2657,18 @@ class PurchaseController extends Controller
 
         $request_number = $request->input('request_number');
         $id_purchase_requisitions = $request->input('id_purchase_requisitions');
-        return Redirect::to('/detail-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+        $type_product = $request->input('type_product');
+        if ($type_product=='RM') {
+            return Redirect::to('/detail-pr/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+        }elseif ($type_product=='TA') {
+            return Redirect::to('/detail-pr-sparepart/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+        }elseif ($type_product=='FG') {
+            return Redirect::to('/detail-pr-fg/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+        }elseif ($type_product=='WIP') {
+            return Redirect::to('/detail-pr-wip/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+        }elseif ($type_product=='Other') {
+            return Redirect::to('/detail-pr-other/'.$request_number)->with('pesan', 'Data berhasil diupdate.');
+        }
     }
     public function print_po($id)
     {
