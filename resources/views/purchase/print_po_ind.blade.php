@@ -186,7 +186,7 @@
             </div>
         </div>
         <div class="row d-flex justify-content-between pb-3">
-            <div class="col-8">Alamat PT &nbsp;: Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
+            <div class="col-8">Alamat PT &nbsp;: {{ $results[0]->address; }}</div>
         </div>
 
         <div class="row">
@@ -211,7 +211,8 @@
                         @foreach ($data_detail_rm as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -233,7 +234,8 @@
                         @foreach ($data_detail_ta as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -254,7 +256,8 @@
                         @foreach ($data_detail_wip as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -275,7 +278,8 @@
                         @foreach ($data_detail_fg as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }} || {{ $data->perforasi }}</td>
+                                    <td>{{ $data->description }} || {{ $data->perforasi }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -296,7 +300,8 @@
                         @foreach ($data_detail_other as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
