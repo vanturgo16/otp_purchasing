@@ -179,7 +179,7 @@
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
-                                                        onclick="edit_pr_smt('{{ $data->id }}')"
+                                                        onclick="edit_detail_pr('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
                                                     </button></center></td>

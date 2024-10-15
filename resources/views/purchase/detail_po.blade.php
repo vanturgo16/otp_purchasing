@@ -179,7 +179,7 @@
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
                                     <div class="col-sm-9">
                                             <select class="form-select" name="currency">
-                                                <option>Select Currency</option>
+                                                <option value="-">Select Currency</option>
                                                 @foreach ($currency as $data)
                                                 <option value="{{ $data->currency_code }}">{{ $data->currency_code }}</option>
                                                 @endforeach

@@ -2186,7 +2186,7 @@ class PurchaseController extends Controller
                         ->select('description','id')
                         ->get();
         $ta = DB::table('master_tool_auxiliaries')
-                        ->select('description')
+                        ->select('description','id')
                         ->get();
         $fg = DB::table('master_product_fgs')
                         ->select('description','id','perforasi')
@@ -2290,7 +2290,7 @@ class PurchaseController extends Controller
                         ->select('description','id')
                         ->get();
         $ta = DB::table('master_tool_auxiliaries')
-                        ->select('description')
+                        ->select('description','id')
                         ->get();
         $fg = DB::table('master_product_fgs')
                         ->select('description','id','perforasi')
@@ -2670,37 +2670,79 @@ class PurchaseController extends Controller
             ->where('a.id', $id)
             ->first();
         $data_detail_rm = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency', 
+                'f.remarks')
                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
+
+        
 
         $data_detail_ta = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency', 
+                'f.remarks')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
+
+        // $data_detail_wip = DB::table('purchase_order_details as a')
+        //         ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+        //         ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+        //         ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //         ->where('a.id_purchase_orders', '=', $id)
+        //         ->get();
 
         $data_detail_wip = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
-                ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
-                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                ->where('a.id_purchase_orders', '=', $id)
-                ->get();
+            ->select(
+                'a.type_product', 
+                'b.description', 
+                'a.qty', 
+                'c.unit', 
+                'a.price', 
+                'a.discount', 
+                'a.tax', 
+                'a.amount', 
+                'a.note', 
+                'a.id', 
+                'a.currency', 
+                'f.remarks'
+            )
+            ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+            ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+            ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
+            ->where('a.id_purchase_orders', '=', $id)  // pastikan $id_purchase_orders sesuai dengan variabel PHP
+            ->get();
+
 
         $data_detail_fg = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description','b.perforasi', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description','b.perforasi', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency', 
+                'f.remarks')
                 ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_other = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency', 
+                'f.remarks')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->where('b.type', '=', 'Other')
                 ->get();
@@ -2720,7 +2762,8 @@ class PurchaseController extends Controller
                     'a.type',
                     'a.reference_number',
                     'a.id_master_suppliers',
-                    'b.note'
+                    'b.note',
+                    'c.address'
                 )
                 ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
                 ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
@@ -2932,37 +2975,52 @@ class PurchaseController extends Controller
             ->where('a.id', $id)
             ->first();
         $data_detail_rm = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency','f.remarks')
                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
                 
         $data_detail_ta = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency','f.remarks')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_wip = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency','f.remarks')
                 ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_fg = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description','b.perforasi', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description','b.perforasi', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency','f.remarks')
                 ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->get();
 
         $data_detail_other = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency')
+                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency','f.remarks')
                 ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->where('b.type', '=', 'Other')
                 ->get();
@@ -2982,7 +3040,8 @@ class PurchaseController extends Controller
                     'a.type',
                     'a.reference_number',
                     'a.id_master_suppliers',
-                    'b.note'
+                    'b.note',
+                    'c.address'
                 )
                 ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
                 ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')

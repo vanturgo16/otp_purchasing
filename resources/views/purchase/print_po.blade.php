@@ -188,7 +188,7 @@ if (!function_exists('numberToWords')) {
             </div>
         </div>
         <div class="row d-flex justify-content-between pb-3">
-            <div class="col-8">PT Address : Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
+            <div class="col-8">PT Address : {{ $results[0]->address; }}</div>
         </div>
 
         <div class="row">
@@ -215,7 +215,7 @@ if (!function_exists('numberToWords')) {
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->description }}<br>
-                                    {{ $data->note }}</td>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -238,7 +238,7 @@ if (!function_exists('numberToWords')) {
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->description }}<br>
-                                    {{ $data->note }}</td>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -260,7 +260,7 @@ if (!function_exists('numberToWords')) {
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->description }}<br>
-                                    {{ $data->note }}</td>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -282,7 +282,7 @@ if (!function_exists('numberToWords')) {
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->description }} || {{ $data->perforasi }}<br>
-                                    {{ $data->note }}</td>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
@@ -304,7 +304,7 @@ if (!function_exists('numberToWords')) {
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $data->description }}<br>
-                                    {{ $data->note }}</td>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
                                     @if($data->currency=='IDR')
