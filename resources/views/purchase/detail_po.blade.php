@@ -73,7 +73,7 @@
                                 
                                
                                     <div class="row mb-4 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
+                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product.</label>
                                         <div class="col-sm-9">
                                             <input type="radio" id="html" name="type" value="{{ $findtype->type_product }}" checked>
                                             <input type="hidden" id="html" name="type_product" value="{{ $findtype->type_product }}" checked>

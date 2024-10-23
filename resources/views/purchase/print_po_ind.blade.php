@@ -172,14 +172,14 @@
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->telephone; }}</div>
             <div class="col-4">
                 <p class="mb-1">PR No  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->request_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->fax != 0 ? $results[0]->fax : '-' }}</div>
             <div class="col-4">
                 <p class="mb-1">Tanggal &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
                 <p class="mb-1"></p>
@@ -219,6 +219,10 @@
                                         <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
                                     @elseif($data->currency=='USD')
                                         <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
                                     @else
                                         <td>{{ number_format($data->price,3,',','.'); }}</td>
                                     @endif
@@ -242,6 +246,10 @@
                                         <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
                                     @elseif($data->currency=='USD')
                                         <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
                                     @else
                                         <td>{{ number_format($data->price,3,',','.'); }}</td>
                                     @endif
@@ -264,6 +272,10 @@
                                         <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
                                     @elseif($data->currency=='USD')
                                         <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
                                     @else
                                         <td>{{ number_format($data->price,3,',','.'); }}</td>
                                     @endif
@@ -286,6 +298,10 @@
                                         <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
                                     @elseif($data->currency=='USD')
                                         <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
                                     @else
                                         <td>{{ number_format($data->price,3,',','.'); }}</td>
                                     @endif
@@ -308,6 +324,10 @@
                                         <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
                                     @elseif($data->currency=='USD')
                                         <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
                                     @else
                                         <td>{{ number_format($data->price,3,',','.'); }}</td>
                                     @endif
