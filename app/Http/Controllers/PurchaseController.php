@@ -1727,8 +1727,8 @@ class PurchaseController extends Controller
         
     }
     public function detail_po($reference_number,$id){
-        // dd($id);
-        // die;
+        dd($id);
+        die;
         $findtype = DB::table('purchase_orders')
                         ->select('type as type_product')
                         ->where('id', $id)
@@ -2774,7 +2774,9 @@ class PurchaseController extends Controller
                     'a.reference_number',
                     'a.id_master_suppliers',
                     'b.note',
-                    'c.address'
+                    'c.address',
+                    'c.telephone',
+                    'c.fax'
                 )
                 ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
                 ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
@@ -2879,11 +2881,38 @@ class PurchaseController extends Controller
 
             // Query dasar
             $query = DB::table('purchase_requisition_details as a')
-                            ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
-                            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                            ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-                            ->select('a.*', 'b.description as desc', 'c.unit_code','d.nm_requester')
+            ->leftJoin('master_raw_materials as rm', function($join) {
+                $join->on('a.master_products_id', '=', 'rm.id')
+                     ->where('a.type_product', 'RM');
+            })
+            ->leftJoin('master_product_fgs as fg', function($join) {
+                $join->on('a.master_products_id', '=', 'fg.id')
+                     ->where('a.type_product', 'FG');
+            })
+            ->leftJoin('master_wips as w', function($join) {
+                $join->on('a.master_products_id', '=', 'w.id')
+                     ->where('a.type_product', 'WIP');
+            })
+            ->leftJoin('master_tool_auxiliaries as ta', function($join) {
+                $join->on('a.master_products_id', '=', 'ta.id')
+                     ->whereIn('a.type_product', ['TA', 'Other']); // Handle both 'TA' and 'Other'
+            })
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+            ->select(
+                'a.*',
+                DB::raw("CASE 
+                    WHEN a.type_product = 'RM' THEN CONCAT(rm.rm_code, '-', rm.description)
+                    WHEN a.type_product = 'FG' THEN CONCAT(fg.product_code, '-', fg.description)
+                    WHEN a.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
+                    WHEN a.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
+                    WHEN a.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
+                END as `desc`"),
+                'c.unit_code',
+                'd.nm_requester'
+            )
             ->orderBy($columns[$orderColumn], $orderDirection);
+        
 
             // Handle pencarian
             if ($request->has('search') && $request->input('search')) {
@@ -3052,7 +3081,9 @@ class PurchaseController extends Controller
                     'a.reference_number',
                     'a.id_master_suppliers',
                     'b.note',
-                    'c.address'
+                    'c.address',
+                    'c.telephone',
+                    'c.fax'
                 )
                 ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
                 ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
