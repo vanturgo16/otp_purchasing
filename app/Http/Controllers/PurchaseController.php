@@ -1727,8 +1727,8 @@ class PurchaseController extends Controller
         
     }
     public function detail_po($reference_number,$id){
-        dd($id);
-        die;
+        // dd($id);
+        // die;
         $findtype = DB::table('purchase_orders')
                         ->select('type as type_product')
                         ->where('id', $id)
@@ -1942,6 +1942,21 @@ class PurchaseController extends Controller
         $request->merge([
             'amount' => $request->total_amount,
            ]);
+
+        $pesan = [
+            'id_pr.required' => 'id_pr masih kosong',
+            'id_po.required' => 'id_po masih kosong',
+            'type_product.required' => 'type_product masih kosong',
+            'description.required' => 'description number masih kosong',
+            'qty.required' => 'qty masih kosong',
+            'unit.required' => 'unit masih kosong',
+            'price.required' => 'price masih kosong',
+            'discount.required' => 'discount masih kosong',
+            'tax.required' => 'tax masih kosong',
+            'note.required' => 'note masih kosong',
+            'currency.required' => 'currency masih kosong',
+            
+        ];   
     
         $validatedData = $request->validate([
             'id_pr' => 'required',
@@ -2689,6 +2704,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
 
         
@@ -2702,6 +2718,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
 
         // $data_detail_wip = DB::table('purchase_order_details as a')
@@ -2732,6 +2749,7 @@ class PurchaseController extends Controller
             ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
             ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
             ->where('a.id_purchase_orders', '=', $id)  // pastikan $id_purchase_orders sesuai dengan variabel PHP
+            ->distinct()
             ->get();
 
 
@@ -2744,6 +2762,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
 
         $data_detail_other = DB::table('purchase_order_details as a')
@@ -2756,6 +2775,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->where('b.type', '=', 'Other')
+                ->distinct()
                 ->get();
 
         $results = DB::table('purchase_orders as a')
@@ -3022,6 +3042,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
                 
         $data_detail_ta = DB::table('purchase_order_details as a')
@@ -3032,6 +3053,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
 
         $data_detail_wip = DB::table('purchase_order_details as a')
@@ -3042,6 +3064,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
 
         $data_detail_fg = DB::table('purchase_order_details as a')
@@ -3052,6 +3075,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
+                ->distinct()
                 ->get();
 
         $data_detail_other = DB::table('purchase_order_details as a')
@@ -3063,6 +3087,7 @@ class PurchaseController extends Controller
                 ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
                 ->where('a.id_purchase_orders', '=', $id)
                 ->where('b.type', '=', 'Other')
+                ->distinct()
                 ->get();
 
         $results = DB::table('purchase_orders as a')
