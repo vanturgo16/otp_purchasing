@@ -55,7 +55,7 @@
                                     <div class="col-sm-9">
                                         @if($results[0]->type_product=='RM')
                                         <select class="form-select request_number data-select2" name="description" id="" onchange="get_unit()">
-                                                <option>Pilih Product RM</option>
+                                                <option value="">Pilih Product RM</option>
                                                 @foreach ($rawMaterials as $data)
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}" 
                                                         @if($results[0]->description == $data->id) selected @endif>
@@ -117,7 +117,7 @@
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                     <div class="col-sm-9">
                                     <select class="form-select data-select2" name="unit" id="unit_code">
-                                        <option>Pilih Units</option>
+                                        <option value="">Pilih Units</option>
                                         @foreach ($units as $data)
                                             <option value="{{ $data->unit }}" @if($results[0]->unit == $data->unit) selected @endif>
                                                 {{ $data->unit_code }}
@@ -131,7 +131,7 @@
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
                                     <div class="col-sm-9">
                                         <select class="form-select data-select2" name="currency" id="">
-                                            <option>Pilih Currency</option>
+                                            <option value="">Pilih Currency</option>
                                             @foreach ($currency as $data)
                                                 <option value="{{ $data->currency_code }}" @if($results[0]->currency == $data->currency_code) selected @endif>
                                                     {{ $data->currency_code }}
