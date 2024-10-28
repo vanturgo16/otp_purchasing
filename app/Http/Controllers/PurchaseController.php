@@ -2695,18 +2695,32 @@ class PurchaseController extends Controller
             ->select('a.*', 'c.term_payment')
             ->where('a.id', $id)
             ->first();
-        $data_detail_rm = DB::table('purchase_order_details as a')
-                ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note','a.id','a.note','a.currency', 
-                'f.remarks')
-                ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
-                ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-                ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
-                ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
-                ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
-                ->where('a.id_purchase_orders', '=', $id)
-                ->distinct()
-                ->get();
 
+        $data_detail_rm = DB::table('purchase_order_details as a')
+            ->select(
+                'a.master_products_id',
+                DB::raw('MAX(a.type_product) as type_product'),
+                DB::raw('MAX(b.description) as description'),
+                DB::raw('MAX(a.qty) as qty'),
+                DB::raw('MAX(c.unit) as unit'),
+                DB::raw('MAX(a.price) as price'),
+                DB::raw('MAX(a.discount) as discount'),
+                DB::raw('MAX(a.tax) as tax'),
+                DB::raw('MAX(a.amount) as amount'),
+                DB::raw('MAX(a.note) as note'),
+                DB::raw('MAX(a.id) as id'),
+                DB::raw('MAX(a.currency) as currency'),
+                DB::raw('MAX(f.remarks) as remarks')
+            )
+            ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->leftJoin('purchase_orders as d', 'a.id_purchase_orders', '=', 'd.id')
+            ->leftJoin('purchase_requisitions as e', 'd.reference_number', '=', 'e.id')
+            ->leftJoin('purchase_requisition_details as f', 'e.id', '=', 'f.id_purchase_requisitions')
+            ->where('a.id_purchase_orders', '=', $id)
+            ->groupBy('a.master_products_id')
+            ->get();
+        
         
 
         $data_detail_ta = DB::table('purchase_order_details as a')
