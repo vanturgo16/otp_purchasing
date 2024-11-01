@@ -380,7 +380,7 @@ if (!function_exists('numberToWords')) {
         <tr>
             <td style="border: 0; padding: 5px 0;">Note</td>
             <td style="text-align: center; border: 0; padding: 5px 0;">:</td>
-            <td style="border: 0; padding: 5px 0;">{{ $results[0]->note ?? '-' }}</td>
+            <td style="border: 0; padding: 5px 0;">{{ $results[0]->supplier_remarks ?? '-' }}</td>
         </tr>
     </table>
 </div>

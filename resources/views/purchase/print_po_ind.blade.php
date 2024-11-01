@@ -365,7 +365,7 @@
 
                 <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
-                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp: {{ $results[0]->note ?? '-' }}</h6>
+                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp: {{ $results[0]->supplier_remarks ?? '-' }}</h6>
             </div>
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">

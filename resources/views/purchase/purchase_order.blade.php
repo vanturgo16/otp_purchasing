@@ -148,6 +148,9 @@
                         name: 'total_amount',
                         // className: 'align-middle',
                         orderable: true,
+                        render: function(data, type, row) {
+                            return '' + new Intl.NumberFormat('id-ID').format(data);
+                        }
                     },
                     {
                         data: 'qc_check',
