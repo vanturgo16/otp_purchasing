@@ -362,6 +362,10 @@ if (!function_exists('numberToWords')) {
         <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }} 
 @if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
     {{ 'USD' }}
+@elseif(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'RMB')
+    {{ 'RMB' }}
+@elseif(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'EUR')
+    {{ 'EUR' }}
 @else
     {{ 'rupiah' }}
 @endif#</h6>

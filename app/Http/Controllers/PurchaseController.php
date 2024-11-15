@@ -45,27 +45,38 @@ class PurchaseController extends Controller
         if (request()->ajax()) {
             $orderColumn = $request->input('order')[0]['column'];
             $orderDirection = $request->input('order')[0]['dir'];
-            $columns = ['id', 'request_number', 'date', 'name', 'nm_requester', 'qc_check', 'note', 'po_number', 'type', '', ''];
+            $columns = ['id', 'request_number', 'requisition_date', 'supplier_name', 'nm_requester', 'qc_check', 'note', 'po_number', 'type', '', ''];
 
             // Query dasar
             $query = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
-                    ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
-                    ->leftJoin('purchase_orders as d', 'purchase_requisitions.id', '=', 'd.reference_number')
-                    ->select('purchase_requisitions.*', 'b.name', 'c.nm_requester','d.po_number')
+            ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')
+            ->leftJoin('purchase_orders as d', 'purchase_requisitions.id', '=', 'd.reference_number')
+            ->select(
+                'purchase_requisitions.id',
+                'purchase_requisitions.request_number',
+                'purchase_requisitions.date as requisition_date', // Aliaskan kolom 'date'
+                'b.name as supplier_name', // Aliaskan kolom 'name' dari tabel 'master_suppliers'
+                'c.nm_requester',
+                'purchase_requisitions.qc_check',
+                'purchase_requisitions.note',
+                'd.po_number',
+                'purchase_requisitions.type',
+                'purchase_requisitions.status'
+            )
             ->orderBy($columns[$orderColumn], $orderDirection);
 
             // Handle pencarian
             if ($request->has('search') && $request->input('search')) {
                 $searchValue = $request->input('search');
                 $query->where(function ($query) use ($searchValue) {
-                    $query->where('request_number', 'like', '%' . $searchValue . '%')
-                        ->orWhere('date', 'like', '%' . $searchValue . '%')
+                    $query->where('purchase_requisitions.request_number', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_requisitions.date', 'like', '%' . $searchValue . '%')
                         ->orWhere('b.name', 'like', '%' . $searchValue . '%')
                         ->orWhere('c.nm_requester', 'like', '%' . $searchValue . '%')
-                        ->orWhere('qc_check', 'like', '%' . $searchValue . '%')
-                        ->orWhere('note', 'like', '%' . $searchValue . '%')
-                        ->orWhere('po_number', 'like', '%' . $searchValue . '%')
-                        ->orWhere('type', 'like', '%' . $searchValue . '%');
+                        ->orWhere('purchase_requisitions.qc_check', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_requisitions.note', 'like', '%' . $searchValue . '%')
+                        ->orWhere('d.po_number', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_requisitions.type', 'like', '%' . $searchValue . '%');
                 });
             }
 
@@ -158,24 +169,39 @@ class PurchaseController extends Controller
             $columns = ['id', 'request_number', 'date', 'name', 'nm_requester', 'qc_check', 'note', '', 'type', '', ''];
 
             // Query dasar
-            $query = PurchaseOrders::leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', '=', 'master_suppliers.id')
-                    ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', '=', 'purchase_requisitions.id')
-                    ->select('purchase_orders.*', 'master_suppliers.name', 'purchase_requisitions.request_number')
-            ->orderBy($columns[$orderColumn], $orderDirection);
+           $query = PurchaseOrders::leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', '=', 'master_suppliers.id')
+        ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', '=', 'purchase_requisitions.id')
+        ->select(
+            'purchase_orders.id', 
+            'purchase_orders.po_number', 
+            'purchase_orders.date', 
+            'purchase_orders.down_payment', 
+            'purchase_orders.total_amount', 
+            'purchase_orders.qc_check', 
+            'purchase_orders.type', 
+            'purchase_orders.status', 
+            'master_suppliers.name as supplier_name', 
+            'purchase_requisitions.request_number as reference_number'
+        )
+        ->orderBy($columns[$orderColumn], $orderDirection);
+
+
+
 
             // Handle pencarian
             if ($request->has('search') && $request->input('search')) {
                 $searchValue = $request->input('search');
                 $query->where(function ($query) use ($searchValue) {
-                    $query->where('request_number', 'like', '%' . $searchValue . '%')
-                        ->orWhere('date', 'like', '%' . $searchValue . '%')
-                        ->orWhere('b.name', 'like', '%' . $searchValue . '%')
-                        ->orWhere('c.nm_requester', 'like', '%' . $searchValue . '%')
-                        ->orWhere('qc_check', 'like', '%' . $searchValue . '%')
-                        ->orWhere('note', 'like', '%' . $searchValue . '%')
-                        ->orWhere('type', 'like', '%' . $searchValue . '%');
+                    $query->where('purchase_requisitions.request_number', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_orders.date', 'like', '%' . $searchValue . '%')
+                        ->orWhere('master_suppliers.name', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_orders.qc_check', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_orders.type', 'like', '%' . $searchValue . '%')
+                        ->orWhere('purchase_orders.status', 'like', '%' . $searchValue . '%');
                 });
             }
+            
+            
 
             return DataTables::of($query)
                 ->addColumn('action', function ($data) {
@@ -2559,7 +2585,7 @@ class PurchaseController extends Controller
         $id_purchase_orders = $request->input('id_purchase_orders');
         return Redirect::to('/edit-po/'.$id_purchase_orders)->with('pesan', 'Data berhasil diupdate.');
     }public function update_po_detail_smt(Request $request, $id){
-        // dd($id);
+        // dd($request);
         // die;
 
         // $id = $id_pr;
@@ -2911,7 +2937,7 @@ class PurchaseController extends Controller
         if (request()->ajax()) {
             $orderColumn = $request->input('order')[0]['column'];
             $orderDirection = $request->input('order')[0]['dir'];
-            $columns = ['id', 'type_product', 'desc', 'qty', 'unit_code', 'required_date', 'nm_requester', 'remarks'];
+            $columns = ['id', 'type_product', 'product_desc', 'qty', 'unit_code', 'required_date', 'nm_requester', 'remarks'];
 
             // Query dasar
             $query = DB::table('purchase_requisition_details as a')
@@ -2941,7 +2967,7 @@ class PurchaseController extends Controller
                     WHEN a.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
                     WHEN a.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
                     WHEN a.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
-                END as `desc`"),
+                END as `product_desc`"),
                 'c.unit_code',
                 'd.nm_requester'
             )
@@ -2953,7 +2979,13 @@ class PurchaseController extends Controller
                 $searchValue = $request->input('search');
                 $query->where(function ($query) use ($searchValue) {
                     $query->where('a.type_product', 'like', '%' . $searchValue . '%')
-                        ->orWhere('b.desc', 'like', '%' . $searchValue . '%')
+                        ->orWhere(DB::raw("CASE 
+                            WHEN a.type_product = 'RM' THEN CONCAT(rm.rm_code, '-', rm.description)
+                            WHEN a.type_product = 'FG' THEN CONCAT(fg.product_code, '-', fg.description)
+                            WHEN a.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
+                            WHEN a.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
+                            WHEN a.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
+                        END"), 'like', '%' . $searchValue . '%')
                         ->orWhere('a.qty', 'like', '%' . $searchValue . '%')
                         ->orWhere('c.unit_code', 'like', '%' . $searchValue . '%')
                         ->orWhere('a.required_date', 'like', '%' . $searchValue . '%')
@@ -2961,6 +2993,7 @@ class PurchaseController extends Controller
                         ->orWhere('a.remarks', 'like', '%' . $searchValue . '%');
                 });
             }
+            
             return DataTables::of($query)
                 
                

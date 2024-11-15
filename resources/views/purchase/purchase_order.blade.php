@@ -104,49 +104,43 @@
                         d.search = $('input[type="search"]').val(); // Kirim nilai pencarian
                     }
                 },
-                columns: [{
+                columns: [
+                    {
                         data: null,
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         },
-                        // className: 'align-middle text-center',
                         orderable: false,
                         searchable: false
                     },
                     {
                         data: 'po_number',
                         name: 'po_number',
-                        // className: 'align-middle text-center',
                         orderable: true,
                     },
                     {
                         data: 'date',
                         name: 'date',
-                        // className: 'align-middle text-center',
                         orderable: true,
                     },
                     {
-                        data: 'name',
-                        name: 'name',
-                        // className: 'align-middle text-center',
+                        data: 'supplier_name', // Menggantikan 'name' dengan 'supplier_name'
+                        name: 'supplier_name',
                         orderable: true,
                     },
                     {
-                        data: 'pr',
-                        name: 'pr',
-                        // className: 'align-middle text-center',
+                        data: 'reference_number', // Menggantikan 'pr' dengan 'reference_number'
+                        name: 'reference_number',
                         orderable: true,
                     },
                     {
                         data: 'down_payment',
                         name: 'down_payment',
-                        // className: 'align-middle text-center',
                         orderable: true,
                     },
                     {
                         data: 'total_amount',
                         name: 'total_amount',
-                        // className: 'align-middle',
                         orderable: true,
                         render: function(data, type, row) {
                             return '' + new Intl.NumberFormat('id-ID').format(data);
@@ -155,30 +149,26 @@
                     {
                         data: 'qc_check',
                         name: 'qc_check',
-                        // className: 'align-middle',
                         orderable: true,
                     },
                     {
                         data: 'type',
                         name: 'type',
-                        // className: 'align-middle',
                         orderable: true,
                     },
                     {
                         data: 'status',
                         name: 'status',
-                        // className: 'align-middle',
                         orderable: true,
                     },
                     {
                         data: 'action',
                         name: 'action',
-                        // className: 'align-middle text-center',
                         orderable: false,
                         searchable: false
                     },
-                    
                 ],
+
                 createdRow: function(row, data, dataIndex) {
                     // Tambahkan class "table-success" ke tr jika statusnya "Posted"
                     if (data.statusLabel === 'Posted') {
