@@ -117,9 +117,8 @@
                         orderable: true,
                     },
                     {
-                        data: 'desc',
-                        name: 'desc',
-                        // className: 'align-middle text-center',
+                        data: 'product_desc',
+                        name: 'product_desc',
                         orderable: true,
                     },
                     {
