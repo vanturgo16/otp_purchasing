@@ -161,7 +161,7 @@
                                             <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()">
                                                     <option value="">Pilih Product FG</option>
                                                 @foreach ($fg as $data)
-                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
+                                                    <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }} || Group Sub :{{ $data->group_sub_code }}</option>
                                                 @endforeach
                                             </select>
                                             @elseif($datas[0]->type=='TA')
