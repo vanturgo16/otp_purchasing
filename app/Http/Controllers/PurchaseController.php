@@ -1549,7 +1549,7 @@ class PurchaseController extends Controller
                         ->select('description','id')
                         ->get();
         $fg = DB::table('master_product_fgs')
-                        ->select('description','id','perforasi')
+                        ->select('description','id','perforasi','group_sub_code')
                         ->get();
         $wip = DB::table('master_wips')
                         ->select('description','id')
