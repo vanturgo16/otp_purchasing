@@ -1033,7 +1033,7 @@ class PurchaseController extends Controller
         $datas = MstRequester::get();
         $supplier = MstSupplier::get();
         $fg = DB::table('master_product_fgs')
-                        ->select('description','id','perforasi')
+                        ->select('description','id','perforasi','group_sub_code')
                         ->get();
         $units = DB::table('master_units')
                         ->select('unit_code','id')
