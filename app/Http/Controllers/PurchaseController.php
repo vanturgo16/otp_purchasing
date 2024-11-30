@@ -2863,11 +2863,15 @@ class PurchaseController extends Controller
             'purchase_requisition_details.qty',
             'purchase_requisition_details.cc_co',
             'purchase_requisition_details.required_date',
-            'purchase_requisition_details.remarks'
+            'purchase_requisition_details.outstanding_qty',
+            'purchase_requisition_details.request_number',
+            'purchase_requisition_details.remarks',
+        
         )
         ->leftJoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', '=', 'master_suppliers.id')
         ->leftJoin('master_requester', 'purchase_requisitions.requester', '=', 'master_requester.id')
         ->leftJoin('purchase_requisition_details', 'purchase_requisitions.request_number', '=', 'purchase_requisition_details.request_number')
+       
         ->where('purchase_requisitions.id', '=', $request_number)
         ->orderBy('purchase_requisitions.created_at', 'desc')
         ->get();
@@ -2915,99 +2919,82 @@ class PurchaseController extends Controller
 
         return view('purchase.print_pr',compact('datas','data_detail_rm','data_detail_ta','data_detail_wip',
         'data_detail_fg','PurchaseRequisitions','data_detail_other'));
-    }public function purchase_requisition(Request $request)
+    }
+
+    public function purchase_requisition(Request $request)
     {
-        // $data_detail_rm = DB::table('purchase_requisition_details as a')
-        //                 ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
-        //                 ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-        //                 ->select('a.*', 'b.description', 'c.unit_code')
-        //                 ->limit(100)
-        //                 ->get();
-
-        // $data_requester = MstRequester::get();
-
-        //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Purchase';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
-
-        if (request()->ajax()) {
-            $orderColumn = $request->input('order')[0]['column'];
-            $orderDirection = $request->input('order')[0]['dir'];
-            $columns = ['id', 'type_product', 'product_desc', 'qty', 'unit_code', 'required_date', 'nm_requester', 'remarks'];
-
-            // Query dasar
-            $query = DB::table('purchase_requisition_details as a')
-            ->leftJoin('master_raw_materials as rm', function($join) {
-                $join->on('a.master_products_id', '=', 'rm.id')
-                     ->where('a.type_product', 'RM');
-            })
-            ->leftJoin('master_product_fgs as fg', function($join) {
-                $join->on('a.master_products_id', '=', 'fg.id')
-                     ->where('a.type_product', 'FG');
-            })
-            ->leftJoin('master_wips as w', function($join) {
-                $join->on('a.master_products_id', '=', 'w.id')
-                     ->where('a.type_product', 'WIP');
-            })
-            ->leftJoin('master_tool_auxiliaries as ta', function($join) {
-                $join->on('a.master_products_id', '=', 'ta.id')
-                     ->whereIn('a.type_product', ['TA', 'Other']); // Handle both 'TA' and 'Other'
-            })
-            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
-            ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
-            ->select(
-                'a.*',
-                DB::raw("CASE 
-                    WHEN a.type_product = 'RM' THEN CONCAT(rm.rm_code, '-', rm.description)
-                    WHEN a.type_product = 'FG' THEN CONCAT(fg.product_code, '-', fg.description)
-                    WHEN a.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
-                    WHEN a.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
-                    WHEN a.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
-                END as `product_desc`"),
-                'c.unit_code',
-                'd.nm_requester'
-            )
-            ->orderBy($columns[$orderColumn], $orderDirection);
-        
-
-            // Handle pencarian
-            if ($request->has('search') && $request->input('search')) {
-                $searchValue = $request->input('search');
-                $query->where(function ($query) use ($searchValue) {
-                    $query->where('a.type_product', 'like', '%' . $searchValue . '%')
-                        ->orWhere(DB::raw("CASE 
-                            WHEN a.type_product = 'RM' THEN CONCAT(rm.rm_code, '-', rm.description)
-                            WHEN a.type_product = 'FG' THEN CONCAT(fg.product_code, '-', fg.description)
-                            WHEN a.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
-                            WHEN a.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
-                            WHEN a.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
-                        END"), 'like', '%' . $searchValue . '%')
-                        ->orWhere('a.qty', 'like', '%' . $searchValue . '%')
-                        ->orWhere('c.unit_code', 'like', '%' . $searchValue . '%')
-                        ->orWhere('a.required_date', 'like', '%' . $searchValue . '%')
-                        ->orWhere('d.nm_requester', 'like', '%' . $searchValue . '%')
-                        ->orWhere('a.remarks', 'like', '%' . $searchValue . '%');
-                });
-            }
+        // Audit Log
+        $username = auth()->user()->email;
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+        $location = '0';
+        $access_from = Browser::browserName();
+        $activity = 'View List Purchase';
+        $this->auditLogs($username, $ipAddress, $location, $access_from, $activity);
+    
+        // Ambil data dari query
+        $data = DB::table('purchase_requisition_details as prd')
+            ->join('purchase_requisitions as pr', 'prd.id_purchase_requisitions', '=', 'pr.id')
             
-            return DataTables::of($query)
+            ->join('purchase_orders as po', 'pr.id', '=', 'po.reference_number')
+            
+            ->join('master_suppliers as ms', 'po.id_master_suppliers', '=', 'ms.id')
+            
+            ->join('purchase_order_details as pod', 'pod.id_purchase_orders', '=', 'po.id')
+            
+            ->leftJoin('master_raw_materials as rm', function ($join) {
+                $join->on('prd.master_products_id', '=', 'rm.id')
+                     ->where('prd.type_product', 'RM');
+            })
+            ->leftJoin('master_product_fgs as fg', function ($join) {
+                $join->on('prd.master_products_id', '=', 'fg.id')
+                     ->where('prd.type_product', 'FG');
+            })
+            ->leftJoin('master_wips as w', function ($join) {
+                $join->on('prd.master_products_id', '=', 'w.id')
+                     ->where('prd.type_product', 'WIP');
+            })
+            ->leftJoin('master_tool_auxiliaries as ta', function ($join) {
+                $join->on('prd.master_products_id', '=', 'ta.id')
+                     ->whereIn('prd.type_product', ['TA', 'Other']);
+            })
+            ->leftJoin('master_units as c', 'prd.master_units_id', '=', 'c.id')
+            ->leftJoin('master_requester as d', 'prd.cc_co', '=', 'd.id')
+            ->select(
+                'prd.*',
+                'pr.request_number',
+                'pr.date as date_prd',
+                'pr.requester as requester_prd',
+                'pr.status as status_prd',
+                'pr.type as type_prd',
                 
-               
-                ->addColumn('statusLabel', function ($data) {
-                    return $data->status;
-                })
-                ->rawColumns(['action', 'status', 'statusLabel'])
-                ->make(true);
+                'po.po_number',
+                'po.delivery_date',
+                'ms.name',
+                'pod.price',
+                'pod.discount',
+                'pod.amount',
+                'pod.outstanding_qty',
+                'pod.status as sts_pod',
+                
+                DB::raw("CASE 
+                    WHEN prd.type_product = 'RM' THEN CONCAT(rm.rm_code, '-', rm.description)
+                    WHEN prd.type_product = 'FG' THEN CONCAT(fg.product_code, '-', fg.description)
+                    WHEN prd.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
+                    WHEN prd.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
+                    WHEN prd.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
+                END as product_desc"),
+                'c.unit_code',
+                'd.nm_requester',
+                'ms.name as supplier_name'
+            )
+            ->get();  // Ambil semua data
+    
+        return view('purchase.purchase_requisition', compact('data'));  // Kirim data ke Blade view
+    }
+    
 
-        
-        }
-
-        return view('purchase.purchase_requisition');
-    }public function print_pr_ind($request_number)
+    
+    public function print_pr_ind($request_number)
     {
         // dd($request_number);
         // die;
