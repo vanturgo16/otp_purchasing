@@ -82,7 +82,7 @@
 
                                         <td>{{ $item->discount }}</td>
                                         <td>{{ $item->amount }}</td>
-                                        <td>{{ $item->outstanding_qty }}</td>
+                                        <td>{{ $item->outstanding_qty_grnd }}</td>
                                         <td>{{ $item->delivery_date }}</td>
                                         <td>{{ $item->sts_pod }}</td>
 

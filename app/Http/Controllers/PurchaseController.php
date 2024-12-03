@@ -2940,6 +2940,10 @@ class PurchaseController extends Controller
             ->join('master_suppliers as ms', 'po.id_master_suppliers', '=', 'ms.id')
             
             ->join('purchase_order_details as pod', 'pod.id_purchase_orders', '=', 'po.id')
+
+            ->join('good_receipt_notes as grn', 'pr.id', '=', 'grn.reference_number')
+
+            ->join('good_receipt_note_details as grnd', 'grnd.id_good_receipt_notes', '=', 'grn.id')
             
             ->leftJoin('master_raw_materials as rm', function ($join) {
                 $join->on('prd.master_products_id', '=', 'rm.id')
@@ -2973,7 +2977,7 @@ class PurchaseController extends Controller
                 'pod.price',
                 'pod.discount',
                 'pod.amount',
-                'pod.outstanding_qty',
+                'grnd.outstanding_qty as outstanding_qty_grnd',
                 'pod.status as sts_pod',
                 
                 DB::raw("CASE 
