@@ -154,7 +154,7 @@
                                 <div class="row mb-4 field-wrapper required-field">
                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax Rate (%)</label>
                                     <div class="col-sm-9">
-                                        <input type="number" class="form-control" name="tax_rate" id="tax_rate" value="11">
+                                        <input type="number" class="form-control" name="tax_rate" id="tax_rate" value="">
                                     </div>
                                 </div>
 
