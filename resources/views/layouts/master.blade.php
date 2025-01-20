@@ -37,6 +37,9 @@
             content: " *";
             color: red;
         }
+        .custom-bg-gray {
+            background-color: #c4c4c4; /* Warna abu-abu yang lebih terang */
+        }
     </style>
     
     
