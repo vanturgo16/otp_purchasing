@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MstCurrencies;
-use App\Models\MstProductFG;
-use App\Models\MstRawMaterial;
 use DataTables;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
@@ -20,15 +17,12 @@ use App\Models\PurchaseRequisitions;
 use App\Models\PurchaseOrders;
 use App\Models\MstRequester;
 use App\Models\MstSupplier;
-use App\Models\MstToolAux;
-use App\Models\MstUnits;
-use App\Models\MstWip;
 use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseRequisitionsDetailSmt;
 use App\Models\PurchaseOrderDetailsSMT;
 use App\Models\PurchaseOrderDetails;
 
-class PurchaseController extends Controller
+class PurchaseControllerOld extends Controller
 {
     use AuditLogsTrait;
 
@@ -2311,89 +2305,179 @@ class PurchaseController extends Controller
     }
     public function edit_po($id)
     {
-        // Dropdown
-        $currency = MstCurrencies::get();
-        $units = MstUnits::get();
-        $supplier = MstSupplier::get();
-        $data_requester = MstRequester::get();
-        $reference_number = PurchaseRequisitions::get();
-        $rawMaterials = MstRawMaterial::select('id', 'description')->get();
-        $ta = MstToolAux::select('id', 'description')->where('type', '!=', 'Other')->get();
-        $fg = MstProductFG::select('id', 'description', 'perforasi')->get();
-        $wip = MstWip::select('id', 'description')->get();
-        $other = MstToolAux::select('id', 'description')->where('type', 'Other')->get();
-
-        $data = PurchaseOrders::select('purchase_orders.*', 'purchase_requisitions.request_number', 'master_suppliers.name')
-            ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', 'purchase_requisitions.id')
-            ->leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', 'master_suppliers.id')
-            ->where('purchase_orders.id', $id)
-            ->first();
-
-        $itemDatas = PurchaseOrderDetails::select(
-            'purchase_order_details.*',
-            'master_units.unit',
-            DB::raw('
-                CASE 
-                    WHEN purchase_order_details.type_product = "RM" THEN master_raw_materials.description 
-                    WHEN purchase_order_details.type_product = "WIP" THEN master_wips.description 
-                    WHEN purchase_order_details.type_product = "FG" THEN master_product_fgs.description 
-                    WHEN purchase_order_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.description 
-                END as product_desc')
-        )
-            ->leftJoin('master_raw_materials', function ($join) {
-                $join->on('purchase_order_details.master_products_id', '=', 'master_raw_materials.id')
-                    ->on('purchase_order_details.type_product', '=', DB::raw('"RM"'));
-            })
-            ->leftJoin('master_wips', function ($join) {
-                $join->on('purchase_order_details.master_products_id', '=', 'master_wips.id')
-                    ->on('purchase_order_details.type_product', '=', DB::raw('"WIP"'));
-            })
-            ->leftJoin('master_product_fgs', function ($join) {
-                $join->on('purchase_order_details.master_products_id', '=', 'master_product_fgs.id')
-                    ->on('purchase_order_details.type_product', '=', DB::raw('"FG"'));
-            })
-            ->leftJoin('master_tool_auxiliaries', function ($join) {
-                $join->on('purchase_order_details.master_products_id', '=', 'master_tool_auxiliaries.id')
-                    ->on('purchase_order_details.type_product', '=', DB::raw('"TA"'))
-                    ->orOn('purchase_order_details.type_product', '=', DB::raw('"Other"'));
-            })
-            ->leftJoin('master_units', 'purchase_order_details.master_units_id', '=', 'master_units.id')
-            ->where('purchase_order_details.id_purchase_orders', $id)
+        // dd($id);
+        //  die;
+        $currency = DB::table('master_currencies')
+            ->select('currency_code', 'id', 'currency')
             ->get();
 
+        $supplier = MstSupplier::get();
+        $data_requester = MstRequester::get();
+        $units = DB::table('master_units')
+            ->select('unit_code', 'id')
+            ->get();
+
+        $reference_number = PurchaseRequisitions::get();
+
+        $rawMaterials = DB::table('master_raw_materials')
+            ->select('description', 'id')
+            ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+            ->select('description', 'id')
+            ->get();
+        $fg = DB::table('master_product_fgs')
+            ->select('description', 'id', 'perforasi')
+            ->get();
+        $wip = DB::table('master_wips')
+            ->select('description', 'id')
+            ->get();
+
+        $other = DB::table('master_tool_auxiliaries')
+            ->select('description', 'id')
+            ->where('type', 'Other') // Ganti 'column_name' dengan nama kolom dan 'value' dengan nilai yang ingin dicari
+            ->get();
+
+        $data_detail_rm = DB::table('purchase_order_details as a')
+            ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note', 'a.id')
+            ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->where('a.id_purchase_orders', '=', $id)
+            ->get();
+
+        $data_detail_ta = DB::table('purchase_order_details as a')
+            ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note', 'a.id')
+            ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->where('a.id_purchase_orders', '=', $id)
+            ->get();
+
+        $data_detail_other = DB::table('purchase_order_details as a')
+            ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note', 'a.id')
+            ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->where('a.id_purchase_orders', '=', $id)
+            ->where('b.type', '=', 'Other')
+            ->get();
+
+        $data_detail_fg = DB::table('purchase_order_details as a')
+            ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note', 'a.id')
+            ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->where('a.id_purchase_orders', '=', $id)
+            ->get();
+
+        $data_detail_wip = DB::table('purchase_order_details as a')
+            ->select('a.type_product', 'b.description', 'a.qty', 'c.unit', 'a.price', 'a.discount', 'a.tax', 'a.amount', 'a.note', 'a.id')
+            ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+            ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+            ->where('a.id_purchase_orders', '=', $id)
+            ->get();
+
+        $results = DB::table('purchase_orders as a')
+            ->select(
+                'a.id',
+                'a.po_number',
+                'a.date',
+                'a.delivery_date',
+                'b.request_number',
+                'c.name',
+                'a.qc_check',
+                'a.down_payment',
+                'a.own_remarks',
+                'a.supplier_remarks',
+                'a.status',
+                'a.type',
+                'a.reference_number',
+                'a.id_master_suppliers'
+            )
+            ->leftJoin('purchase_requisitions as b', 'a.reference_number', '=', 'b.id')
+            ->leftJoin('master_suppliers as c', 'a.id_master_suppliers', '=', 'c.id')
+            ->where('a.id', '=', $id)
+            ->get();
+
+        $selectedId = $results[0]->reference_number;
+        $selectedsupplier = $results[0]->id_master_suppliers;
+        $radioselectted = $results[0]->qc_check;
+
+
+
         //Audit Log
-        $this->auditLogsShort('Edit Purchase Order ID : (' . $id . ')');
+        $username = auth()->user()->email;
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
+        $location = '0';
+        $access_from = Browser::browserName();
+        $activity = 'Edit Purchase Order';
+        $this->auditLogs($username, $ipAddress, $location, $access_from, $activity);
 
         return view('purchase.edit_po', compact(
-            'currency',
-            'units',
             'supplier',
             'data_requester',
+            'units',
+            'data_detail_rm',
+            'results',
             'reference_number',
+            'selectedId',
+            'selectedsupplier',
+            'radioselectted',
             'rawMaterials',
             'ta',
             'fg',
             'wip',
+            'data_detail_ta',
+            'data_detail_fg',
+            'data_detail_wip',
             'other',
-            'data',
-            'itemDatas'
+            'data_detail_other',
+            'currency'
         ));
     }
     public function edit_po_item($id)
     {
-        $id = decrypt($id);
-        // Dropdown
-        $currency = MstCurrencies::get();
-        $units = MstUnits::get();
-        $rawMaterials = MstRawMaterial::select('id', 'description')->get();
-        $ta = MstToolAux::select('id', 'description')->where('type', '!=', 'Other')->get();
-        $fg = MstProductFG::select('id', 'description', 'perforasi')->get();
-        $wip = MstWip::select('id', 'description')->get();
-        $other = MstToolAux::select('id', 'description')->where('type', 'Other')->get();
+        // dd($id);
+        // die;
+        $currency = DB::table('master_currencies')
+            ->select('currency_code', 'id', 'currency')
+            ->get();
+        $units = DB::table('master_units')
+            ->select('unit_code', 'id')
+            ->get();
+        $rawMaterials = DB::table('master_raw_materials')
+            ->select('description', 'id')
+            ->get();
+        $ta = DB::table('master_tool_auxiliaries')
+            ->select('description', 'id')
+            ->get();
+        $fg = DB::table('master_product_fgs')
+            ->select('description', 'id', 'perforasi')
+            ->get();
+        $wip = DB::table('master_wips')
+            ->select('description', 'id')
+            ->get();
 
-        $data = PurchaseOrderDetails::where('id', $id)->first();
+        $other = DB::table('master_tool_auxiliaries')
+            ->select('description', 'id')
+            ->where('type', 'Other') // Ganti 'column_name' dengan nama kolom dan 'value' dengan nilai yang ingin dicari
+            ->get();
 
-        return view('purchase.edit_po_item', compact('id', 'currency', 'units', 'rawMaterials', 'ta', 'fg', 'wip', 'other', 'data'));
+        $results = DB::table('purchase_order_details as a')
+            ->select(
+                'a.*'
+            )
+            ->where('a.id', '=', $id)
+            ->get();
+
+
+        return view('purchase.edit_po_item', compact(
+            'id',
+            'results',
+            'other',
+            'wip',
+            'fg',
+            'ta',
+            'rawMaterials',
+            'units',
+            'currency'
+        ));
     }
     public function edit_po_item_smt($id)
     {
@@ -2577,10 +2661,11 @@ class PurchaseController extends Controller
     }
     public function update_detail_po_item(Request $request, $id)
     {
+
+
         // return "Tombol Save detail diklik.";
         return Redirect::to('/edit-po/' . $id)->with('pesan', 'Data berhasil diupdate.');
     }
-
     public function update_po_detail(Request $request, $id)
     {
         // dd($id);
@@ -2588,6 +2673,8 @@ class PurchaseController extends Controller
         $id_po = $request->input('id_purchase_orders');
 
         $id = $id;
+        // dd($id_po);
+        // die;
         $pesan = [
             'type_product.required' => 'type masih kosong',
             'master_products_id.required' => 'master_products_id masih kosong',
