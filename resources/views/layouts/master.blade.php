@@ -458,6 +458,12 @@
         width: 'resolve', // need to override the changed default
         // theme: "classic"
     });
+    $(document).on("shown.bs.modal", ".modal", function () {
+        $(".data-select2").select2({
+            dropdownParent: this,
+            width: 'resolve', 
+        });
+    });
     $('#datatableCustom').DataTable({
         scrollX: true,
         paging: false,
@@ -470,6 +476,27 @@
             leftColumns: 2, // Freeze first two columns
             rightColumns: 1 // Freeze last column (Aksi)
         }
+    });
+
+    // Format Rupiah
+    function formatCurrencyInput(event) {
+        let value = event.target.value;
+        value = value.replace(/[^\d,]/g, "");
+        let parts = value.split(",");
+        let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        if (parts.length > 1) {
+            let decimalPart = parts[1].slice(0, 3);
+            value = `${integerPart},${decimalPart}`;
+        } else {
+            value = integerPart;
+        }
+        event.target.value = value;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".rupiah-input").forEach((input) => {
+            input.addEventListener("input", formatCurrencyInput);
+        });
     });
 </script>
 <script>

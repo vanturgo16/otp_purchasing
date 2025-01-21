@@ -209,7 +209,7 @@
                         <div class="card-footer">
                             <div class="row text-end">
                                 <div>
-                                    <button type="reset" class="btn btn-info w-md">Reset</button>
+                                    <button type="reset" class="btn btn-secondary w-md">Reset</button>
                                     <button type="submit" class="btn btn-primary w-md" name="update_detail">Update</button>
                                 </div>
                             </div>
@@ -257,7 +257,7 @@
 
     function calculateTotalAmount() {
         let amount = formatPrice($('#amount').val()) || 0; 
-        let taxRate = formatPrice($('#tax_rate').val()) || 0; 
+        let taxRate = parseFloat($('#tax_rate').val()) || 0; 
         let taxValue = (taxRate/100) * amount;
         taxValue = Math.round(taxValue * 1000) / 1000;
         $('#tax_value').val(formatPriceDisplay(taxValue));

@@ -2359,6 +2359,7 @@ class PurchaseController extends Controller
             })
             ->leftJoin('master_units', 'purchase_order_details.master_units_id', '=', 'master_units.id')
             ->where('purchase_order_details.id_purchase_orders', $id)
+            ->orderBy('purchase_order_details.created_at')
             ->get();
 
         //Audit Log
