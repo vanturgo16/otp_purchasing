@@ -27,31 +27,31 @@
             <div class="card-header">
                 <h4 class="card-title">Edit Purchase Order</h4>
             </div>
-            <form method="post" action="/update_po/{{ $data->id; }}" class="form-material m-t-40" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('updatePO', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
                 @csrf
                 <div class="card-body p-4">
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Po Number</label>
                         <div class="col-sm-9">
-                            <input type="text" name="po_number" class="form-control custom-bg-gray" value="{{ $data->po_number; }}" readonly>
+                            <input type="text" name="po_number" class="form-control custom-bg-gray" value="{{ $data->po_number }}" readonly required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Date</label>
                         <div class="col-sm-9">
-                            <input type="date" name="date" class="form-control" value="{{ $data->date; }}">
-                        </div>
-                    </div>
-                    <div class="row mb-4 field-wrapper required-field">
-                        <label for="horizontal-email-input" class="col-sm-3 col-form-label">Delivery Date</label>
-                        <div class="col-sm-9">
-                            <input type="date" name="delivery_date" class="form-control" value="{{ $data->delivery_date; }}">
+                            <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
+                        <label for="horizontal-email-input" class="col-sm-3 col-form-label">Delivery Date</label>
+                        <div class="col-sm-9">
+                            <input type="date" name="delivery_date" class="form-control" value="{{ $data->delivery_date }}">
+                        </div>
+                    </div>
+                    <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Reference Number (PR) </label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="reference_number" id="">
+                            <select class="form-select data-select2" name="reference_number" id="" required>
                                 <option value="">Pilih Reference Number</option>
                                 @foreach ($reference_number as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->reference_number ? 'selected' : '' }}>{{ $item->request_number }}</option>
@@ -62,7 +62,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier </label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="id_master_suppliers" id="">
+                            <select class="form-select data-select2" name="id_master_suppliers" id="" required>
                                 <option value="">Pilih Suppliers</option>
                                 @foreach ($supplier as $item)
                                 <option value="{{ $item->id }}" {{ $item->id == $data->id_master_suppliers ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -73,48 +73,52 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Qc Check </label>
                         <div class="col-sm-9">
-                            <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }}>
+                            <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }} required>
                             <label for="qc_check_Y">Y</label>
                             <input type="radio" id="qc_check_N" name="qc_check" value="N" {{ $data->qc_check == 'N' ? 'checked' : '' }}>
                             <label for="qc_check_N">N</label>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper">
+                    <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Down Payment </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" value="{{ $data->down_payment }}">
+                            <input type="text" class="form-control" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" value="{{ $data->down_payment }}" required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Own Remarks </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="own_remarks" placeholder="Masukkan Remarks.. (Opsional)" value="{{ $data->own_remarks }}" >
+                            <textarea name="own_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->own_remarks }}</textarea>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier Remarks </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="supplier_remarks" placeholder="Masukkan Remarks.. (Opsional)" value="{{ $data->supplier_remarks }}" >
+                            <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->supplier_remarks }}</textarea>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper">
+                    <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Status </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control custom-bg-gray" name="status" value="{{ $data->status; }}" readonly>
+                            <input type="text" class="form-control custom-bg-gray" name="status" value="{{ $data->status }}" readonly required>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper">
+                    <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control custom-bg-gray" name="type" value="{{ $data->type; }}" readonly>
+                            <input type="text" class="form-control custom-bg-gray" name="type" value="{{ $data->type }}" readonly required>
                         </div>
                     </div>
                 </div>
                 <div class="card-footer">
                     <div class="row text-end">
                         <div>
-                            <button type="reset" class="btn btn-secondary w-md">Reset</button>
-                            <button type="submit" class="btn btn-primary w-md">Update</button>
+                            <button type="reset" class="btn btn-secondary waves-effect btn-label waves-light">
+                                <i class="mdi mdi-reload label-icon"></i>Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary waves-effect btn-label waves-light">
+                                <i class="mdi mdi-update label-icon"></i>Update
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -157,27 +161,29 @@
                                 <td class="align-top text-center"><b>{{ $loop->iteration }}</b></td>
                                 <td class="align-middle">
                                     <b>{{ $item->type_product }}</b>
-                                    <br>{{ $item->product_desc }}
+                                    <br>{!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->product_desc), 10))) !!}  {{-- max 10 word one line --}}
                                 </td>
                                 <td class="text-center">{{ $item->qty }}</td>
                                 <td class="text-center">{{ $item->unit }}</td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
-                                <td class="text-end">{{ $data->price && $data->price != 0 ? number_format($data->price, 3, ',', '.') : '0' }}</td>
-                                <td class="text-end">{{ $data->sub_total && $data->sub_total != 0 ? number_format($data->sub_total, 3, ',', '.') : '0' }}</td>
-                                <td class="text-end">{{ $data->discount && $data->discount != 0 ? number_format($data->discount, 3, ',', '.') : '0' }}</td>
-                                <td class="text-end">{{ $data->amount && $data->amount != 0 ? number_format($data->amount, 3, ',', '.') : '0' }}</td>
+                                <td class="text-end">{{ $item->price && $item->price != 0 ? number_format($item->price, 3, ',', '.') : '0' }}</td>
+                                <td class="text-end">{{ $item->sub_total && $item->sub_total != 0 ? number_format($item->sub_total, 3, ',', '.') : '0' }}</td>
+                                <td class="text-end">{{ $item->discount && $item->discount != 0 ? number_format($item->discount, 3, ',', '.') : '0' }}</td>
+                                <td class="text-end">{{ $item->amount && $item->amount != 0 ? number_format($item->amount, 3, ',', '.') : '0' }}</td>
                                 <td class="text-end">
                                     @if($item->tax == 'N')
                                         <b>N</b>
                                     @elseif($item->tax == null)
                                         0
                                     @else
-                                        {{ $data->tax_value && $data->tax_value != 0 ? number_format($data->tax_value, 3, ',', '.') : '0' }}
-                                        <br>({{ $item->tax_rate }}%)
+                                        {{ $item->tax_value && $item->tax_value != 0 ? number_format($item->tax_value, 3, ',', '.') : '0' }}
+                                        <br><span class="badge bg-info" title="{{ $item->tax_rate }}% Dari {{ $item->amount && $item->amount != 0 ? number_format($item->amount, 3, ',', '.') : '0' }}">({{ $item->tax_rate }}%)</span>
                                     @endif
                                 </td>
-                                <td class="text-end">{{ $data->total_amount && $data->total_amount != 0 ? number_format($data->total_amount, 3, ',', '.') : '0' }}</td>
-                                <td>{{ $item->note ?? '-' }}</td>
+                                <td class="text-end">{{ $item->total_amount && $item->total_amount != 0 ? number_format($item->total_amount, 3, ',', '.') : '0' }}</td>
+                                <td>
+                                    {!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->note), 10))) !!}  {{-- max 10 word one line --}}
+                                </td>
                                 <td class="align-top text-center">
                                     <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
                                         <i class="bx bx-trash-alt" title="Hapus Data"></i>
@@ -195,8 +201,9 @@
                                             <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <form class="formLoad" action="" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('deleteItemPO', encrypt($item->id)) }}" method="POST" enctype="multipart/form-data" id="formDelete{{ $item->id }}">
                                             @csrf
+                                            <input type="hidden" name="id_purchase_orders" value="{{ $item->id_purchase_orders }}">
                                             <div class="modal-body p-4">
                                                 <div class="text-center">
                                                     Apakah Anda Yakin Untuk <b>Menghapus</b> Data?
@@ -205,11 +212,20 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-danger waves-effect btn-label waves-light">
+                                                <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="btnFormDelete{{ $item->id }}">
                                                     <i class="mdi mdi-delete-alert label-icon"></i>Delete
                                                 </button>
                                             </div>
                                         </form>
+                                        <script>
+                                            var idList = "{{ $item->id }}";
+                                            $('#formDelete' + idList).submit(function() {
+                                                if (!$('#formDelete' + idList).valid()) return false;
+                                                $('#btnFormDelete' + idList).attr("disabled", "disabled");
+                                                $('#btnFormDelete' + idList).html('<i class="mdi mdi-loading mdi-spin label-icon"></i>Please Wait...');
+                                                return true;
+                                            });
+                                        </script>
                                     </div>
                                 </div>
                             </div>
@@ -225,7 +241,7 @@
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_discount && $data->total_discount != 0 ? number_format($data->total_discount, 3, ',', '.') : '0' }}</td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_sub_amount && $data->total_sub_amount != 0 ? number_format($data->total_sub_amount, 3, ',', '.') : '0' }}</td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_ppn && $data->total_ppn != 0 ? number_format($data->total_ppn, 3, ',', '.') : '0' }}</td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_amount && $data->total_amount != 0 ? number_format($data->total_amount, 3, ',', '.') : '0' }}</td>
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end"><b>{{ $data->total_amount && $data->total_amount != 0 ? number_format($data->total_amount, 3, ',', '.') : '0' }}</b></td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
                         </tr>
@@ -241,8 +257,9 @@
                             <h5 class="modal-title" id="staticBackdropLabel">Tambah Product <b>"{{ $data->type }}"</b></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form class="formLoad" action="" method="POST" enctype="multipart/form-data">
+                        <form class="formLoad" action="{{ route('addItemPO', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                             @csrf
+                            <input type="hidden" name="id_purchase_orders" value="{{ $data->id }}">
                             <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
                                 <div class="container">
                                     <div class="row mb-2 field-wrapper required-field">
@@ -254,42 +271,34 @@
                                     <div class="row mb-2 field-wrapper required-field">
                                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product {{ $data->type }}</label>
                                         <div class="col-sm-9">
-                                            @if($data->type=='RM')
-                                                <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()" style="width: 100%" required>
-                                                    <option>Pilih Product RM</option>
+                                            <select class="form-select request_number data-select2" name="master_products_id" id="" style="width: 100%" required>
+                                                @if($data->type=='RM')
+                                                    <option value="">Pilih Product RM</option>
                                                     @foreach ($rawMaterials as $item)
                                                         <option value="{{ $item->id }}" data-id="{{ $item->id }}">{{ $item->description }}</option>
                                                     @endforeach
-                                                </select>
-                                            @elseif($data->type=='WIP')
-                                                <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()" style="width: 100%" required>
+                                                @elseif($data->type=='WIP')
                                                     <option value="">Pilih Product WIP</option>
                                                     @foreach ($wip as $item)
                                                         <option value="{{ $item->id }}" data-id="{{ $item->id }}">{{ $item->description }}</option>
                                                     @endforeach
-                                                </select>
-                                            @elseif($data->type=='FG')
-                                                <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()" style="width: 100%" required>
+                                                @elseif($data->type=='FG')
                                                     <option value="">Pilih Product FG</option>
                                                     @foreach ($fg as $item)
                                                         <option value="{{ $item->id }}" data-id="{{ $item->id }}">{{ $item->description }} || {{ $item->perforasi }}</option>
                                                     @endforeach
-                                                </select>
-                                            @elseif($data->type=='TA')
-                                                <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()" style="width: 100%" required>
+                                                @elseif($data->type=='TA')
                                                     <option value="">Pilih Product Sparepart & Auxiliaries</option>
                                                     @foreach ($ta as $item)
                                                         <option value="{{ $item->id }}" data-id="{{ $item->id }}">{{ $item->description }}</option>
                                                     @endforeach
-                                                </select>
-                                            @elseif($data->type=='Other')
-                                                <select class="form-select request_number data-select2" name="master_products_id" id="" onchange="get_unit()" style="width: 100%" required>
+                                                @elseif($data->type=='Other')
                                                     <option value="">Pilih Product Other</option>
                                                     @foreach ($other as $item)
                                                         <option value="{{ $item->id }}" data-id="{{ $item->id }}">{{ $item->description }}</option>
                                                     @endforeach
-                                                </select>
-                                            @endif
+                                                @endif
+                                            </select>
                                         </div>
                                     </div>
                                     <br><br>
@@ -297,7 +306,7 @@
                                     <div class="row mb-2 field-wrapper required-field">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}">
+                                            <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}" required>
                                         </div>
                                     </div>
                                     <div class="row mb-2 field-wrapper required-field">
@@ -363,7 +372,7 @@
                                     <div class="row mb-2 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax</label>
                                         <div class="col-sm-9">
-                                            <input type="radio" id="tax_Y" name="tax" value="Y">
+                                            <input type="radio" id="tax_Y" name="tax" value="Y" required>
                                             <label for="tax_Y">Y</label>
                                             <input type="radio" id="tax_N" name="tax" value="N">
                                             <label for="tax_N">N</label>

@@ -359,7 +359,16 @@ if (!function_exists('numberToWords')) {
         <hr>
         <div class="row align-items-start">
         <div class="col-8">
-        <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }} 
+            <h6>#
+                {{ ucfirst(numberToWords($purchaseOrder->total_amount)) }}
+                @if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+                    {{ 'USD' }}
+                @else
+                    {{ 'rupiah' }}
+                @endif
+            #</h6>
+
+        {{-- <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }} 
 @if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
     {{ 'USD' }}
 @elseif(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'RMB')
@@ -368,7 +377,7 @@ if (!function_exists('numberToWords')) {
     {{ 'EUR' }}
 @else
     {{ 'rupiah' }}
-@endif#</h6>
+@endif#</h6> --}}
 
     <table style="width: 150%; border-collapse: collapse; border: 0;">
         <tr>
@@ -390,7 +399,17 @@ if (!function_exists('numberToWords')) {
 </div>
 
             <div class="col-4 text-right">
+                
                 <div style="display: flex; flex-direction: column;">
+                    <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($purchaseOrder->sub_total,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_discount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($purchaseOrder->total_sub_amount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_amount,3,',','.'); }}</h6>   
+                </div>
+
+                {{-- <div style="display: flex; flex-direction: column;">
                     <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($total,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_discount,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($total-$purchaseOrder->total_discount,3,',','.'); }}</h6>
@@ -398,7 +417,7 @@ if (!function_exists('numberToWords')) {
                     <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
                     <?php $total_final = ($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn ?>
                     <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total_final,3,',','.'); }}</h6>  
-                </div>
+                </div> --}}
             </div>
         </div>
 
