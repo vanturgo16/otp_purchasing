@@ -121,15 +121,13 @@
                         orderable: true,
                     },
                     {
-                        data: 'date',
-                        name: 'date',
-                        // className: 'align-middle text-center',
+                        data: 'requisition_date', // Sesuaikan dengan alias 'requisition_date'
+                        name: 'requisition_date',
                         orderable: true,
                     },
                     {
-                        data: 'name',
-                        name: 'name',
-                        // className: 'align-middle text-center',
+                        data: 'supplier_name', // Sesuaikan dengan alias 'supplier_name'
+                        name: 'supplier_name',
                         orderable: true,
                     },
                     {

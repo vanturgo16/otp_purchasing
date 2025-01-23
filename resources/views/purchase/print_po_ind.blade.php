@@ -172,21 +172,21 @@
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Telepon &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->telephone; }}</div>
             <div class="col-4">
                 <p class="mb-1">PR No  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->request_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->fax != 0 ? $results[0]->fax : '-' }}</div>
             <div class="col-4">
                 <p class="mb-1">Tanggal &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between pb-3">
-            <div class="col-8">Alamat PT &nbsp;: Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
+            <div class="col-8">Alamat PT &nbsp;: {{ $results[0]->address; }}</div>
         </div>
 
         <div class="row">
@@ -211,10 +211,21 @@
                         @foreach ($data_detail_rm as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -227,10 +238,21 @@
                         @foreach ($data_detail_ta as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -242,10 +264,21 @@
                         @foreach ($data_detail_wip as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -257,10 +290,21 @@
                         @foreach ($data_detail_fg as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }} || {{ $data->perforasi }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -272,10 +316,21 @@
                         @foreach ($data_detail_other as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -301,33 +356,46 @@
         <hr>
         <div class="row align-items-start">
             <div class="col-8">
-                <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))." rupiah" }}#</h6>
+                <h6>#
+                    {{ ucfirst(numberToWords($purchaseOrder->total_amount)) }}
+                    @if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+                        {{ 'USD' }}
+                    @else
+                        {{ 'rupiah' }}
+                    @endif
+                #</h6>
+            {{-- <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }}  --}}
+{{-- @if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+    {{ 'USD' }}
+@else
+    {{ 'rupiah' }}
+@endif#</h6> --}}
+
                 <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
                 <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
-                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp:</h6>
+                <h6>Catatan &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp: {{ $results[0]->supplier_remarks ?? '-' }}</h6>
             </div>
             <div class="col-4 text-right">
                 <div style="display: flex; flex-direction: column;">
-                <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($total,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($purchaseOrder->sub_total,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_discount,3,',','.'); }}</h6>
-                    <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($total-$purchaseOrder->total_discount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($purchaseOrder->total_sub_amount,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
-                    <?php $total_final = ($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn ?>
-                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total_final,3,',','.'); }}</h6>   
+                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_amount,3,',','.'); }}</h6>   
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Purchasing,</p>
                 <p>(.............)</p>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Direktur,</p>
                 <p>(.............)</p>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Supplier</p>
                 <p>(.............)</p>
             </div>

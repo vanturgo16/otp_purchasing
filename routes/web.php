@@ -24,8 +24,8 @@ Route::post('auth/login', [AuthController::class, 'postlogin'])->name('postlogin
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::group(['middleware' => ['clear.permission.cache','permission:Purchasing|Purchasing_Requisition|Purchasing_Item|Purchasing_Order']], function () {
-        
+    Route::group(['middleware' => ['clear.permission.cache', 'permission:Purchasing|Purchasing_Requisition|Purchasing_Item|Purchasing_Order']], function () {
+
         //Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         //Purchase
@@ -76,7 +76,24 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/posted_pr/{request_number}', [PurchaseController::class, 'posted_pr'])->name('posted_pr');
         Route::put('/unposted_pr/{request_number}', [PurchaseController::class, 'unposted_pr'])->name('unposted_pr');
         Route::get('/edit-po/{id}', [PurchaseController::class, 'edit_po'])->name('edit_po');
+
+        Route::controller(PurchaseController::class)->group(function () {
+            Route::prefix('purchase_orders')->group(function () {
+                Route::get('/', 'indexPO')->name('po.index');
+                Route::post('/update/{id}', 'updatePO')->name('updatePO');
+                Route::post('item/add/{id}', 'addItemPO')->name('addItemPO');
+                Route::post('item/update/{id}', 'updateItemPO')->name('updateItemPO');
+                Route::post('item/delete/{id}', 'deleteItemPO')->name('deleteItemPO');
+            });
+        });
+
+        // Route::post('/update-po/{id}', [PurchaseController::class, 'updatePO'])->name('updatePO');
+        // Route::post('/add-item-po/{id}', [PurchaseController::class, 'addItemPO'])->name('addItemPO');
+        // Route::post('/update-item-po/{id}', [PurchaseController::class, 'updateItemPO'])->name('updateItemPO');
+        // Route::post('/delete-item-po/{id}', [PurchaseController::class, 'deleteItemPO'])->name('deleteItemPO');
+
         Route::get('/edit-po-item/{id}', [PurchaseController::class, 'edit_po_item'])->name('edit_po_item');
+        Route::get('/edit-po-item-smt/{id}', [PurchaseController::class, 'edit_po_item_smt'])->name('edit_po_item_smt');
         Route::get('/tambah_detail_po/{reference_number}/{id}', [PurchaseController::class, 'tambah_detail_po'])->name('tambah_detail_po');
         Route::post('/simpan_detail_po/{reference_number}/{id}', [PurchaseController::class, 'simpan_detail_po'])->name('simpan_detail_po');
         Route::post('/simpan_detail_po_fix/{id}/{reference_number}', [PurchaseController::class, 'simpan_detail_po_fix'])->name('simpan_detail_po_fix');
@@ -95,4 +112,3 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/print-pr-ind/{request_number}', [PurchaseController::class, 'print_pr_ind'])->name('print_pr_ind');
     });
 });
-

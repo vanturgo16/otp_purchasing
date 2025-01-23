@@ -73,11 +73,12 @@
                                 
                                
                                     <div class="row mb-4 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
+                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product.</label>
                                         <div class="col-sm-9">
                                             <input type="radio" id="html" name="type" value="{{ $findtype->type_product }}" checked>
                                             <input type="hidden" id="html" name="type_product" value="{{ $findtype->type_product }}" checked>
                                             <input type="hidden" name="id_pr" class="form-control" value="{{ $reference_number }}" readonly>
+                                            <input type="hidden" name="id_po" class="form-control" value="{{ $id }}" readonly>
                                               <label for="html">{{ $findtype->type_product }}</label>
                                         </div>
                                     </div>
@@ -91,6 +92,11 @@
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('description')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                            @enderror
                                         @elseif($findtype->type_product=='FG')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product FG</option>
@@ -98,6 +104,11 @@
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }} || {{ $data->perforasi }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('description')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                            @enderror
                                         @elseif($findtype->type_product=='WIP')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product WIP</option>
@@ -105,6 +116,11 @@
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('description')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                            @enderror
                                         @elseif($findtype->type_product=='TA')
                                             <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                     <option>Pilih Product TA</option>
@@ -112,6 +128,11 @@
                                                     <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('description')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                            @enderror
                                         @elseif($findtype->type_product=='Other')
                                         <select class="form-select request_number" name="description" id="" onchange="get_unit_smt()">
                                                 <option>Pilih Product Other</option>
@@ -119,6 +140,11 @@
                                                 <option value="{{ $data->id }}" data-id="{{ $data->id }}">{{ $data->description }}</option>
                                             @endforeach
                                         </select>
+                                            @error('description')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                            @enderror
                                         @endif
                                         </div>
                                     </div>
@@ -127,6 +153,11 @@
                                         <div class="col-sm-9">
                                             <input type="number" class="form-control" name="qty" id="qty">
                                         </div>
+                                        @error('qty')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
@@ -137,19 +168,50 @@
                                                 <option value="{{ $data->unit }}">{{ $data->unit_code }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('unit')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                            @enderror
                                         </div>
+                                    </div>
+                                    <div class="row mb-4 field-wrapper">
+                                    <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
+                                    <div class="col-sm-9">
+                                            <select class="form-select" name="currency">
+                                                <option value="-">Select Currency</option>
+                                                @foreach ($currency as $data)
+                                                <option value="{{ $data->currency_code }}">{{ $data->currency_code }}</option>
+                                                @endforeach
+                                            </select>
+                                    </div>
+                                    @error('currency')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                    @enderror
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" name="price" id="price">
+                                            <input type="text" class="form-control" name="price" id="price">
                                         </div>
+                                        @error('price')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                     </div>
                                     <div class="row mb-4 field-wrapper required-field">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                         <div class="col-sm-9">
                                             <input type="number" class="form-control" name="discount" id="discount">
                                         </div>
+                                        @error('discount')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                     </div>
                                     <div class="row mb-4 field-wrapper">
                                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax</label>
@@ -159,6 +221,11 @@
                                             <input type="radio" id="tax_N" name="tax" value="N">
                                             <label for="tax_N">N</label>
                                         </div>
+                                        @error('tax')
+                                            <div class="form-group has-danger mb-0">
+                                                <div class="form-control-feedback">{{ $message }}</div>
+                                            </div>
+                                        @enderror
                                     </div>
                                     <style>
                                         .custom-bg-gray {
@@ -251,12 +318,16 @@
                                                                 <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                             </button>
                                                         </form>
-                                                        <button type="button" class="btn btn-sm btn-info " id=""
+                                                        <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                             data-bs-toggle="modal"
                                                             onclick="edit_pr_smt('{{ $data->id }}')"
                                                             data-bs-target="#edit-pr-smt" data-id="">
                                                             <i class="bx bx-edit-alt" title="edit data"></i>
-                                                        </button></center></td>
+                                                        </button></center> -->
+                                                        <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                    </td>
                                                         @include('purchase.modal')
                                                 
                                             </tr>
@@ -285,12 +356,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>
@@ -319,12 +394,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>
@@ -334,7 +413,7 @@
                                         @foreach ($POSmtfg as $data)
                                         <tr>
                                             <td>{{ $data->type_product }}</td>
-                                            <td>{{ $data->raw_material_description }}</td>
+                                            <td>{{ $data->raw_material_description }} || {{ $data->perforasi }}</td>
                                             <td>{{ $data->qty }}</td>
                                             <td>{{ $data->unit }}</td>
                                             <td>{{ $data->price }}</td>
@@ -353,12 +432,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_pr_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-pr-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>
@@ -387,12 +470,16 @@
                                                             <i class="bx bx-trash-alt" title="Hapus data" ></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-sm btn-info " id=""
+                                                    <!-- <button type="button" class="btn btn-sm btn-info " id=""
                                                         data-bs-toggle="modal"
                                                         onclick="edit_po_detail_smt('{{ $data->id }}')"
                                                         data-bs-target="#edit-po-detail-smt" data-id="">
                                                         <i class="bx bx-edit-alt" title="edit data"></i>
-                                                    </button></center></td>
+                                                    </button></center> -->
+                                                    <a href="/edit-po-item-smt/{{ $data->id; }}">
+                                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="edit data"></i></button>
+                                                </a>
+                                                </td>
                                                     @include('purchase.modal')
                                             
                                         </tr>

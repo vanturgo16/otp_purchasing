@@ -84,10 +84,11 @@ function get_supplier() {
     method: 'GET',
     data: {id : reference_number},
     success: function (response) {
-      console.log(response);
+      // console.log(response);
       supplier = response.pr_detail.master_supplier.id
       // Loop melalui data dan tambahkan opsi ke dalam select
       $('#type_pr').val(response.pr_detail.type)
+      $('#qc_check').val(response.pr_detail.qc_check)
       $('.name_supplier').empty()
         $('.name_supplier').append(` <option>Pilih Supplier</option>`)
         $.each(response.data, function (i, value) {

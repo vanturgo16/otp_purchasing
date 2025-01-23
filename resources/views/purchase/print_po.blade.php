@@ -49,37 +49,37 @@
 if (!function_exists('numberToWords')) {
     function numberToWords($number) {
         $words = [
-            0 => 'nol',
-            1 => 'satu',
-            2 => 'dua',
-            3 => 'tiga',
-            4 => 'empat',
-            5 => 'lima',
-            6 => 'enam',
-            7 => 'tujuh',
-            8 => 'delapan',
-            9 => 'sembilan',
-            10 => 'sepuluh',
-            11 => 'sebelas',
-            12 => 'dua belas',
-            13 => 'tiga belas',
-            14 => 'empat belas',
-            15 => 'lima belas',
-            16 => 'enam belas',
-            17 => 'tujuh belas',
-            18 => 'delapan belas',
-            19 => 'sembilan belas',
-            20 => 'dua puluh',
-            30 => 'tiga puluh',
-            40 => 'empat puluh',
-            50 => 'lima puluh',
-            60 => 'enam puluh',
-            70 => 'tujuh puluh',
-            80 => 'delapan puluh',
-            90 => 'sembilan puluh',
+            0 => 'zero',
+            1 => 'one',
+            2 => 'two',
+            3 => 'three',
+            4 => 'four',
+            5 => 'five',
+            6 => 'six',
+            7 => 'seven',
+            8 => 'eight',
+            9 => 'nine',
+            10 => 'ten',
+            11 => 'eleven',
+            12 => 'twelve',
+            13 => 'thirteen',
+            14 => 'fourteen',
+            15 => 'fifteen',
+            16 => 'sixteen',
+            17 => 'seventeen',
+            18 => 'eighteen',
+            19 => 'nineteen',
+            20 => 'twenty',
+            30 => 'thirty',
+            40 => 'forty',
+            50 => 'fifty',
+            60 => 'sixty',
+            70 => 'seventy',
+            80 => 'eighty',
+            90 => 'ninety',
         ];
 
-        // Cek angka negatif
+        // Check for negative numbers
         if ($number < 0) {
             return 'minus ' . numberToWords(abs($number));
         }
@@ -97,7 +97,7 @@ if (!function_exists('numberToWords')) {
         }
 
         if ($number < 200) {
-            $result = 'seratus';
+            $result = 'one hundred';
             if ($number % 100 !== 0) {
                 $result .= ' ' . numberToWords($number % 100);
             }
@@ -105,7 +105,7 @@ if (!function_exists('numberToWords')) {
         }
 
         if ($number < 1000) {
-            $result = $words[floor($number / 100)] . ' ratus';
+            $result = $words[floor($number / 100)] . ' hundred';
             if ($number % 100 !== 0) {
                 $result .= ' ' . numberToWords($number % 100);
             }
@@ -113,7 +113,7 @@ if (!function_exists('numberToWords')) {
         }
 
         if ($number < 1000000) {
-            $result = numberToWords(floor($number / 1000)) . ' ribu';
+            $result = numberToWords(floor($number / 1000)) . ' thousand';
             if ($number % 1000 !== 0) {
                 $result .= ' ' . numberToWords($number % 1000);
             }
@@ -121,7 +121,7 @@ if (!function_exists('numberToWords')) {
         }
 
         if ($number < 1000000000) {
-            $result = numberToWords(floor($number / 1000000)) . ' juta';
+            $result = numberToWords(floor($number / 1000000)) . ' million';
             if ($number % 1000000 !== 0) {
                 $result .= ' ' . numberToWords($number % 1000000);
             }
@@ -129,16 +129,17 @@ if (!function_exists('numberToWords')) {
         }
 
         if ($number < 1000000000000) {
-            $result = numberToWords(floor($number / 1000000000)) . ' milyar';
+            $result = numberToWords(floor($number / 1000000000)) . ' billion';
             if ($number % 1000000000 !== 0) {
                 $result .= ' ' . numberToWords($number % 1000000000);
             }
             return $result;
         }
 
-        return numberToWords(floor($number / 1000000000000)) . ' trilyun ' . numberToWords($number % 1000000000000);
+        return numberToWords(floor($number / 1000000000000)) . ' trillion ' . numberToWords($number % 1000000000000);
     }
 }
+
     @endphp
     
     @if($results[0]->status != 'Posted')
@@ -173,21 +174,21 @@ if (!function_exists('numberToWords')) {
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Phone &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Phone &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->telephone; }}</div>
             <div class="col-4">
                 <p class="mb-1">PR No : {{ $results[0]->request_number; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between">
-            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+            <div class="col-8">Fax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $results[0]->fax != 0 ? $results[0]->fax : '-' }}</div>
             <div class="col-4">
                 <p class="mb-1">Date &nbsp;&nbsp;&nbsp;: {{ $results[0]->date; }}</p>
                 <p class="mb-1"></p>
             </div>
         </div>
         <div class="row d-flex justify-content-between pb-3">
-            <div class="col-8">PT Address : Jl. Raya Serang KM 16.8 Desa Telaga, Kec. Cikupa Tangerang-Banten 15710</div>
+            <div class="col-8">PT Address : {{ $results[0]->address; }}</div>
         </div>
 
         <div class="row">
@@ -213,10 +214,21 @@ if (!function_exists('numberToWords')) {
                         @foreach ($data_detail_rm as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -229,10 +241,21 @@ if (!function_exists('numberToWords')) {
                         @foreach ($data_detail_ta as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -244,10 +267,21 @@ if (!function_exists('numberToWords')) {
                         @foreach ($data_detail_wip as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }}</td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->amount; // Menambahkan nilai $data->amount ke $total di sini
@@ -259,11 +293,21 @@ if (!function_exists('numberToWords')) {
                         @foreach ($data_detail_fg as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }} <br>
-                                    </td>
+                                    <td>{{ $data->description }} || {{ $data->perforasi }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -275,12 +319,21 @@ if (!function_exists('numberToWords')) {
                         @foreach ($data_detail_other as $data)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $data->description }} <br>
-                                     
-                                    </td>
+                                    <td>{{ $data->description }}<br>
+                                    {{ $data->remarks }}</td>
                                     <td>{{ $data->qty }}</td>
                                     <td>{{ $data->unit }}</td>
-                                    <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @if($data->currency=='IDR')
+                                        <td>IDR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='USD')
+                                        <td>USD {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='EUR')
+                                        <td>EUR {{ number_format($data->price,3,',','.'); }}</td>
+                                    @elseif($data->currency=='RMB')
+                                        <td>RMB {{ number_format($data->price,3,',','.'); }}</td>
+                                    @else
+                                        <td>{{ number_format($data->price,3,',','.'); }}</td>
+                                    @endif
                                     <td>{{ number_format($data->qty*$data->price,3,',','.'); }}</td>
                                     @php
                                         $total += $data->qty*$data->price; // Menambahkan nilai $data->amount ke $total di sini
@@ -305,14 +358,58 @@ if (!function_exists('numberToWords')) {
         </div>
         <hr>
         <div class="row align-items-start">
-            <div class="col-8">
-                <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn))." rupiah" }}#</h6>
-                <h6>Term Of Payment : {{ $purchaseOrder->term_payment }}</h6>
-                <h6>Delivery Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $purchaseOrder->delivery_date }}</h6>
-                <h6>Note &nbsp;&nbsp;:</h6>
-            </div>
+        <div class="col-8">
+            <h6>#
+                {{ ucfirst(numberToWords($purchaseOrder->total_amount)) }}
+                @if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+                    {{ 'USD' }}
+                @else
+                    {{ 'rupiah' }}
+                @endif
+            #</h6>
+
+        {{-- <h6>#{{ ucfirst(numberToWords(($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn)) }} 
+@if(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'USD')
+    {{ 'USD' }}
+@elseif(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'RMB')
+    {{ 'RMB' }}
+@elseif(isset($purchaseOrder_currency) && $purchaseOrder_currency->currency == 'EUR')
+    {{ 'EUR' }}
+@else
+    {{ 'rupiah' }}
+@endif#</h6> --}}
+
+    <table style="width: 150%; border-collapse: collapse; border: 0;">
+        <tr>
+            <td style="width: 15%; border: 0; padding: 5px 0;">Term Of Payment</td>
+            <td style="width: 2%; text-align: center; border: 0; padding: 5px 0;">:</td>
+            <td style="border: 0; padding: 5px 0;">{{ $purchaseOrder->term_payment }}</td>
+        </tr>
+        <tr>
+            <td style="border: 0; padding: 5px 0;">Delivery Date</td>
+            <td style="text-align: center; border: 0; padding: 5px 0;">:</td>
+            <td style="border: 0; padding: 5px 0;">{{ $purchaseOrder->delivery_date }}</td>
+        </tr>
+        <tr>
+            <td style="border: 0; padding: 5px 0;">Note</td>
+            <td style="text-align: center; border: 0; padding: 5px 0;">:</td>
+            <td style="border: 0; padding: 5px 0;">{{ $results[0]->supplier_remarks ?? '-' }}</td>
+        </tr>
+    </table>
+</div>
+
             <div class="col-4 text-right">
+                
                 <div style="display: flex; flex-direction: column;">
+                    <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($purchaseOrder->sub_total,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_discount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($purchaseOrder->total_sub_amount,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">DP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;: {{ number_format($purchaseOrder->down_payment,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
+                    <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($purchaseOrder->total_amount,3,',','.'); }}</h6>   
+                </div>
+
+                {{-- <div style="display: flex; flex-direction: column;">
                     <h6 style="flex-grow: 1;">Sub Total &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;: {{ number_format($total,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">Disc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_discount,3,',','.'); }}</h6>
                     <h6 style="flex-grow: 1;">Price After Disc &nbsp;&nbsp;: {{ number_format($total-$purchaseOrder->total_discount,3,',','.'); }}</h6>
@@ -320,25 +417,26 @@ if (!function_exists('numberToWords')) {
                     <h6 style="flex-grow: 1;">PPn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;: {{ number_format($purchaseOrder->total_ppn,3,',','.'); }}</h6>
                     <?php $total_final = ($total-$purchaseOrder->total_discount)+$purchaseOrder->down_payment+$purchaseOrder->total_ppn ?>
                     <h6 style="flex-grow: 1;">Total &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;: {{ number_format($total_final,3,',','.'); }}</h6>  
-                </div>
+                </div> --}}
             </div>
         </div>
 
 
         <div class="row">
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Purchasing,</p>
                 <p>(.............)</p>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Direktur,</p>
                 <p>(.............)</p>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-4 text-center" style="margin-top: 150px;">
                 <p class="mb-5">Supplier</p>
                 <p>(.............)</p>
             </div>
         </div>
+
 
         <div class="row">
             <h6>*NB: Mohon setelah PO diterima, ditandatangan, distempel kemudian difax atau diemail kembali</h6>

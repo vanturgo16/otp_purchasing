@@ -17,3 +17,48 @@
     padding-right: 0.1rem;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.586);
 }
+div.field-wrapper label {
+    text-align: right;
+    padding-right: 50px;
+}
+
+div.required-field label::after {
+    content: " *";
+    color: red;
+}
+.custom-bg-gray {
+    /* background-color: #c4c4c4; */
+    background-color: #e2e2e2;
+}
+#datatableCustom.dataTable.dtr-inline.collapsed
+    > tbody
+    > tr
+    > td.dtr-control:before,
+#datatableCustom.dataTable.dtr-inline.collapsed
+    > tbody
+    > tr
+    > th.dtr-control:before {
+    display: none !important; /* Force removal of responsive indicators */
+}
+
+input::placeholder {
+    color: lightgray !important;
+}
+
+input:focus::placeholder {
+    color: lightgray; /* Optional: Change color on focus */
+}
+
+.modal-header {
+    background-color: #5156be;
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header .modal-title {
+    color: inherit;
+}
+
+.modal-header button.btn-close {
+    background-color: #ffffff;
+}
