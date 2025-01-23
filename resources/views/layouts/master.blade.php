@@ -9,10 +9,10 @@
     <!-- plugin css -->
     <link href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
     <!-- DataTables -->
-    <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- Responsive datatable examples -->
-    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" /> 
+    <link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" /> 
     <!-- preloader css -->
     <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" />
     <!-- Bootstrap Css -->
@@ -22,24 +22,11 @@
     <!-- App Css-->
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     {{-- Custom --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.2.2/css/fixedColumns.dataTables.min.css">
     <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-    
     {{-- Jquery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    <style> 
-        div.field-wrapper label {
-            text-align: right;
-            padding-right: 50px
-        }
-
-        div.required-field label::after {
-            content: " *";
-            color: red;
-        }
-    </style>
-    
-    
 </head>
 
 
@@ -425,11 +412,16 @@
 
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 
+    <script src="https://cdn.datatables.net/fixedcolumns/4.2.2/js/dataTables.fixedColumns.min.js"></script>
     
     
     {{-- select 2 --}}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="{{ asset('assets/css/customselect2.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- FORM LOAD JS -->
+    <script src="{{ asset('assets/js/formLoad.js') }}"></script>
   
     <script>
     // Hapus pesan flash setelah 5 detik
@@ -464,7 +456,47 @@
 <script>
     $('.data-select2').select2({
         width: 'resolve', // need to override the changed default
-        theme: "classic"
+        // theme: "classic"
+    });
+    $(document).on("shown.bs.modal", ".modal", function () {
+        $(".data-select2").select2({
+            dropdownParent: this,
+            width: 'resolve', 
+        });
+    });
+    $('#datatableCustom').DataTable({
+        scrollX: true,
+        paging: false,
+        info: false,
+        searching: false,
+        lengthChange: false,
+        responsive: false,
+        ordering: false,
+        fixedColumns: {
+            leftColumns: 2, // Freeze first two columns
+            rightColumns: 1 // Freeze last column (Aksi)
+        }
+    });
+
+    // Format Rupiah
+    function formatCurrencyInput(event) {
+        let value = event.target.value;
+        value = value.replace(/[^\d,]/g, "");
+        let parts = value.split(",");
+        let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        if (parts.length > 1) {
+            let decimalPart = parts[1].slice(0, 3);
+            value = `${integerPart},${decimalPart}`;
+        } else {
+            value = integerPart;
+        }
+        event.target.value = value;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".rupiah-input").forEach((input) => {
+            input.addEventListener("input", formatCurrencyInput);
+        });
     });
 </script>
 <script>
