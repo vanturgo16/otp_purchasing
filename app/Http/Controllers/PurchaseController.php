@@ -32,7 +32,385 @@ class PurchaseController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index(Request $request)
+    // DATA PR
+    public function indexPR(Request $request)
+    {
+        $datas = PurchaseRequisitions::select('purchase_requisitions.id', 'purchase_requisitions.request_number',
+                'purchase_requisitions.date as requisition_date', 'purchase_requisitions.qc_check', 'purchase_requisitions.note',
+                'purchase_requisitions.type', 'purchase_requisitions.status',
+                'master_suppliers.name as supplier_name', 'master_requester.nm_requester', 'purchase_orders.po_number')
+            ->leftjoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
+            ->leftjoin('master_requester', 'purchase_requisitions.requester', 'master_requester.id')
+            ->leftjoin('purchase_orders', 'purchase_requisitions.id', 'purchase_orders.reference_number')
+            ->orderBy('purchase_requisitions.created_at', 'desc')
+            ->get();
+
+        // Datatables
+        if ($request->ajax()) {
+            return DataTables::of($datas)
+                ->addColumn('action', function ($data){
+                    return view('purchase-requisition.action', compact('data'));
+                })->make(true);
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Purchase Requisition');
+        return view('purchase-requisition.index');
+    }
+    public function addPR($type)
+    {
+        // dd($type);
+        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')->value(DB::raw('RIGHT(request_number, 7)'));
+        $lastCode = $lastCode ? $lastCode : 0;
+        $nextCode = $lastCode + 1;
+        $formattedCode = 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+        $suppliers = MstSupplier::get();
+        $requesters = MstRequester::get();
+        PurchaseRequisitionsDetailSmt::where('request_number', $formattedCode)->delete();
+
+        return view('purchase-requisition.add', compact('type', 'formattedCode', 'suppliers', 'requesters'));
+    }
+    public function storePR(Request $request)
+    {
+        $request->validate([
+            'request_number' => 'required',
+            'date' => 'required',
+            'id_master_suppliers' => $request->type == 'RM' || $request->type == 'Other' ? '' : 'required',
+            'requester' => 'required',
+            'qc_check' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+        ], [
+            'request_number.required' => 'Request Number masih kosong.',
+            'date.required' => 'Date harus diisi.',
+            'id_master_suppliers.required' => 'Supplier harus diisi.',
+            'requester.required' => 'Requester harus diisi.',
+            'qc_check.required' => 'QC Check harus diisi.',
+            'status.required' => 'Status harus diisi.',
+            'type.required' => 'Type masih kosong.',
+        ]);
+        
+        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')->value(DB::raw('RIGHT(request_number, 7)'));
+        $lastCode = $lastCode ? $lastCode : 0;
+        $nextCode = $lastCode + 1;
+        $formattedCode = 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+        PurchaseRequisitionsDetailSmt::where('request_number', $formattedCode)->delete();
+        
+        DB::beginTransaction();
+        try{
+            $storeData = PurchaseRequisitions::create([
+                'request_number' => $formattedCode,
+                'date' => $request->date,
+                'id_master_suppliers' => $request->id_master_suppliers,
+                'requester' => $request->requester,
+                'qc_check' => $request->qc_check,
+                'note' => $request->note,
+                'status' => $request->status,
+                'type' => $request->type,
+            ]);
+
+            // Audit Log
+            $this->auditLogsShort('Tambah Purchase Requisitions');
+            DB::commit();
+            return redirect()->route('pr.edit', encrypt($storeData->id))->with(['success' => 'Berhasil Tambah Data PR, Silahkan Tambahkan Item Produk']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Tambah Data PR!']);
+        }
+    }
+    public function editPR($id)
+    {
+        $id = decrypt($id);
+        // dd($request_number);
+        $data = PurchaseRequisitions::where('id', $id)->first();
+        if($data->type == 'RM'){
+            $products = MstRawMaterial::select('id', 'description')->get();
+        } elseif($data->type == 'WIP'){
+            $products = MstWip::select('id', 'description')->get();
+        } elseif($data->type == 'FG'){
+            $products = MstProductFG::select('id', 'description', 'perforasi', 'group_sub_code')->get();
+        } elseif($data->type == 'TA'){
+            $products = MstToolAux::select('id', 'description')->where('type', '!=', 'Other')->get();
+        } elseif($data->type == 'Other'){
+            $products = MstToolAux::select('id', 'description')->where('type', 'Other')->get();
+        } else {
+            $products = [];
+        }
+        $suppliers = MstSupplier::get();
+        $units = MstUnits::select('id', 'unit_code')->get();
+        $requesters = MstRequester::get();
+
+        $itemDatas = PurchaseRequisitionsDetail::select(
+            'purchase_requisition_details.*',
+            'master_units.unit',
+            'master_requester.nm_requester as cc_co_name',
+            DB::raw('
+                CASE 
+                    WHEN purchase_requisition_details.type_product = "RM" THEN master_raw_materials.description 
+                    WHEN purchase_requisition_details.type_product = "WIP" THEN master_wips.description 
+                    WHEN purchase_requisition_details.type_product = "FG" THEN master_product_fgs.description 
+                    WHEN purchase_requisition_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.description 
+                END as product_desc')
+        )
+            ->leftJoin('master_raw_materials', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"RM"'));
+            })
+            ->leftJoin('master_wips', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_wips.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"WIP"'));
+            })
+            ->leftJoin('master_product_fgs', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_product_fgs.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"FG"'));
+            })
+            ->leftJoin('master_tool_auxiliaries', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"TA"'))
+                    ->orOn('purchase_requisition_details.type_product', '=', DB::raw('"Other"'));
+            })
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->leftJoin('master_requester', 'purchase_requisition_details.cc_co', '=', 'master_requester.id')
+            ->where('purchase_requisition_details.id_purchase_requisitions', $data->id)
+            ->orderBy('purchase_requisition_details.created_at')
+            ->get();
+            
+        return view('purchase-requisition.edit', compact('data', 'products', 'suppliers', 'units', 'requesters', 'itemDatas'));
+    }
+    public function updatePR(Request $request, $id)
+    {
+        $id = decrypt($id);
+        $request->validate([
+            'request_number' => 'required',
+            'date' => 'required',
+            'id_master_suppliers' => $request->type == 'RM' || $request->type == 'Other' ? '' : 'required',
+            'requester' => 'required',
+            'qc_check' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+        ], [
+            'request_number.required' => 'Request Number masih kosong.',
+            'date.required' => 'Date harus diisi.',
+            'id_master_suppliers.required' => 'Supplier harus diisi.',
+            'requester.required' => 'Requester harus diisi.',
+            'qc_check.required' => 'QC Check harus diisi.',
+            'status.required' => 'Status harus diisi.',
+            'type.required' => 'Type masih kosong.',
+        ]);
+
+        $dataBefore = PurchaseRequisitions::where('id', $id)->first();
+        $dataBefore->date = $request->date;
+        $dataBefore->id_master_suppliers = $request->id_master_suppliers;
+        $dataBefore->requester = $request->requester;
+        $dataBefore->qc_check = $request->qc_check;
+        $dataBefore->note = $request->note;
+
+        if($dataBefore->isDirty()){
+            DB::beginTransaction();
+            try{
+                PurchaseRequisitions::where('id', $id)->update([
+                    'date' => $request->date,
+                    'id_master_suppliers' => $request->id_master_suppliers,
+                    'requester' => $request->requester,
+                    'qc_check' => $request->qc_check,
+                    'note' => $request->note,
+                ]);
+    
+                // Audit Log
+                $this->auditLogsShort('Update Purchase Requisitions ID : (' . $id . ')');
+                DB::commit();
+                return redirect()->back()->with(['success' => 'Berhasil Update Data PR']);
+            } catch (Exception $e) {
+                DB::rollback();
+                return redirect()->back()->with(['fail' => 'Gagal Update Data PR!']);
+            }
+        } else {
+            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+        }
+    }
+    public function deletePR($id)
+    {
+        $id = decrypt($id);
+        DB::beginTransaction();
+        try{
+            PurchaseRequisitions::where('id', $id)->delete();
+            PurchaseRequisitionsDetail::where('id_purchase_requisitions', $id)->delete();
+
+            // Audit Log
+            $this->auditLogsShort('Hapus Purchase Requisitions');
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Berhasil Hapus Data PR']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Hapus Data PR!']);
+        }
+    }
+    public function postedPR($id)
+    {
+        $id = decrypt($id);
+        DB::beginTransaction();
+        try{
+            PurchaseRequisitions::where('id', $id)->update(['status', 'Posted']);
+
+            // Audit Log
+            $this->auditLogsShort('Posted Purchase Requisitions');
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Berhasil Posted Data PR']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Posted Data PR!']);
+        }
+    }
+    public function unpostedPR($id)
+    {
+        $id = decrypt($id);
+        DB::beginTransaction();
+        try{
+            PurchaseRequisitions::where('id', $id)->update(['status', 'Un Posted']);
+
+            // Audit Log
+            $this->auditLogsShort('Un-Posted Purchase Requisitions');
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Berhasil Un-Posted Data PR']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Un-Posted Data PR!']);
+        }
+    }
+    //ITEM PR
+    public function storeItemPR(Request $request, $id)
+    {
+        $id = decrypt($id); //ID PR
+        $request->validate([
+            'request_number' => 'required',
+            'type_product' => 'required',
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+        ], [
+            'request_number.required' => 'Request Number masih kosong.',
+            'type_product.required' => 'Type Produk masih kosong.',
+            'master_products_id.required' => 'Produk harus diisi.',
+            'qty.required' => 'Qty harus diisi.',
+            'master_units_id.required' => 'Unit harus diisi.',
+            'required_date.required' => 'Required Date harus diisi.',
+            'cc_co.required' => 'CC / CO harus diisi.',
+        ]);
+        
+        DB::beginTransaction();
+        try{
+            $storeData = PurchaseRequisitionsDetail::create([
+                'id_purchase_requisitions' => $id,
+                'type_product' => $request->type_product,
+                'master_products_id' => $request->master_products_id,
+                'qty' => $request->qty,
+                'master_units_id' => $request->master_units_id,
+                'required_date' => $request->required_date,
+                'cc_co' => $request->cc_co,
+                'remarks' => $request->remarks,
+                'request_number' => $request->request_number,
+            ]);
+
+            // Audit Log
+            $this->auditLogsShort('Tambah Purchase Requisitions Detail ID : (' . $storeData->id . ')');
+            DB::commit();
+            return redirect()->route('pr.edit', encrypt($id))->with(['success' => 'Berhasil Tambah Item PR Ke Dalam Tabel', 'scrollTo' => 'tableItem']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Tambah Item PR!']);
+        }
+    }
+    public function editItemPR($id)
+    {
+        $id = decrypt($id);
+        $data = PurchaseRequisitionsDetail::where('id', $id)->first();
+        if($data->type_product == 'RM'){
+            $products = MstRawMaterial::select('id', 'description')->get();
+        } elseif($data->type_product == 'WIP'){
+            $products = MstWip::select('id', 'description')->get();
+        } elseif($data->type_product == 'FG'){
+            $products = MstProductFG::select('id', 'description', 'perforasi', 'group_sub_code')->get();
+        } elseif($data->type_product == 'TA'){
+            $products = MstToolAux::select('id', 'description')->where('type', '!=', 'Other')->get();
+        } elseif($data->type_product == 'Other'){
+            $products = MstToolAux::select('id', 'description')->where('type', 'Other')->get();
+        } else {
+            $products = [];
+        }
+        $units = MstUnits::select('id', 'unit_code')->get();
+        $requesters = MstRequester::get();
+            
+        return view('purchase-requisition-detail.edit', compact('data', 'products', 'units', 'requesters'));
+    }
+    public function updateItemPR(Request $request, $id)
+    {
+        $id = decrypt($id);
+        $request->validate([
+            'master_products_id' => 'required',
+            'qty' => 'required',
+            'master_units_id' => 'required',
+            'required_date' => 'required',
+            'cc_co' => 'required',
+        ], [
+            'master_products_id.required' => 'Produk harus diisi.',
+            'qty.required' => 'Qty harus diisi.',
+            'master_units_id.required' => 'Unit harus diisi.',
+            'required_date.required' => 'Required Date harus diisi.',
+            'cc_co.required' => 'CC / CO harus diisi.',
+        ]);
+
+        $dataBefore = PurchaseRequisitionsDetail::where('id', $id)->first();
+        $dataBefore->master_products_id = $request->master_products_id;
+        $dataBefore->qty = $request->qty;
+        $dataBefore->master_units_id = $request->master_units_id;
+        $dataBefore->required_date = $request->required_date;
+        $dataBefore->cc_co = $request->cc_co;
+        $dataBefore->remarks = $request->remarks;
+
+        if($dataBefore->isDirty()){
+            DB::beginTransaction();
+            try{
+                PurchaseRequisitionsDetail::where('id', $id)->update([
+                    'master_products_id' => $request->master_products_id,
+                    'qty' => $request->qty,
+                    'master_units_id' => $request->master_units_id,
+                    'required_date' => $request->required_date,
+                    'cc_co' => $request->cc_co,
+                    'remarks' => $request->remarks
+                ]);
+
+                // Audit Log
+                $this->auditLogsShort('Update Purchase Requisitions Detail ID : (' . $id . ')');
+                DB::commit();
+                return redirect()->route('pr.edit', encrypt($dataBefore->id_purchase_requisitions))->with(['success' => 'Berhasil Update Item PR', 'scrollTo' => 'tableItem']);
+            } catch (Exception $e) {
+                DB::rollback();
+                return redirect()->back()->with(['fail' => 'Gagal Update Item PR!']);
+            }
+        } else {
+            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+        }
+    }
+    public function deleteItemPR($id)
+    {
+        $id = decrypt($id);
+        DB::beginTransaction();
+        try{
+            PurchaseRequisitionsDetail::where('id', $id)->delete();
+
+            // Audit Log
+            $this->auditLogsShort('Hapus Purchase Requisitions Detail ID : (' . $id . ')');
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Berhasil Hapus Item PR', 'scrollTo' => 'tableItem']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Hapus Item PR!']);
+        }
+    }
+
+    public function indexOld(Request $request)
     {
         // $datas = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
         //         ->leftJoin('master_requester as c', 'purchase_requisitions.requester', '=', 'c.id')

@@ -77,6 +77,26 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/unposted_pr/{request_number}', [PurchaseController::class, 'unposted_pr'])->name('unposted_pr');
         Route::get('/edit-po/{id}', [PurchaseController::class, 'edit_po'])->name('edit_po');
 
+
+        Route::controller(PurchaseController::class)->group(function () {
+            Route::prefix('purchase_requisition')->group(function () {
+                //DATA PR
+                Route::get('/', 'indexPR')->name('pr.index');
+                Route::get('/add/{type}', 'addPR')->name('pr.add');
+                Route::get('/edit/{id}', 'editPR')->name('pr.edit');
+                Route::post('/store', 'storePR')->name('pr.store');
+                Route::post('/update/{id}', 'updatePR')->name('pr.update');
+                Route::post('/delete/{id}', 'deletePR')->name('pr.delete');
+                Route::post('/posted/{id}', 'postedPR')->name('pr.posted');
+                Route::post('/unposted/{id}', 'unpostedPR')->name('pr.unposted');
+                //ITEM PR
+                Route::get('/item/edit/{id}', 'editItemPR')->name('pr.editItem');
+                Route::post('/item/store/{id}', 'storeItemPR')->name('pr.storeItem');
+                Route::post('/item/update/{id}', 'updateItemPR')->name('pr.updateItem');
+                Route::post('/item/delete/{id}', 'deleteItemPR')->name('pr.deleteItem');
+            });
+        });
+
         Route::controller(PurchaseController::class)->group(function () {
             Route::prefix('purchase_orders')->group(function () {
                 Route::get('/', 'indexPO')->name('po.index');

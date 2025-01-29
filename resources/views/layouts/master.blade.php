@@ -39,7 +39,7 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="index.html" class="logo logo-dark">
+                        <a href="https://sso.olefinatifaplas.my.id/menu" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/icon-otp.png') }}" alt="" height="30">
                             </span>
@@ -48,7 +48,7 @@
                             </span>
                         </a>
 
-                        <a href="index.html" class="logo logo-light">
+                        <a href="https://sso.olefinatifaplas.my.id/menu" class="logo logo-light">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/icon-otp.png') }}" alt="" height="30">
                             </span>
@@ -138,25 +138,52 @@
                             </a>
                         </li>
                         @can('Purchasing')
+                            <li class="menu-title" data-key="t-menu">Purchase Requisition (PR)</li>
+                            @can('Purchasing_Requisition')
+                            <li class="{{ request()->is('purchase_requisition/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('pr.index') }}">
+                                    <i class="mdi mdi-file-export"></i>
+                                    <span><small>Purchase Requisition</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            @can('Purchasing_Item')
+                            <li>
+                                <a href="/purchase-requisition-items">
+                                    <i class="mdi mdi-file-document-multiple"></i>
+                                    <span><small>Purchase Requisition Items</small></span>
+                                </a>
+                            </li>
+                            @endcan
                             
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow">
-                            <i class="mdi mdi-file-alert"></i>
-                                <span data-key="t-blog">Purchasing</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                @can('Purchasing_Requisition')
-                                <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
-                                @endcan
+                            <li class="menu-title" data-key="t-menu">Purchase Order (PO)</li>
+                            @can('Purchasing_Order')
+                            <li>
+                                <a href="/purchase-order">
+                                    <i class="mdi mdi-file-check"></i>
+                                    <span><small>Purchase Order</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            
+                            {{-- <li>
+                                <a href="javascript: void(0);" class="has-arrow">
+                                <i class="mdi mdi-file-alert"></i>
+                                    <span data-key="t-blog">Purchasing</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    @can('Purchasing_Requisition')
+                                    <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
+                                    @endcan
 
-                                @can('Purchasing_Item')
-                                <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
-                                @endcan
-                                @can('Purchasing_Order')
-                                <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
-                                @endcan
-                            </ul>
-                        </li>
+                                    @can('Purchasing_Item')
+                                    <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
+                                    @endcan
+                                    @can('Purchasing_Order')
+                                    <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
+                                    @endcan
+                                </ul>
+                            </li> --}}
                         @endcan 
                         
 
