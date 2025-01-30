@@ -15,16 +15,16 @@
                                 <a href="{{ route('pr.add', 'RM') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Raw Material">
                                     <i class="mdi mdi-plus label-icon"></i> PR <b>(RM)</b>
                                 </a>
-                                <a href="/hapus_request_number_wip" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR WIP">
+                                <a href="{{ route('pr.add', 'WIP') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR WIP">
                                     <i class="mdi mdi-plus label-icon"></i> PR <b>(WIP)</b>
                                 </a>
-                                <a href="/hapus_request_number_fg" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Finished Goods">
+                                <a href="{{ route('pr.add', 'FG') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Finished Goods">
                                     <i class="mdi mdi-plus label-icon"></i> PR <b>(FG)</b>
                                 </a>
-                                <a href="/hapus_request_number_ta" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Auxalary & Sparepart">
+                                <a href="{{ route('pr.add', 'TA') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Auxalary & Sparepart">
                                     <i class="mdi mdi-plus label-icon"></i> PR <b>(Aux & Sparepart)</b>
                                 </a>
-                                <a href="/hapus_request_number_other" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Lainnya">
+                                <a href="{{ route('pr.add', 'Other') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Lainnya">
                                     <i class="mdi mdi-plus label-icon"></i> PR <b>(Other)</b>
                                 </a>
                             </div>
@@ -43,6 +43,7 @@
                                     <th class="align-middle text-center">Note</th>
                                     <th class="align-middle text-center">PO Number</th>
                                     <th class="align-middle text-center">Type</th>
+                                    <th class="align-middle text-center">Total Product</th>
                                     <th class="align-middle text-center">Status</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -121,7 +122,13 @@
                     name: 'note',
                     orderable: true,
                     searchable: true,
-                    className: 'align-top'
+                    className: 'align-top',
+                    render: function (data, type, row) {
+                        if (data.length > 100) {
+                            return `<span class="note-tooltip" title="${data}">${data.substring(0, 70)}...</span>`;
+                        }
+                        return data;
+                    }
                 },
                 {
                     data: 'po_number',
@@ -138,13 +145,20 @@
                     className: 'align-top text-center'
                 },
                 {
+                    data: 'count',
+                    name: 'count',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top text-center'
+                },
+                {
                     data: 'status',
                     name: 'status',
                     orderable: true,
                     searchable: true,
                     className: 'align-top text-center',
                     render: function(data, type, row) {
-                        let badgeColor = data === 'Request' ? 'info' : 
+                        let badgeColor = data === 'Request' ? 'secondary' : 
                                         data === 'Un Posted' ? 'warning' : 'success';
                         return `<span class="badge bg-${badgeColor}" style="font-size: smaller; width: 100%">${data}</span>`;
                     },
@@ -154,18 +168,25 @@
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle',
+                    className: 'align-top text-center',
                 },
             ],
             createdRow: function(row, data, dataIndex) {
                 if (data.status === 'Posted') {
                     $(row).addClass('table-success');
                 }
+                if (data.status === 'Request') {
+                    $(row).addClass('table-secondary');
+                }
             },
             columnDefs: [
                 {
-                    width: '80px',
+                    width: '10%',
                     targets: [2],
+                },
+                {
+                    width: '10%',
+                    targets: [11],
                 },
             ],
         });

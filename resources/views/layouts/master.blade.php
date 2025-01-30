@@ -23,10 +23,21 @@
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     {{-- Custom --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.2.2/css/fixedColumns.dataTables.min.css">
-    <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css" />
     {{-- Jquery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <style> 
+        div.field-wrapper label {
+            text-align: right;
+            padding-right: 50px
+        }
+
+        div.required-field label::after {
+            content: " *";
+            color: red;
+        }
+    </style>
 </head>
 
 
@@ -503,6 +514,14 @@
             leftColumns: 2, // Freeze first two columns
             rightColumns: 1 // Freeze last column (Aksi)
         }
+    });
+    $('#tableItem').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        lengthChange: false,
+        responsive: true,
+        ordering: false,
     });
 
     // Format Rupiah

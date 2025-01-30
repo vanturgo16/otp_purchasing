@@ -38,7 +38,8 @@ class PurchaseController extends Controller
         $datas = PurchaseRequisitions::select('purchase_requisitions.id', 'purchase_requisitions.request_number',
                 'purchase_requisitions.date as requisition_date', 'purchase_requisitions.qc_check', 'purchase_requisitions.note',
                 'purchase_requisitions.type', 'purchase_requisitions.status',
-                'master_suppliers.name as supplier_name', 'master_requester.nm_requester', 'purchase_orders.po_number')
+                'master_suppliers.name as supplier_name', 'master_requester.nm_requester', 'purchase_orders.po_number',
+                \DB::raw('(SELECT COUNT(*) FROM purchase_requisition_details WHERE purchase_requisition_details.id_purchase_requisitions = purchase_requisitions.id) as count'))
             ->leftjoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
             ->leftjoin('master_requester', 'purchase_requisitions.requester', 'master_requester.id')
             ->leftjoin('purchase_orders', 'purchase_requisitions.id', 'purchase_orders.reference_number')
@@ -60,6 +61,9 @@ class PurchaseController extends Controller
     public function addPR($type)
     {
         // dd($type);
+        if(!in_array($type, ['RM', 'WIP', 'FG', 'TA', 'Other'])){
+            return redirect()->route('dashboard')->with(['fail' => 'Tidak Ada Type '. $type]);
+        }
         $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')->value(DB::raw('RIGHT(request_number, 7)'));
         $lastCode = $lastCode ? $lastCode : 0;
         $nextCode = $lastCode + 1;
@@ -250,7 +254,7 @@ class PurchaseController extends Controller
         $id = decrypt($id);
         DB::beginTransaction();
         try{
-            PurchaseRequisitions::where('id', $id)->update(['status', 'Posted']);
+            PurchaseRequisitions::where('id', $id)->update(['status' => 'Posted']);
 
             // Audit Log
             $this->auditLogsShort('Posted Purchase Requisitions');
@@ -266,7 +270,7 @@ class PurchaseController extends Controller
         $id = decrypt($id);
         DB::beginTransaction();
         try{
-            PurchaseRequisitions::where('id', $id)->update(['status', 'Un Posted']);
+            PurchaseRequisitions::where('id', $id)->update(['status' => 'Un Posted']);
 
             // Audit Log
             $this->auditLogsShort('Un-Posted Purchase Requisitions');
