@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/delete/{id}', 'deletePR')->name('pr.delete');
                 Route::post('/posted/{id}', 'postedPR')->name('pr.posted');
                 Route::post('/unposted/{id}', 'unpostedPR')->name('pr.unposted');
+                Route::get('/print/{lang}/{id}', 'printPR')->name('pr.print');
+                Route::get('/get-pr-details', 'getPRDetails')->name('pr.getPRDetails');
                 //ITEM PR
                 Route::get('/item/edit/{id}', 'editItemPR')->name('pr.editItem');
                 Route::post('/item/store/{id}', 'storeItemPR')->name('pr.storeItem');
@@ -98,9 +100,19 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::controller(PurchaseController::class)->group(function () {
+            Route::prefix('purchase_requisition_items')->group(function () {
+                Route::get('/', 'indexItemPR')->name('pr.indexItem');
+            });
+        });
+
+        Route::controller(PurchaseController::class)->group(function () {
             Route::prefix('purchase_orders')->group(function () {
                 Route::get('/', 'indexPO')->name('po.index');
-                Route::post('/update/{id}', 'updatePO')->name('updatePO');
+                Route::get('/edit/{id}', 'editPO')->name('po.edit');
+                Route::post('/store', 'storePO')->name('po.store');
+                Route::post('/update/{id}', 'updatePO')->name('po.update');
+
+                // Route::post('/update/{id}', 'updatePO')->name('updatePO');
                 Route::post('item/add/{id}', 'addItemPO')->name('addItemPO');
                 Route::post('item/update/{id}', 'updateItemPO')->name('updateItemPO');
                 Route::post('item/delete/{id}', 'deleteItemPO')->name('deleteItemPO');

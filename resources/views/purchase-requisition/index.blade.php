@@ -64,14 +64,14 @@
             processing: true,
             serverSide: true,
             pageLength: 5,
-            lengthMenu: [
-                [5, 10, 20, 25, 50, 100, 200, -1],
-                [5, 10, 20, 25, 50, 100, 200, "All"]
-            ],
             aaSorting: [],
             ajax: {
                 url: url,
-                type: 'GET'
+                type: 'GET',
+                data: function(d) {
+                    d.filterType = $('#filterType').val();
+                    d.filterStatus = $('#filterStatus').val();
+                }
             },
             columns: [
                 {
@@ -81,7 +81,7 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'text-center',
+                    className: 'text-center fw-bold',
                 },
                 {
                     data: 'request_number',
@@ -124,6 +124,7 @@
                     searchable: true,
                     className: 'align-top',
                     render: function (data, type, row) {
+                        if (!data) { return ''; }
                         if (data.length > 100) {
                             return `<span class="note-tooltip" title="${data}">${data.substring(0, 70)}...</span>`;
                         }
@@ -190,6 +191,67 @@
                 },
             ],
         });
+    });
+</script>
+
+<script>
+    $(function() {
+        // Hide Length Datatable
+        $('.dataTables_wrapper .dataTables_length').hide();
+
+        // Length
+        var lengthDropdown = `
+            <label>
+                <select id="lengthDT">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </label>
+        `;
+        $('.dataTables_length').before(lengthDropdown);
+        $('#lengthDT').select2({ minimumResultsForSearch: Infinity, width: '60px' });
+        $('#lengthDT').on('change', function() {
+            var newLength = $(this).val();
+            var table = $("#server-side-table").DataTable();
+            table.page.len(newLength).draw();
+        });
+
+        // Filter Type
+        var filterType = `
+            <label>
+                <select id="filterType">
+                    <option value="All">-- Semua Type --</option>
+                    <option value="RM">RM</option>
+                    <option value="WIP">WIP</option>
+                    <option value="FG">FG</option>
+                    <option value="TA">TA</option>
+                    <option value="Other">Other</option>
+                </select>
+            </label>
+        `;
+        $('.dataTables_length').before(filterType);
+        $('#filterType').select2({width: '150px' });
+        $('#filterType').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
+
+        // Filter Status
+        var filterStatus = `
+            <label>
+                <select id="filterStatus">
+                    <option value="All">-- Semua Status --</option>
+                    <option value="Request">Request</option>
+                    <option value="Posted">Posted</option>
+                    <option value="Created PO">Created PO</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Un Posted">Un Posted</option>
+                </select>
+            </label>
+        `;
+        $('.dataTables_length').before(filterStatus);
+        $('#filterStatus').select2({width: '200px' });
+        $('#filterStatus').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
     });
 </script>
 

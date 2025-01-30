@@ -32,7 +32,7 @@ class PurchaseController extends Controller
 {
     use AuditLogsTrait;
 
-    // DATA PR
+    //DATA PR
     public function indexPR(Request $request)
     {
         $datas = PurchaseRequisitions::select('purchase_requisitions.id', 'purchase_requisitions.request_number',
@@ -42,9 +42,16 @@ class PurchaseController extends Controller
                 \DB::raw('(SELECT COUNT(*) FROM purchase_requisition_details WHERE purchase_requisition_details.id_purchase_requisitions = purchase_requisitions.id) as count'))
             ->leftjoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
             ->leftjoin('master_requester', 'purchase_requisitions.requester', 'master_requester.id')
-            ->leftjoin('purchase_orders', 'purchase_requisitions.id', 'purchase_orders.reference_number')
-            ->orderBy('purchase_requisitions.created_at', 'desc')
-            ->get();
+            ->leftjoin('purchase_orders', 'purchase_requisitions.id', 'purchase_orders.reference_number');
+
+        if ($request->has('filterType') && $request->filterType != '' && $request->filterType != 'All') {
+            $datas->where('purchase_requisitions.type', $request->filterType);
+        }
+        if ($request->has('filterStatus') && $request->filterStatus != '' && $request->filterStatus != 'All') {
+            $datas->where('purchase_requisitions.status', $request->filterStatus);
+        }
+
+        $datas = $datas->orderBy('purchase_requisitions.created_at', 'desc')->get();
 
         // Datatables
         if ($request->ajax()) {
@@ -281,6 +288,163 @@ class PurchaseController extends Controller
             return redirect()->back()->with(['fail' => 'Gagal Un-Posted Data PR!']);
         }
     }
+    public function printPR($lang, $id)
+    {
+        $id = decrypt($id);
+        $data = PurchaseRequisitions::select('purchase_requisitions.*', 'master_suppliers.name')
+            ->leftJoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
+            ->where('purchase_requisitions.id', $id)
+            ->first();
+
+        $itemDatas = PurchaseRequisitionsDetail::select(
+            'purchase_requisition_details.*',
+            'master_units.unit',
+            'master_units.unit_code',
+            'master_requester.nm_requester as cc_co_name',
+            DB::raw('
+                CASE 
+                    WHEN purchase_requisition_details.type_product = "RM" THEN master_raw_materials.description 
+                    WHEN purchase_requisition_details.type_product = "WIP" THEN master_wips.description 
+                    WHEN purchase_requisition_details.type_product = "FG" THEN master_product_fgs.description 
+                    WHEN purchase_requisition_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.description 
+                END as product_desc'),
+            DB::raw('
+                CASE 
+                    WHEN purchase_requisition_details.type_product = "RM" THEN master_raw_materials.rm_code 
+                    WHEN purchase_requisition_details.type_product = "WIP" THEN master_wips.wip_code 
+                    WHEN purchase_requisition_details.type_product = "FG" THEN master_product_fgs.product_code 
+                    WHEN purchase_requisition_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.code 
+                END as code'),
+            DB::raw('
+                CASE 
+                    WHEN purchase_requisition_details.type_product = "FG" THEN master_product_fgs.perforasi 
+                END as perforasi')
+        )
+            ->leftJoin('master_raw_materials', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"RM"'));
+            })
+            ->leftJoin('master_wips', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_wips.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"WIP"'));
+            })
+            ->leftJoin('master_product_fgs', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_product_fgs.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"FG"'));
+            })
+            ->leftJoin('master_tool_auxiliaries', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"TA"'))
+                    ->orOn('purchase_requisition_details.type_product', '=', DB::raw('"Other"'));
+            })
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->leftJoin('master_requester', 'purchase_requisition_details.cc_co', '=', 'master_requester.id')
+            ->where('purchase_requisition_details.id_purchase_requisitions', $id)
+            ->orderBy('purchase_requisition_details.created_at')
+            ->get();
+
+            // dd($itemDatas);
+
+        $view = ($lang === 'en') ? 'purchase-requisition.print' : 'purchase-requisition.printIDN';
+        return view($view, compact('data', 'itemDatas'));
+
+        // return view('purchase-requisition.print', compact('data', 'itemDatas'));
+        
+
+        // dd($request_number);
+        // die;
+        // $PurchaseRequisitions = PurchaseRequisitions::findOrFail($request_number);
+
+        // $datas = PurchaseRequisitions::select(
+        //     'purchase_requisitions.*',
+        //     'master_suppliers.name',
+        //     'master_requester.nm_requester',
+        //     'purchase_requisition_details.type_product',
+        //     'purchase_requisition_details.qty',
+        //     'purchase_requisition_details.cc_co',
+        //     'purchase_requisition_details.required_date',
+        //     'purchase_requisition_details.outstanding_qty',
+        //     'purchase_requisition_details.request_number',
+        //     'purchase_requisition_details.remarks',
+
+        // )
+        //     ->leftJoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', '=', 'master_suppliers.id')
+        //     ->leftJoin('master_requester', 'purchase_requisitions.requester', '=', 'master_requester.id')
+        //     ->leftJoin('purchase_requisition_details', 'purchase_requisitions.request_number', '=', 'purchase_requisition_details.request_number')
+
+        //     ->where('purchase_requisitions.id', '=', $request_number)
+        //     ->orderBy('purchase_requisitions.created_at', 'desc')
+        //     ->get();
+
+        // $data_detail_rm = DB::table('purchase_requisition_details as a')
+        //     ->leftJoin('master_raw_materials as b', 'a.master_products_id', '=', 'b.id')
+        //     ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //     ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+        //     ->select('a.*', 'b.description', 'c.unit_code', 'b.rm_code', 'd.nm_requester')
+        //     ->where('a.id_purchase_requisitions', $request_number)
+        //     ->get();
+
+        // $data_detail_ta = DB::table('purchase_requisition_details as a')
+        //     ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+        //     ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //     ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+        //     ->select('a.*', 'b.description', 'c.unit_code', 'b.code', 'd.nm_requester')
+        //     ->where('a.id_purchase_requisitions', $request_number)
+        //     ->get();
+
+        // $data_detail_wip = DB::table('purchase_requisition_details as a')
+        //     ->leftJoin('master_wips as b', 'a.master_products_id', '=', 'b.id')
+        //     ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //     ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+        //     ->select('a.*', 'b.description', 'c.unit_code', 'b.wip_code', 'd.nm_requester')
+        //     ->where('a.id_purchase_requisitions', $request_number)
+        //     ->get();
+
+        // $data_detail_fg = DB::table('purchase_requisition_details as a')
+        //     ->leftJoin('master_product_fgs as b', 'a.master_products_id', '=', 'b.id')
+        //     ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //     ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+        //     ->select('a.*', 'b.description', 'c.unit_code', 'b.product_code', 'd.nm_requester', 'b.perforasi')
+        //     ->where('a.id_purchase_requisitions', $request_number)
+        //     ->get();
+
+        // $data_detail_other = DB::table('purchase_requisition_details as a')
+        //     ->leftJoin('master_tool_auxiliaries as b', 'a.master_products_id', '=', 'b.id')
+        //     ->leftJoin('master_units as c', 'a.master_units_id', '=', 'c.id')
+        //     ->leftJoin('master_requester as d', 'a.cc_co', '=', 'd.id')
+        //     ->select('a.*', 'b.description', 'c.unit_code', 'b.code', 'd.nm_requester')
+        //     ->where('a.id_purchase_requisitions', $request_number)
+        //     ->where('b.type', 'Other') // Kondisi where berdasarkan 'type' dari 'master_tool_auxiliaries'
+        //     ->get();
+
+        // return view('purchase.print_pr', compact(
+        //     'datas',
+        //     'data_detail_rm',
+        //     'data_detail_ta',
+        //     'data_detail_wip',
+        //     'data_detail_fg',
+        //     'PurchaseRequisitions',
+        //     'data_detail_other'
+        // ));
+    }
+    public function getPRDetails(Request $request)
+    {
+        $referenceId = $request->input('reference_id');
+        $purchaseRequest = PurchaseRequisitions::select('id_master_suppliers', 'qc_check', 'type')->where('id', $referenceId)->first();
+        if ($purchaseRequest) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id_master_suppliers' => $purchaseRequest->id_master_suppliers,
+                    'qc_check' => $purchaseRequest->qc_check,
+                    'type' => $purchaseRequest->type,
+                ]
+            ]);
+        } else {
+            return response()->json(['success' => false]);
+        }
+    }
+
     //ITEM PR
     public function storeItemPR(Request $request, $id)
     {
@@ -414,6 +578,367 @@ class PurchaseController extends Controller
         }
     }
 
+    //PR ITEM INDEX
+    public function indexItemPR(Request $request)
+    {
+        $data = DB::table('purchase_requisition_details as prd')
+            ->join('purchase_requisitions as pr', 'prd.id_purchase_requisitions', '=', 'pr.id')
+            ->join('purchase_orders as po', 'pr.id', '=', 'po.reference_number')
+            ->join('master_suppliers as ms', 'po.id_master_suppliers', '=', 'ms.id')
+            ->join('purchase_order_details as pod', 'pod.id_purchase_orders', '=', 'po.id')
+            ->join('good_receipt_notes as grn', 'pr.id', '=', 'grn.reference_number')
+            ->join('good_receipt_note_details as grnd', 'grnd.id_good_receipt_notes', '=', 'grn.id')
+            ->leftJoin('master_raw_materials as rm', function ($join) {
+                $join->on('prd.master_products_id', '=', 'rm.id')
+                    ->where('prd.type_product', 'RM');
+            })
+            ->leftJoin('master_product_fgs as fg', function ($join) {
+                $join->on('prd.master_products_id', '=', 'fg.id')
+                    ->where('prd.type_product', 'FG');
+            })
+            ->leftJoin('master_wips as w', function ($join) {
+                $join->on('prd.master_products_id', '=', 'w.id')
+                    ->where('prd.type_product', 'WIP');
+            })
+            ->leftJoin('master_tool_auxiliaries as ta', function ($join) {
+                $join->on('prd.master_products_id', '=', 'ta.id')
+                    ->whereIn('prd.type_product', ['TA', 'Other']);
+            })
+            ->leftJoin('master_units as c', 'prd.master_units_id', '=', 'c.id')
+            ->leftJoin('master_requester as d', 'prd.cc_co', '=', 'd.id')
+            ->select(
+                'prd.*',
+                'pr.request_number',
+                'pr.date as date_prd',
+                'pr.requester as requester_prd',
+                'pr.status as status_prd',
+                'pr.type as type_prd',
+
+                'po.po_number',
+                'po.delivery_date',
+                'ms.name',
+                'pod.price',
+                'pod.discount',
+                'pod.amount',
+                'grnd.outstanding_qty as outstanding_qty_grnd',
+                'pod.status as sts_pod',
+                DB::raw("CASE 
+                    WHEN prd.type_product = 'RM' THEN CONCAT(rm.rm_code, '-', rm.description)
+                    WHEN prd.type_product = 'FG' THEN CONCAT(fg.product_code, '-', fg.description)
+                    WHEN prd.type_product = 'WIP' THEN CONCAT(w.wip_code, '-', w.description)
+                    WHEN prd.type_product = 'TA' THEN CONCAT(ta.code, '-', ta.description)
+                    WHEN prd.type_product = 'Other' THEN CONCAT(ta.code, '-', ta.description)
+                END as product_desc"),
+                'c.unit_code',
+                'd.nm_requester',
+                'ms.name as supplier_name'
+            )
+            ->get();
+            
+        // Audit Log
+        $this->auditLogsShort('View List Purchase Requisition Items');
+
+        return view('purchase-requisition-detail.index', compact('data'));
+    }
+
+    //DATA PO
+    public function indexPO(Request $request)
+    {
+        $year = date('y');
+        $lastCode = PurchaseOrders::orderBy('created_at', 'desc')->value(DB::raw('LEFT(po_number, 3)'));
+        $lastCode = $lastCode ? $lastCode : 0;
+        $nextCode = $lastCode + 1;
+        $currentMonth = $this->romanMonth(date('n'));
+        $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
+
+        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->get();
+        $suppliers = MstSupplier::get();
+
+        $datas = PurchaseOrders::select(
+            'purchase_orders.id',
+            'purchase_orders.po_number',
+            'purchase_orders.date',
+            'purchase_orders.down_payment',
+            'purchase_orders.total_amount',
+            'purchase_orders.qc_check',
+            'purchase_orders.type',
+            'purchase_orders.status',
+            'purchase_requisitions.request_number as reference_number',
+            'master_suppliers.name as supplier_name',
+            \DB::raw('(SELECT COUNT(*) FROM purchase_order_details WHERE purchase_order_details.id_purchase_orders = purchase_orders.id) as count')
+        )
+        ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', 'purchase_requisitions.id')
+        ->leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', 'master_suppliers.id');
+
+        if ($request->has('filterType') && $request->filterType != '' && $request->filterType != 'All') {
+            $datas->where('purchase_orders.type', $request->filterType);
+        }
+        if ($request->has('filterStatus') && $request->filterStatus != '' && $request->filterStatus != 'All') {
+            $datas->where('purchase_orders.status', $request->filterStatus);
+        }
+
+        $datas = $datas->orderBy('purchase_orders.created_at', 'desc')->get();
+
+        // Datatables
+        if ($request->ajax()) {
+            return DataTables::of($datas)
+                ->addColumn('action', function ($data){
+                    return view('purchase-order.action', compact('data'));
+                })->make(true);
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Purchase Order');
+        return view('purchase-order.index', compact('formattedCode', 'postedPRs', 'suppliers'));
+    }
+    public function storePO(Request $request)
+    {
+        $request->validate([
+            'po_number' => 'required',
+            'date' => 'required',
+            'reference_number' => 'required',
+            'id_master_suppliers' => 'required',
+            'qc_check' => 'required',
+            'non_invoiceable' => 'required',
+            'vendor_taxable' => 'required',
+            'down_payment' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+        ], [
+            'po_number.required' => 'PO Number masih kosong.',
+            'date.required' => 'Date masih kosong.',
+            'reference_number.required' => 'Reference Number harus diisi.',
+            'id_master_suppliers.required' => 'Suppliers harus diisi.',
+            'qc_check.required' => 'QC Check harus diisi.',
+            'non_invoiceable.required' => 'Non Invoiceable harus diisi.',
+            'vendor_taxable.required' => 'Vendor Taxable harus diisi.',
+            'down_payment.required' => 'Down Payment harus diisi.',
+            'status.required' => 'Status masih kosong.',
+            'type.required' => 'Type masih kosong.',
+        ]);
+        
+        $year = date('y');
+        $lastCode = PurchaseOrders::orderBy('created_at', 'desc')->value(DB::raw('LEFT(po_number, 3)'));
+        $lastCode = $lastCode ? $lastCode : 0;
+        $nextCode = $lastCode + 1;
+        $currentMonth = $this->romanMonth(date('n'));
+        $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
+        
+        DB::beginTransaction();
+        try{
+            $storeData = PurchaseOrders::create([
+                'po_number' => $formattedCode,
+                'date' => $request->date,
+                'delivery_date' => $request->delivery_date,
+                'reference_number' => $request->reference_number,
+                'id_master_suppliers' => $request->id_master_suppliers,
+                'qc_check' => $request->qc_check,
+                'non_invoiceable' => $request->non_invoiceable,
+                'vendor_taxable' => $request->vendor_taxable,
+                'down_payment' => $request->down_payment,
+                'own_remarks' => $request->own_remarks,
+                'supplier_remarks' => $request->supplier_remarks,
+                'status' => $request->status,
+                'type' => $request->type,
+            ]);
+            PurchaseRequisitions::where('id', $request->reference_number)->update(['status' => 'Created PO']);
+            // Get Item PR
+            $dataItemPR = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $request->reference_number)->get();
+            foreach($dataItemPR as $item){
+                PurchaseOrderDetails::create([
+                    'id_purchase_orders' => $storeData->id,
+                    'type_product' => $item->type_product,
+                    'master_products_id' => $item->master_products_id,
+                    'qty' => $item->qty,
+                    'master_units_id' => $item->master_units_id,
+                ]);
+            }
+
+            // Audit Log
+            $this->auditLogsShort('Tambah Purchase Order ID : ('.$storeData->id.')');
+            DB::commit();
+            return redirect()->route('po.edit', encrypt($storeData->id))->with(['success' => 'Berhasil Tambah Data PO, Silahkan Tambahkan / Update Item Produk']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Gagal Tambah Data PO!']);
+        }
+    }
+    public function editPO($id)
+    {
+        $id = decrypt($id);
+        $data = PurchaseOrders::select('purchase_orders.*', 'purchase_requisitions.request_number', 'master_suppliers.name')
+            ->leftJoin('purchase_requisitions', 'purchase_orders.reference_number', 'purchase_requisitions.id')
+            ->leftJoin('master_suppliers', 'purchase_orders.id_master_suppliers', 'master_suppliers.id')
+            ->where('purchase_orders.id', $id)
+            ->first();
+
+        // Dropdown
+        $reference_number = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->orWhere('id', $data->reference_number)->get();
+        $suppliers = MstSupplier::get();
+
+        $currency = MstCurrencies::get();
+        $units = MstUnits::get();
+        if($data->type == 'RM'){
+            $products = MstRawMaterial::select('id', 'description')->get();
+        } elseif($data->type == 'WIP'){
+            $products = MstWip::select('id', 'description')->get();
+        } elseif($data->type == 'FG'){
+            $products = MstProductFG::select('id', 'description', 'perforasi', 'group_sub_code')->get();
+        } elseif($data->type == 'TA'){
+            $products = MstToolAux::select('id', 'description')->where('type', '!=', 'Other')->get();
+        } elseif($data->type == 'Other'){
+            $products = MstToolAux::select('id', 'description')->where('type', 'Other')->get();
+        } else {
+            $products = [];
+        }
+
+        $itemDatas = PurchaseOrderDetails::select(
+            'purchase_order_details.*',
+            'master_units.unit',
+            'master_units.unit_code',
+            DB::raw('
+                CASE 
+                    WHEN purchase_order_details.type_product = "RM" THEN master_raw_materials.description 
+                    WHEN purchase_order_details.type_product = "WIP" THEN master_wips.description 
+                    WHEN purchase_order_details.type_product = "FG" THEN master_product_fgs.description 
+                    WHEN purchase_order_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.description 
+                END as product_desc')
+        )
+            ->leftJoin('master_raw_materials', function ($join) {
+                $join->on('purchase_order_details.master_products_id', '=', 'master_raw_materials.id')
+                    ->on('purchase_order_details.type_product', '=', DB::raw('"RM"'));
+            })
+            ->leftJoin('master_wips', function ($join) {
+                $join->on('purchase_order_details.master_products_id', '=', 'master_wips.id')
+                    ->on('purchase_order_details.type_product', '=', DB::raw('"WIP"'));
+            })
+            ->leftJoin('master_product_fgs', function ($join) {
+                $join->on('purchase_order_details.master_products_id', '=', 'master_product_fgs.id')
+                    ->on('purchase_order_details.type_product', '=', DB::raw('"FG"'));
+            })
+            ->leftJoin('master_tool_auxiliaries', function ($join) {
+                $join->on('purchase_order_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+                    ->on('purchase_order_details.type_product', '=', DB::raw('"TA"'))
+                    ->orOn('purchase_order_details.type_product', '=', DB::raw('"Other"'));
+            })
+            ->leftJoin('master_units', 'purchase_order_details.master_units_id', '=', 'master_units.id')
+            ->where('purchase_order_details.id_purchase_orders', $id)
+            ->orderBy('purchase_order_details.created_at')
+            ->get();
+
+        //Audit Log
+        $this->auditLogsShort('View Edit Purchase Order ID : (' . $id . ')');
+
+        return view('purchase-order.edit', compact(
+            'reference_number',
+            'suppliers',
+            'currency',
+            'units',
+            'products',
+            'data',
+            'itemDatas'
+        ));
+    }
+    public function updatePO(Request $request, $id)
+    {
+        $id = decrypt($id);
+        $request->validate([
+            'po_number' => 'required',
+            'date' => 'required',
+            'reference_number' => 'required',
+            'id_master_suppliers' => 'required',
+            'qc_check' => 'required',
+            'down_payment' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+        ], [
+            'po_number.required' => 'PO Number masih kosong.',
+            'date.required' => 'Date masih kosong.',
+            'reference_number.required' => 'Reference Number harus diisi.',
+            'id_master_suppliers.required' => 'Suppliers harus diisi.',
+            'qc_check.required' => 'QC Check harus diisi.',
+            'down_payment.required' => 'Down Payment harus diisi.',
+            'status.required' => 'Status masih kosong.',
+            'type.required' => 'Type masih kosong.',
+        ]);
+        // Compare With Data Before
+        $dataBefore = PurchaseOrders::where('id', $id)->first();
+        $changeRefNumber = $dataBefore->reference_number != $request->reference_number;
+
+        $dataBefore->date = $request->date;
+        $dataBefore->delivery_date = $request->delivery_date;
+        $dataBefore->reference_number = $request->reference_number;
+        $dataBefore->id_master_suppliers = $request->id_master_suppliers;
+        $dataBefore->qc_check = $request->qc_check;
+        $dataBefore->down_payment = $request->down_payment;
+        $dataBefore->own_remarks = $request->own_remarks;
+        $dataBefore->supplier_remarks = $request->supplier_remarks;
+        $dataBefore->status = $request->status;
+        $dataBefore->type = $request->type;
+
+        if($dataBefore->isDirty()){
+            DB::beginTransaction();
+            try{
+                // Update ITEM
+                PurchaseOrders::where('id', $id)->update([
+                    'date' => $request->date,
+                    'delivery_date' => $request->delivery_date,
+                    'reference_number' => $request->reference_number,
+                    'id_master_suppliers' => $request->id_master_suppliers,
+                    'qc_check' => $request->qc_check,
+                    'down_payment' => $request->down_payment,
+                    'own_remarks' => $request->own_remarks,
+                    'supplier_remarks' => $request->supplier_remarks,
+                    'status' => $request->status,
+                    'type' => $request->type,
+                ]);
+
+                //IF Ref Number Change
+                if($changeRefNumber){
+                    //Rollback Status PR Before
+                    PurchaseRequisitions::where('id', $request->reference_number_before)->update(['status' => 'Posted']);
+                    //Update Status PR After
+                    PurchaseRequisitions::where('id', $request->reference_number)->update(['status' => 'Created PO']);
+                    //Delete PO Detail Before
+                    PurchaseOrderDetails::where('id_purchase_orders', $id)->delete();
+                    //Get Item PR After
+                    $dataItemPR = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $request->reference_number)->get();
+                    foreach($dataItemPR as $item){
+                        PurchaseOrderDetails::create([
+                            'id_purchase_orders' => $id,
+                            'type_product' => $item->type_product,
+                            'master_products_id' => $item->master_products_id,
+                            'qty' => $item->qty,
+                            'master_units_id' => $item->master_units_id,
+                        ]);
+                    }
+                }
+    
+                // Audit Log
+                $this->auditLogsShort('Update Data PO ID ('. $id . ')');
+    
+                DB::commit();
+                return redirect()->back()->with(['success' => 'Berhasil Perbaharui Data PO']);
+            } catch (Exception $e) {
+                DB::rollback();
+                return redirect()->back()->with(['fail' => 'Gagal Perbaharui Data PO!']);
+            }
+        } else {
+            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     public function indexOld(Request $request)
     {
         // $datas = PurchaseRequisitions::leftJoin('master_suppliers as b', 'purchase_requisitions.id_master_suppliers', '=', 'b.id')
@@ -511,6 +1036,7 @@ class PurchaseController extends Controller
 
         return view('purchase.purchase_purchase_cari', compact('datas'));
     }
+
     // Fungsi untuk mengonversi bulan dalam format angka menjadi format romawi
     private function romanMonth($month)
     {
@@ -2799,11 +3325,6 @@ class PurchaseController extends Controller
 
         return Redirect::to('/purchase-order')->with('pesan', 'Data berhasil diupdate.');
     }
-
-    public function indexPO(Request $request)
-    {
-        
-    }
     public function edit_po($id)
     {
         // Dropdown
@@ -2874,71 +3395,6 @@ class PurchaseController extends Controller
             'data',
             'itemDatas'
         ));
-    }
-    public function updatePO(Request $request, $id)
-    {
-        $id = decrypt($id);
-        $request->validate([
-            'po_number' => 'required',
-            'date' => 'required',
-            'reference_number' => 'required',
-            'id_master_suppliers' => 'required',
-            'qc_check' => 'required',
-            'down_payment' => 'required',
-            'status' => 'required',
-            'type' => 'required',
-        ], [
-            'po_number.required' => 'PO Number masih kosong.',
-            'date.required' => 'Date masih kosong.',
-            'reference_number.required' => 'Reference Number harus diisi.',
-            'id_master_suppliers.required' => 'Suppliers harus diisi.',
-            'qc_check.required' => 'QC Check harus diisi.',
-            'down_payment.required' => 'Down Payment harus diisi.',
-            'status.required' => 'Status masih kosong.',
-            'type.required' => 'Type masih kosong.',
-        ]);
-        // Compare With Data Before
-        $dataBefore = PurchaseOrders::where('id', $id)->first();
-        $dataBefore->date = $request->date;
-        $dataBefore->delivery_date = $request->delivery_date;
-        $dataBefore->reference_number = $request->reference_number;
-        $dataBefore->id_master_suppliers = $request->id_master_suppliers;
-        $dataBefore->qc_check = $request->qc_check;
-        $dataBefore->down_payment = $request->down_payment;
-        $dataBefore->own_remarks = $request->own_remarks;
-        $dataBefore->supplier_remarks = $request->supplier_remarks;
-        $dataBefore->status = $request->status;
-        $dataBefore->type = $request->type;
-
-        if($dataBefore->isDirty()){
-            DB::beginTransaction();
-            try{
-                // Update ITEM
-                PurchaseOrders::where('id', $id)->update([
-                    'date' => $request->date,
-                    'delivery_date' => $request->delivery_date,
-                    'reference_number' => $request->reference_number,
-                    'id_master_suppliers' => $request->id_master_suppliers,
-                    'qc_check' => $request->qc_check,
-                    'down_payment' => $request->down_payment,
-                    'own_remarks' => $request->own_remarks,
-                    'supplier_remarks' => $request->supplier_remarks,
-                    'status' => $request->status,
-                    'type' => $request->type,
-                ]);
-    
-                // Audit Log
-                $this->auditLogsShort('Update Data PO ID ('. $id . ')');
-    
-                DB::commit();
-                return redirect()->back()->with(['success' => 'Berhasil Perbaharui Data PO']);
-            } catch (Exception $e) {
-                DB::rollback();
-                return redirect()->back()->with(['fail' => 'Gagal Perbaharui Data PO!']);
-            }
-        } else {
-            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
-        }
     }
     public function addItemPO(Request $request, $id)
     {

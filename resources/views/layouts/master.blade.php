@@ -160,7 +160,7 @@
                             @endcan
                             @can('Purchasing_Item')
                             <li>
-                                <a href="/purchase-requisition-items">
+                                <a href="{{ route('pr.indexItem') }}">
                                     <i class="mdi mdi-file-document-multiple"></i>
                                     <span><small>Purchase Requisition Items</small></span>
                                 </a>
@@ -170,7 +170,8 @@
                             <li class="menu-title" data-key="t-menu">Purchase Order (PO)</li>
                             @can('Purchasing_Order')
                             <li>
-                                <a href="/purchase-order">
+                                {{-- <a href="/purchase-order"> --}}
+                                <a href="{{ route('po.index') }}">
                                     <i class="mdi mdi-file-check"></i>
                                     <span><small>Purchase Order</small></span>
                                 </a>
