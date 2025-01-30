@@ -52,7 +52,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">
                             Reference Number (PR)
-                            <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai PR."></i>
+                            <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
                         </label>
                         <div class="col-sm-9">
                             <select class="form-select data-select2" name="reference_number" id="reference_number" required>
@@ -83,8 +83,12 @@
                                         success: function(response) {
                                             if (response.success) {
                                                 $('select[name="id_master_suppliers"]').val(response.data.id_master_suppliers).trigger('change');
-                                                $('input[name="qc_check"]').val(response.data.qc_check);
                                                 $('input[name="type"]').val(response.data.type);
+                                                if (response.data.qc_check === 'Y') {
+                                                    $('#qc_check_Y').prop('checked', true);
+                                                } else if (response.data.qc_check === 'N') {
+                                                    $('#qc_check_N').prop('checked', true);
+                                                }
                                             } else {
                                                 alert('No data found for this reference number.');
                                             }
@@ -95,24 +99,11 @@
                                     });
                                 } else {
                                     $('select[name="id_master_suppliers"]').val('');
-                                    $('input[name="qc_check"]').val('');
                                     $('input[name="type"]').val('');
                                 }
                             });
                         });
                     </script>
-                    
-                    {{-- <div class="row mb-4 field-wrapper required-field">
-                        <label for="horizontal-password-input" class="col-sm-3 col-form-label">Reference Number (PR) </label>
-                        <div class="col-sm-9">
-                            <select class="form-select data-select2" name="reference_number" id="" required>
-                                <option value="">Pilih Reference Number</option>
-                                @foreach ($reference_number as $item)
-                                    <option value="{{ $item->id }}" {{ $item->id == $data->reference_number ? 'selected' : '' }}>{{ $item->request_number }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div> --}}
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier </label>
                         <div class="col-sm-9">
@@ -136,7 +127,9 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Down Payment </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" value="{{ $data->down_payment }}" required>
+                            <input type="text" class="form-control number-format" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" 
+                                value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '' }}" 
+                                required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
@@ -188,13 +181,12 @@
                 <a href="" class="btn btn-info waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addProduct">
                     <i class="mdi mdi-plus label-icon"></i> Tambah Product <b>"{{ $data->type }}"</b>
                 </a>
-                <table id="datatableCustom" class="table table-bordered dt-responsive nowrap w-100">
+                <table class="table table-bordered dt-responsive w-100" style="font-size: small" id="tableItem">
                     <thead>
                         <tr>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">No.</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Product</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
-                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Units</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Note</th>
@@ -213,38 +205,55 @@
                         @foreach ($itemDatas as $item)
                             <tr>
                                 <td class="align-top text-center"><b>{{ $loop->iteration }}</b></td>
-                                <td class="align-middle">
+                                <td class="align-top">
                                     <b>{{ $item->type_product }}</b>
                                     <br>{!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->product_desc), 10))) !!}  {{-- max 10 word one line --}}
                                 </td>
-                                <td class="text-center">{{ $item->qty }}</td>
-                                <td class="align-top">{{ $item->unit_code }}</td>
+                                <td class="text-center">
+                                    <b>{{ $item->qty }}</b>
+                                    <br>({{ $item->unit_code }})
+                                </td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
-                                <td class="text-end">{{ $item->price && $item->price != 0 ? number_format($item->price, 3, ',', '.') : '0' }}</td>
-                                <td class="text-end">{{ $item->sub_total && $item->sub_total != 0 ? number_format($item->sub_total, 3, ',', '.') : '0' }}</td>
-                                <td class="text-end">{{ $item->discount && $item->discount != 0 ? number_format($item->discount, 3, ',', '.') : '0' }}</td>
-                                <td class="text-end">{{ $item->amount && $item->amount != 0 ? number_format($item->amount, 3, ',', '.') : '0' }}</td>
+                                <td class="text-end">
+                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
+                                </td>
+                                <td class="text-end">
+                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
+                                </td>
+                                <td class="text-end">
+                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
+                                </td>
+                                <td class="text-end">
+                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}
+                                </td>
                                 <td class="text-end">
                                     @if($item->tax == 'N')
                                         <b>N</b>
                                     @elseif($item->tax == null)
                                         0
                                     @else
-                                        {{ $item->tax_value && $item->tax_value != 0 ? number_format($item->tax_value, 3, ',', '.') : '0' }}
-                                        <br><span class="badge bg-info" title="{{ $item->tax_rate }}% Dari {{ $item->amount && $item->amount != 0 ? number_format($item->amount, 3, ',', '.') : '0' }}">({{ $item->tax_rate }}%)</span>
+                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 3, ',', '.')) : '0' }}
+                                        <br><span class="badge bg-info" 
+                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}">
+                                            ({{ $item->tax_rate }}%)
+                                        </span>
                                     @endif
                                 </td>
-                                <td class="text-end">{{ $item->total_amount && $item->total_amount != 0 ? number_format($item->total_amount, 3, ',', '.') : '0' }}</td>
+                                <td class="text-end">
+                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 3, ',', '.')) : '0' }}
+                                </td>
                                 <td>
-                                    {!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->note), 10))) !!}  {{-- max 10 word one line --}}
+                                    <span title="{{ strlen($item->note) > 70 ? $item->note : '' }}">
+                                      {{ strlen($item->note) > 70 ? substr($item->note, 0, 70) . '...' : $item->note }}
+                                    </span>
                                 </td>
                                 <td class="align-top text-center">
-                                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
+                                    <a href="{{ route('po.editItem', encrypt($item->id)) }}">
+                                        <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
+                                    </a>
+                                    <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
                                         <i class="bx bx-trash-alt" title="Hapus Data"></i>
                                     </button>
-                                    <a href="{{ route('edit_po_item', encrypt($item->id)) }}">
-                                        <button type="button" class="btn btn-sm btn-info"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
-                                    </a>
                                 </td>
                             </tr>
                             {{-- Modal Delete --}}
@@ -255,7 +264,7 @@
                                             <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <form action="{{ route('deleteItemPO', encrypt($item->id)) }}" method="POST" enctype="multipart/form-data" id="formDelete{{ $item->id }}">
+                                        <form action="{{ route('po.deleteItem', encrypt($item->id)) }}" method="POST" enctype="multipart/form-data" id="formDelete{{ $item->id }}">
                                             @csrf
                                             <input type="hidden" name="id_purchase_orders" value="{{ $item->id_purchase_orders }}">
                                             <div class="modal-body p-4">
@@ -284,21 +293,32 @@
                                 </div>
                             </div>
                         @endforeach
+                        @if(!$itemDatas->isEmpty())
                         <tr>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;" class="text-end"><b>Total</b></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
-                            <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->sub_total && $data->sub_total != 0 ? number_format($data->sub_total, 3, ',', '.') : '0' }}</td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_discount && $data->total_discount != 0 ? number_format($data->total_discount, 3, ',', '.') : '0' }}</td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_sub_amount && $data->total_sub_amount != 0 ? number_format($data->total_sub_amount, 3, ',', '.') : '0' }}</td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">{{ $data->total_ppn && $data->total_ppn != 0 ? number_format($data->total_ppn, 3, ',', '.') : '0' }}</td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end"><b>{{ $data->total_amount && $data->total_amount != 0 ? number_format($data->total_amount, 3, ',', '.') : '0' }}</b></td>
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">
+                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
+                            </td>
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">
+                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }}
+                            </td>
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">
+                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }}
+                            </td>
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">
+                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }}
+                            </td>
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end fw-bold">
+                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
+                            </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
                         </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -311,7 +331,7 @@
                             <h5 class="modal-title" id="staticBackdropLabel">Tambah Product <b>"{{ $data->type }}"</b></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form class="formLoad" action="{{ route('addItemPO', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                        <form class="formLoad" action="{{ route('po.storeItem', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="id_purchase_orders" value="{{ $data->id }}">
                             <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
@@ -340,7 +360,7 @@
                                     <div class="row mb-2 field-wrapper required-field">
                                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                         <div class="col-sm-9">
-                                            <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}" required>
+                                            <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="" required>
                                         </div>
                                     </div>
                                     <div class="row mb-2 field-wrapper required-field">
@@ -369,17 +389,18 @@
                                             </select>
                                         </div>
                                     </div>
+                                    
                                     <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
+                                        <label class="col-sm-3 col-form-label">Price </label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control rupiah-input" placeholder="Masukkan Price.." name="price" id="price" value="" required>
+                                            <input type="text" class="form-control number-format" placeholder="Masukkan Price.." name="price" id="price" value="" required>
                                         </div>
                                     </div>
                                     <div class="row mb-2 field-wrapper required-field">
                                         <label class="col-sm-3 col-form-label">Sub Total</label>
                                         <div class="col-sm-9">
                                             <div class="input-group mb-3">
-                                                <input type="text" class="form-control custom-bg-gray" placeholder="Sub Total.. (Terisi Otomatis)" name="subTotal" id="subTotal" readonly>
+                                                <input type="text" class="form-control custom-bg-gray" placeholder="Sub Total.. (Terisi Otomatis)" value="" name="sub_total" id="sub_total" readonly>
                                                 <span class="input-group-text">(Qty * Price)</span>
                                             </div>
                                         </div>
@@ -387,9 +408,9 @@
                                     <br><br>
         
                                     <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
+                                        <label class="col-sm-3 col-form-label">Discount </label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control rupiah-input" placeholder="Masukkan Discount.." name="discount" id="discount" value="" required>
+                                            <input type="text" class="form-control number-format" placeholder="Masukkan Discount.." name="discount" id="discount" value="" required>
                                         </div>
                                     </div>
                                     <div class="row mb-2 field-wrapper required-field">
@@ -419,7 +440,7 @@
                                         </div>
                                     </div>
                                     <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax Value </label>
+                                        <label class="col-sm-3 col-form-label">Tax Value </label>
                                         <div class="col-sm-9">
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control custom-bg-gray" placeholder="Tax Value.. (Terisi Otomatis)" name="tax_value" id="tax_value" value="" readonly>
@@ -428,9 +449,9 @@
                                         </div>
                                     </div>
                                     <br><br>
-        
+
                                     <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Total Amount </label>
+                                        <label class="col-sm-3 col-form-label">Total Amount </label>
                                         <div class="col-sm-9">
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control custom-bg-gray" placeholder="Total Amount.. (Terisi Otomatis)" name="total_amount" id="total_amount" value="" readonly>
@@ -461,22 +482,24 @@
     </div>
 </div>
 
-
 <script>
     function formatPrice(value) {
         let num = parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
         return num;
     }
     function formatPriceDisplay(value) {
-        return value.toFixed(3).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        let formatted = value.toFixed(3).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        if (formatted.endsWith(',000')) {
+            formatted = formatted.slice(0, -4);
+        }
+        return formatted;
     }
-
     function calculateSubTotal() {
         let qty = parseFloat($('#qty').val()) || 0;
         let price = formatPrice($('#price').val()) || 0;
         let subTotal = qty * price;
         subTotal = Math.round(subTotal * 1000) / 1000; // Round to 3 decimal places
-        $('#subTotal').val(formatPriceDisplay(subTotal));
+        $('#sub_total').val(formatPriceDisplay(subTotal));
         calculateAmount();
         calculateTotalAmount();
     }
@@ -485,7 +508,7 @@
     });
 
     function calculateAmount() {
-        let subTotal = formatPrice($('#subTotal').val()) || 0;
+        let subTotal = formatPrice($('#sub_total').val()) || 0;
         let disc = formatPrice($('#discount').val()) || 0; 
         let amount = subTotal - disc;
         amount = Math.round(amount * 1000) / 1000;

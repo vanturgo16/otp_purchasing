@@ -270,17 +270,4 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        var scrollTo = "{{ session('scrollTo') }}";
-        if (scrollTo) {
-            var element = $("#" + scrollTo);
-            if (element.length) {
-                $('html, body').animate({
-                    scrollTop: element.offset().top
-                }, 1500);
-            }
-        }
-    });
-</script>
 @endsection

@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    @if(($data->status != 'Posted') && ($data->status != 'Created PO'))
+    @if(($data->status != 'Posted') && ($data->status != 'Created PO') && ($data->status != 'Closed'))
         <div class="watermark">DRAFT</div>
     @endif
     

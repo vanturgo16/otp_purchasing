@@ -169,8 +169,7 @@
                             
                             <li class="menu-title" data-key="t-menu">Purchase Order (PO)</li>
                             @can('Purchasing_Order')
-                            <li>
-                                {{-- <a href="/purchase-order"> --}}
+                            <li class="{{ request()->is('purchase_orders/*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('po.index') }}">
                                     <i class="mdi mdi-file-check"></i>
                                     <span><small>Purchase Order</small></span>
@@ -544,6 +543,39 @@
         document.querySelectorAll(".rupiah-input").forEach((input) => {
             input.addEventListener("input", formatCurrencyInput);
         });
+    });
+</script>
+
+<script>
+    function formatNumberInput(event) {
+        let input = event.target;
+        let value = input.value.replace(/[^0-9,.]/g, "");
+        value = value.replace(/\./g, "");
+        let parts = value.split(",");
+        let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        if (parts.length > 1) {
+            let decimalPart = parts[1].substring(0, 3); // Limit to 3 decimal places
+            input.value = integerPart + "," + decimalPart;
+        } else {
+            input.value = integerPart;
+        }
+    }
+    document.querySelectorAll(".number-format").forEach(input => {
+        input.addEventListener("input", formatNumberInput);
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        var scrollTo = "{{ session('scrollTo') }}";
+        if (scrollTo) {
+            var element = $("#" + scrollTo);
+            if (element.length) {
+                $('html, body').animate({
+                    scrollTop: element.offset().top
+                }, 1500);
+            }
+        }
     });
 </script>
 <script>

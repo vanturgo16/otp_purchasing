@@ -53,7 +53,7 @@
                                             <div class="row mb-4 field-wrapper required-field">
                                                 <label class="col-sm-3 col-form-label">Reference Number (PR) </label>
                                                 <div class="col-sm-9">
-                                                    <select class="form-select data-select2" name="reference_number" id="" required>
+                                                    <select class="form-select data-select2" name="reference_number" id="" style="width: 100%" required>
                                                         <option value="">Pilih Reference Number</option>
                                                         @foreach ($postedPRs as $item)
                                                             <option value="{{ $item->id }}">{{ $item->request_number }}</option>
@@ -64,7 +64,7 @@
                                             <div class="row mb-4 field-wrapper required-field">
                                                 <label class="col-sm-3 col-form-label">Supplier</label>
                                                 <div class="col-sm-9">
-                                                    <select class="form-select data-select2" name="id_master_suppliers" id="" required>
+                                                    <select class="form-select data-select2" name="id_master_suppliers" id="" style="width: 100%" required>
                                                         <option value="">Pilih Suppliers</option>
                                                         @foreach ($suppliers as $item)
                                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -81,7 +81,7 @@
                                             <div class="row mb-4 field-wrapper required-field">
                                                 <label class="col-sm-3 col-form-label">Down Payment </label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" class="form-control" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" value="0" required>
+                                                    <input type="text" class="form-control number-format" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" value="0" required>
                                                 </div>
                                             </div>
                                             <div class="row mb-4 field-wrapper">
@@ -233,13 +233,39 @@
                     data: 'down_payment',
                     name: 'down_payment',
                     orderable: true,
-                    className: 'align-top'
+                    className: 'align-top text-center',
+                    render: function(data, type, row) {
+                        if (data) {
+                            let parts = data.split('.');
+                            let integerPart = parts[0];
+                            let decimalPart = parts[1] || '';
+                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                            if (decimalPart) {
+                                return `${integerPart},${decimalPart}`;
+                            }
+                            return integerPart;
+                        }
+                        return '';
+                    }
                 },
                 {
                     data: 'total_amount',
                     name: 'total_amount',
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-center',
+                    render: function(data, type, row) {
+                        if (data) {
+                            let parts = data.split('.');
+                            let integerPart = parts[0];
+                            let decimalPart = parts[1] || '';
+                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                            if (decimalPart) {
+                                return `${integerPart},${decimalPart}`;
+                            }
+                            return integerPart;
+                        }
+                        return '';
+                    }
                 },
                 {
                     data: 'qc_check',
@@ -253,7 +279,7 @@
                     name: 'type',
                     orderable: true,
                     searchable: true,
-                    className: 'align-top text-center'
+                    className: 'align-top text-center fw-bold'
                 },
                 {
                     data: 'count',

@@ -22,7 +22,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('pr.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('po.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body p-4">
                         <div class="text-center">
@@ -48,7 +48,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Posted</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('pr.posted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('po.posted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body p-4">
                         <div class="text-center">
@@ -90,10 +90,10 @@
 
 
 @if(in_array($data->status, ['Request', 'Posted', 'Un Posted', 'Closed']))
-    <a href="{{ route('pr.print', ['lang' => 'en', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+    <a href="{{ route('po.print', ['lang' => 'en', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
         <i class="bx bx-printer" title="Print in English"></i>
     </a>
-    <a href="{{ route('pr.print', ['lang' => 'idn', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
+    <a href="{{ route('po.print', ['lang' => 'idn', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
         <i class="bx bx-printer" title="Cetak dalam Indonesia"></i>
     </a>
 @endif
@@ -111,7 +111,7 @@
                         <h5 class="modal-title" id="staticBackdropLabel">Un-Posted</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{ route('pr.unposted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('po.unposted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body p-4">
                             <div class="text-center">
