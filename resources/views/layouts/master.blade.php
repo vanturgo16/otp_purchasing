@@ -23,10 +23,21 @@
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     {{-- Custom --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.2.2/css/fixedColumns.dataTables.min.css">
-    <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css" />
     {{-- Jquery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <style> 
+        div.field-wrapper label {
+            text-align: right;
+            padding-right: 50px
+        }
+
+        div.required-field label::after {
+            content: " *";
+            color: red;
+        }
+    </style>
 </head>
 
 
@@ -39,7 +50,7 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="index.html" class="logo logo-dark">
+                        <a href="https://sso.olefinatifaplas.my.id/menu" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/icon-otp.png') }}" alt="" height="30">
                             </span>
@@ -48,7 +59,7 @@
                             </span>
                         </a>
 
-                        <a href="index.html" class="logo logo-light">
+                        <a href="https://sso.olefinatifaplas.my.id/menu" class="logo logo-light">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/icon-otp.png') }}" alt="" height="30">
                             </span>
@@ -138,25 +149,52 @@
                             </a>
                         </li>
                         @can('Purchasing')
+                            <li class="menu-title" data-key="t-menu">Purchase Requisition (PR)</li>
+                            @can('Purchasing_Requisition')
+                            <li class="{{ request()->is('purchase_requisition/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('pr.index') }}">
+                                    <i class="mdi mdi-file-export"></i>
+                                    <span><small>Purchase Requisition</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            @can('Purchasing_Item')
+                            <li>
+                                <a href="{{ route('pr.indexItem') }}">
+                                    <i class="mdi mdi-file-document-multiple"></i>
+                                    <span><small>Purchase Requisition Items</small></span>
+                                </a>
+                            </li>
+                            @endcan
                             
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow">
-                            <i class="mdi mdi-file-alert"></i>
-                                <span data-key="t-blog">Purchasing</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                @can('Purchasing_Requisition')
-                                <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
-                                @endcan
+                            <li class="menu-title" data-key="t-menu">Purchase Order (PO)</li>
+                            @can('Purchasing_Order')
+                            <li class="{{ request()->is('purchase_orders/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('po.index') }}">
+                                    <i class="mdi mdi-file-check"></i>
+                                    <span><small>Purchase Order</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            
+                            {{-- <li>
+                                <a href="javascript: void(0);" class="has-arrow">
+                                <i class="mdi mdi-file-alert"></i>
+                                    <span data-key="t-blog">Purchasing</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    @can('Purchasing_Requisition')
+                                    <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
+                                    @endcan
 
-                                @can('Purchasing_Item')
-                                <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
-                                @endcan
-                                @can('Purchasing_Order')
-                                <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
-                                @endcan
-                            </ul>
-                        </li>
+                                    @can('Purchasing_Item')
+                                    <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
+                                    @endcan
+                                    @can('Purchasing_Order')
+                                    <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
+                                    @endcan
+                                </ul>
+                            </li> --}}
                         @endcan 
                         
 
@@ -477,6 +515,14 @@
             rightColumns: 1 // Freeze last column (Aksi)
         }
     });
+    $('#tableItem').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        lengthChange: false,
+        responsive: true,
+        ordering: false,
+    });
 
     // Format Rupiah
     function formatCurrencyInput(event) {
@@ -497,6 +543,39 @@
         document.querySelectorAll(".rupiah-input").forEach((input) => {
             input.addEventListener("input", formatCurrencyInput);
         });
+    });
+</script>
+
+<script>
+    function formatNumberInput(event) {
+        let input = event.target;
+        let value = input.value.replace(/[^0-9,.]/g, "");
+        value = value.replace(/\./g, "");
+        let parts = value.split(",");
+        let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        if (parts.length > 1) {
+            let decimalPart = parts[1].substring(0, 3); // Limit to 3 decimal places
+            input.value = integerPart + "," + decimalPart;
+        } else {
+            input.value = integerPart;
+        }
+    }
+    document.querySelectorAll(".number-format").forEach(input => {
+        input.addEventListener("input", formatNumberInput);
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        var scrollTo = "{{ session('scrollTo') }}";
+        if (scrollTo) {
+            var element = $("#" + scrollTo);
+            if (element.length) {
+                $('html, body').animate({
+                    scrollTop: element.offset().top
+                }, 1500);
+            }
+        }
     });
 </script>
 <script>
