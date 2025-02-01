@@ -3,7 +3,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -21,7 +20,7 @@
                 </div>
             </div>
         </div>
-
+        @include('layouts.alert')
         {{-- DATA PO --}}
         <div class="card">
             <div class="card-header">
@@ -349,7 +348,10 @@
                                                 <option value="">Pilih Product {{ $data->type }}</option>
                                                 @foreach ($products as $item)
                                                     <option value="{{ $item->id }}">{{ $item->description }}
-                                                        @if($data->type == 'FG')  || {{ $item->perforasi }} || Group Sub :{{ $item->group_sub_code }} @endif
+                                                        @if($data->type == 'FG')
+                                                            @if(!empty($item->perforasi)) || {{ $item->perforasi }} @endif
+                                                            @if(!empty($item->group_sub_code)) || Group Sub: {{ $item->group_sub_code }} @endif
+                                                        @endif
                                                     </option>
                                                 @endforeach
                                             </select>

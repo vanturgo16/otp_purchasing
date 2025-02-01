@@ -3,7 +3,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -21,7 +20,7 @@
                 </div>
             </div>
         </div>
-
+        @include('layouts.alert')
         {{-- FORM PR --}}
         <div class="card">
             <div class="card-header">
