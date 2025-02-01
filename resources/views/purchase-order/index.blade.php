@@ -64,8 +64,8 @@
                                             <div class="row mb-4 field-wrapper required-field">
                                                 <label class="col-sm-3 col-form-label">Supplier</label>
                                                 <div class="col-sm-9">
-                                                    <select class="form-select data-select2" name="id_master_suppliers" id="" style="width: 100%" required>
-                                                        <option value="">Pilih Suppliers</option>
+                                                    <select class="form-select data-select2 readonly-select2" name="id_master_suppliers" id="" style="width: 100%" required readonly>
+                                                        <option value="">Otomatis Terisi..</option>
                                                         @foreach ($suppliers as $item)
                                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                         @endforeach
@@ -76,6 +76,18 @@
                                                 <label class="col-sm-3 col-form-label">Qc Check</label>
                                                 <div class="col-sm-9">
                                                     <input type="text" class="form-control custom-bg-gray" name="qc_check" value="" placeholder="Otomatis Terisi.." readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Status </label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control custom-bg-gray" name="status" value="Request" readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Type </label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control custom-bg-gray" name="type" value="" placeholder="Otomatis Terisi.." readonly required>
                                                 </div>
                                             </div>
                                             <div class="row mb-4 field-wrapper required-field">
@@ -94,18 +106,6 @@
                                                 <label class="col-sm-3 col-form-label">Supplier Remarks </label>
                                                 <div class="col-sm-9">
                                                     <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-4 field-wrapper required-field">
-                                                <label class="col-sm-3 col-form-label">Status </label>
-                                                <div class="col-sm-9">
-                                                    <input type="text" class="form-control custom-bg-gray" name="status" value="Request" readonly required>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-4 field-wrapper required-field">
-                                                <label class="col-sm-3 col-form-label">Type </label>
-                                                <div class="col-sm-9">
-                                                    <input type="text" class="form-control custom-bg-gray" name="type" value="" placeholder="Otomatis Terisi.." readonly required>
                                                 </div>
                                             </div>
                                         </div>
@@ -300,10 +300,12 @@
                     orderable: true,
                     searchable: true,
                     className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        let badgeColor = data === 'Request' ? 'secondary' : 
-                                        data === 'Un Posted' ? 'warning' : 'success';
-                        return `<span class="badge bg-${badgeColor}" style="font-size: smaller; width: 100%">${data}</span>`;
+                    render: function(data) {
+                        const badgeColor = data === 'Closed' ? 'success' : 
+                                        (data === 'Request' ? 'secondary' : 
+                                        (data === 'Un Posted' ? 'warning' : 'success'));
+                        const icon = data === 'Closed' ? '<i class="bx bx-check-circle"></i>' : '';
+                        return `<span class="badge bg-${badgeColor}" style="font-size: smaller; width: 100%">${icon} ${data}</span>`;
                     },
                 },
                 {
@@ -317,14 +319,18 @@
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
                 let darkColor = '#FAFAFA';
-                if (data.status === 'Posted') {
+                if (['Posted'].includes(data.status)) {
                     bgColor = 'table-success';
                     darkColor = '#CFEBE0';
                 }
-                if (data.status === 'Request') {
-                    bgColor = 'table-secondary';
-                    darkColor = '#DFE0E3';
+                if (data.status === 'Closed') {
+                    bgColor = 'table-success-closed';
+                    darkColor = '#a6eed1';
                 }
+                // if (data.status === 'Request') {
+                //     bgColor = 'table-secondary';
+                //     darkColor = '#DFE0E3';
+                // }
                 if (bgColor) {
                     $(row).addClass(bgColor);
                 }

@@ -37,19 +37,19 @@
         <table class="mb-3">
             <tbody>
                 <tr>
-                    <td>Request No.</td>
-                    <td style="padding-left: 15px;">:</td>
-                    <td>{{ $data->request_number }}</td>
+                    <td class="align-top">Request No.</td>
+                    <td class="align-top" style="padding-left: 15px;">:</td>
+                    <td class="align-top">{{ $data->request_number }}</td>
                 </tr>
                 <tr>
-                    <td>Request Date</td>
-                    <td style="padding-left: 15px;">:</td>
-                    <td>{{ $data->date }}</td>
+                    <td class="align-top">Request Date</td>
+                    <td class="align-top" style="padding-left: 15px;">:</td>
+                    <td class="align-top">{{ $data->date }}</td>
                 </tr>
                 <tr>
-                    <td>Supplier</td>
-                    <td style="padding-left: 15px;">:</td>
-                    <td>{{ $data->name }}</td>
+                    <td class="align-top">Supplier</td>
+                    <td class="align-top" style="padding-left: 15px;">:</td>
+                    <td class="align-top">{{ $data->name }}</td>
                 </tr>
             </tbody>
         </table>
@@ -59,13 +59,13 @@
                 <table class="table table-bordered table-sm mb-10">
                     <thead class="table-light">
                         <tr>
-                            <td class="text-center">No.</td>
-                            <td>Item Code</td>
-                            <td>Description</td>
-                            <td>Qty</td>
-                            <td>Unit</td>
-                            <td>Required</td>
-                            <td>CC/CO</td>
+                            <td class="align-top text-center">No.</td>
+                            <td class="align-top">Item Code</td>
+                            <td class="align-top">Description</td>
+                            <td class="align-top">Qty</td>
+                            <td class="align-top">Unit</td>
+                            <td class="align-top">Required</td>
+                            <td class="align-top">CC/CO</td>
                         </tr>
                     </thead>
                     <tbody>

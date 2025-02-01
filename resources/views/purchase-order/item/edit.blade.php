@@ -40,7 +40,7 @@
                             <div class="row mb-2 field-wrapper required-field">
                                 <label class="col-sm-3 col-form-label">Product {{ $data->type_product }}</label>
                                 <div class="col-sm-9">
-                                    <select class="form-select request_number data-select2" name="master_products_id" required>
+                                    <select class="form-select request_number data-select2 readonly-select2" name="master_products_id" style="width: 100%" required>
                                         <option value="">Pilih Product {{ $data->type_product }}</option>
                                         @foreach ($products as $item)
                                             <option value="{{ $item->id }}" {{ $item->id == $data->master_products_id ? 'selected' : '' }}>{{ $item->description }}
@@ -58,13 +58,13 @@
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                 <div class="col-sm-9">
-                                    <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}" required>
+                                    <input type="number" class="form-control custom-bg-gray" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}" required readonly>
                                 </div>
                             </div>
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                 <div class="col-sm-9">
-                                    <select class="form-select data-select2" name="master_units_id" id="unit_code" style="width: 100%" required>
+                                    <select class="form-select data-select2 readonly-select2" name="master_units_id" id="unit_code" style="width: 100%" required>
                                         <option>Pilih Units</option>
                                         @foreach ($units as $item)
                                             <option value="{{ $item->id }}" @if($data->master_units_id == $item->id) selected @endif>

@@ -67,3 +67,17 @@ input:focus::placeholder {
     margin-top: 0.1rem !important;
     margin-bottom: 0.1rem !important;
 }
+
+.table-success-closed {
+    --bs-table-color: #000;
+    --bs-table-bg: #b4f0d8;
+    --bs-table-border-color: #bfd8ce;
+    --bs-table-striped-bg: #c9e4da;
+    --bs-table-striped-color: #000;
+    --bs-table-active-bg: #bfd8ce;
+    --bs-table-active-color: #000;
+    --bs-table-hover-bg: #c4ded4;
+    --bs-table-hover-color: #000;
+    color: var(--bs-table-color);
+    border-color: var(--bs-table-border-color);
+  }

@@ -1,8 +1,15 @@
+<a href="{{ route('po.print', ['lang' => 'en', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+    <i class="bx bx-printer" title="Print in English"></i>
+</a>
+<a href="{{ route('po.print', ['lang' => 'idn', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
+    <i class="bx bx-printer" title="Cetak dalam Indonesia"></i>
+</a>
+
 @if(in_array($data->status, ['Request', 'Un Posted']))
     <button class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $data->id }}">
         <i class="bx bx-trash-alt" title="Hapus Data"></i>
     </button>
-    <a href="{{ route('po.edit', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+    <a href="{{ route('po.edit', encrypt($data->id)) }}" class="btn btn-sm btn-primary waves-effect waves-light my-half">
         <i class="bx bx-edit-alt" title="Edit Data"></i>
     </a>
     @if($data->count == 0)
@@ -86,16 +93,6 @@
             </div>
         </div>
     </div>
-@endif
-
-
-@if(in_array($data->status, ['Request', 'Posted', 'Un Posted', 'Closed']))
-    <a href="{{ route('po.print', ['lang' => 'en', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
-        <i class="bx bx-printer" title="Print in English"></i>
-    </a>
-    <a href="{{ route('po.print', ['lang' => 'idn', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
-        <i class="bx bx-printer" title="Cetak dalam Indonesia"></i>
-    </a>
 @endif
 
 @if(in_array($data->status, ['Posted']))

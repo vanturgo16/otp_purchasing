@@ -37,19 +37,19 @@
         <table class="mb-3">
             <tbody>
                 <tr>
-                    <td>No. Permintaan</td>
-                    <td style="padding-left: 15px;">:</td>
-                    <td>{{ $data->request_number }}</td>
+                    <td class="align-top">No. Permintaan</td>
+                    <td class="align-top" style="padding-left: 15px;">:</td>
+                    <td class="align-top">{{ $data->request_number }}</td>
                 </tr>
                 <tr>
-                    <td>Permohonan Tanggal</td>
-                    <td style="padding-left: 15px;">:</td>
-                    <td>{{ $data->date }}</td>
+                    <td class="align-top">Permohonan Tanggal</td>
+                    <td class="align-top" style="padding-left: 15px;">:</td>
+                    <td class="align-top">{{ $data->date }}</td>
                 </tr>
                 <tr>
-                    <td>Supplier</td>
-                    <td style="padding-left: 15px;">:</td>
-                    <td>{{ $data->name }}</td>
+                    <td class="align-top">Supplier</td>
+                    <td class="align-top" style="padding-left: 15px;">:</td>
+                    <td class="align-top">{{ $data->name }}</td>
                 </tr>
             </tbody>
         </table>
@@ -59,13 +59,13 @@
                 <table class="table table-bordered table-sm mb-10">
                     <thead class="table-light">
                         <tr>
-                            <td class="text-center">No.</td>
-                            <td>Kode Barang</td>
-                            <td>Keterangan</td>
-                            <td>Jumlah</td>
-                            <td>Satuan</td>
-                            <td>Diperlukan</td>
-                            <td>CC/CO</td>
+                            <td class="align-top text-center">No.</td>
+                            <td class="align-top">Kode Barang</td>
+                            <td class="align-top">Keterangan</td>
+                            <td class="align-top">Jumlah</td>
+                            <td class="align-top">Satuan</td>
+                            <td class="align-top">Diperlukan</td>
+                            <td class="align-top">CC/CO</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +74,7 @@
                                 <td class="align-top text-center">{{ $loop->iteration }}</td>
                                 <td>{{ $item->code }}</td>
                                 <td>
-                                    {{ $item->product_desc }} @if($item->type_product == 'FG') || {{ $item->perforasi }} @endif <br>
+                                    {{ $item->product_desc }} @if($item->type_product == 'FG') @if($item->perforasi) || {{ $item->perforasi }} @endif @endif <br>
                                     {{ $item->remarks }}
                                 </td>
                                 <td>{{ $item->qty }}</td>

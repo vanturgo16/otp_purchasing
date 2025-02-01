@@ -130,7 +130,7 @@
         </div>
 
         <div class="row">
-            <div class="col-5">
+            <div class="col-8">
                 <table class="mb-3">
                     <tbody>
                         <tr>
@@ -156,24 +156,23 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col-4"></div>
-            <div class="col-3">
+            <div class="col-4">
                 <table class="mb-3">
                     <tbody>
                         <tr>
-                            <td>PO.</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>{{ $data->po_number }}</td>
+                            <td class="align-top">PO.</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">{{ $data->po_number }}</td>
                         </tr>
                         <tr>
-                            <td>PR No.</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>{{ $data->request_number }}</td>
+                            <td class="align-top">PR No.</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">{{ $data->request_number }}</td>
                         </tr>
                         <tr>
-                            <td>Date</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>{{ $data->date }}</td>
+                            <td class="align-top">Date</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">{{ $data->date }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -185,15 +184,15 @@
                 <table class="table table-bordered table-sm mb-10">
                     <thead class="table-light">
                         <tr>
-                            <td class="text-center">No.</td>
-                            <td>Description</td>
-                            <td>Qty</td>
-                            <td>Unit</td>
-                            <td>Unit Price</td>
-                            <td>Sub Total</td>
-                            <td>Discount</td>
+                            <td class="align-top text-center">No.</td>
+                            <td class="align-top">Description</td>
+                            <td class="align-top">Qty</td>
+                            <td class="align-top">Unit</td>
+                            <td class="align-top">Unit Price</td>
+                            <td class="align-top">Sub Total</td>
+                            {{-- <td>Discount</td>
                             <td>Tax Value</td>
-                            <td>Total</td>
+                            <td>Total</td> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -212,7 +211,7 @@
                                 <td>
                                     {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
                                 </td>
-                                <td>
+                                {{-- <td>
                                     {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td>
@@ -220,7 +219,7 @@
                                 </td>
                                 <td>
                                     {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 3, ',', '.')) : '0' }}
-                                </td>
+                                </td> --}}
                             </tr>
                         @endforeach
                     </tbody>
@@ -234,7 +233,8 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col-5">
+            <div class="col-8">
+                @if($data->total_amount)
                 <h6>
                     # {{ ucfirst(numberToWords($data->total_amount)) }}
                     @if(isset($itemDatas) && $itemDatas[0]->currency == 'USD')
@@ -243,6 +243,9 @@
                         {{ 'rupiah' }}
                     @endif#
                 </h6>
+                @else
+                    <h6># 0 #</h6>
+                @endif
                 <table class="mb-3">
                     <tbody>
                         <tr>
@@ -263,49 +266,48 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col-4"></div>
-            <div class="col-3">
+            <div class="col-4">
                 <table class="mb-3">
                     <tbody>
                         <tr>
-                            <td>Sub Total</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>
+                            <td class="align-top">Sub Total</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">
                                 {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
                             </td>
                         </tr>
                         <tr>
-                            <td>Disc</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>
+                            <td class="align-top">Disc</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">
                                 {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }}
                             </td>
                         </tr>
                         <tr>
-                            <td>Price After Disc</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>
+                            <td class="align-top">Price After Disc</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">
                                 {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }}
                             </td>
                         </tr>
                         <tr>
-                            <td>DP</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>
+                            <td class="align-top">DP</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">
                                 {{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '0' }}
                             </td>
                         </tr>
                         <tr>
-                            <td>Tax</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>
+                            <td class="align-top">Tax</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">
                                 {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }}
                             </td>
                         </tr>
                         <tr>
-                            <td>Total</td>
-                            <td style="padding-left: 15px;">:</td>
-                            <td>
+                            <td class="align-top">Total</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">
                                 {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
                             </td>
                         </tr>
