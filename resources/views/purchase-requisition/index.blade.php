@@ -164,10 +164,12 @@
                     orderable: true,
                     searchable: true,
                     className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        let badgeColor = data === 'Request' ? 'secondary' : 
-                                        data === 'Un Posted' ? 'warning' : 'success';
-                        return `<span class="badge bg-${badgeColor}" style="font-size: smaller; width: 100%">${data}</span>`;
+                    render: function(data) {
+                        const badgeColor = data === 'Closed' ? 'success' : 
+                                        (data === 'Request' ? 'secondary' : 
+                                        (data === 'Un Posted' ? 'warning' : 'success'));
+                        const icon = data === 'Closed' ? '<i class="bx bx-check-circle"></i>' : '';
+                        return `<span class="badge bg-${badgeColor}" style="font-size: smaller; width: 100%">${icon} ${data}</span>`;
                     },
                 },
                 {
@@ -181,14 +183,18 @@
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
                 let darkColor = '#FAFAFA';
-                if (data.status === 'Posted') {
+                if (['Posted', 'Created PO'].includes(data.status)) {
                     bgColor = 'table-success';
                     darkColor = '#CFEBE0';
                 }
-                if (data.status === 'Request') {
-                    bgColor = 'table-secondary';
-                    darkColor = '#DFE0E3';
+                if (data.status === 'Closed') {
+                    bgColor = 'table-success-closed';
+                    darkColor = '#a6eed1';
                 }
+                // if (data.status === 'Request') {
+                //     bgColor = 'table-secondary';
+                //     darkColor = '#DFE0E3';
+                // }
                 if (bgColor) {
                     $(row).addClass(bgColor);
                 }

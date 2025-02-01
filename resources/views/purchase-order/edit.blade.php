@@ -54,7 +54,7 @@
                             <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
                         </label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="reference_number" id="reference_number" required>
+                            <select class="form-select data-select2" name="reference_number" id="reference_number" style="width: 100%" required>
                                 <option value="">Pilih Reference Number</option>
                                 @foreach ($reference_number as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->reference_number ? 'selected' : '' }}>
@@ -83,11 +83,12 @@
                                             if (response.success) {
                                                 $('select[name="id_master_suppliers"]').val(response.data.id_master_suppliers).trigger('change');
                                                 $('input[name="type"]').val(response.data.type);
-                                                if (response.data.qc_check === 'Y') {
-                                                    $('#qc_check_Y').prop('checked', true);
-                                                } else if (response.data.qc_check === 'N') {
-                                                    $('#qc_check_N').prop('checked', true);
-                                                }
+                                                $('input[name="qc_check"]').val(response.data.qc_check);
+                                                // if (response.data.qc_check === 'Y') {
+                                                //     $('#qc_check_Y').prop('checked', true);
+                                                // } else if (response.data.qc_check === 'N') {
+                                                //     $('#qc_check_N').prop('checked', true);
+                                                // }
                                             } else {
                                                 alert('No data found for this reference number.');
                                             }
@@ -98,6 +99,7 @@
                                     });
                                 } else {
                                     $('select[name="id_master_suppliers"]').val('');
+                                    $('input[name="qc_check"]').val('');
                                     $('input[name="type"]').val('');
                                 }
                             });
@@ -106,7 +108,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier </label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="id_master_suppliers" id="" required>
+                            <select class="form-select data-select2 readonly-select2" name="id_master_suppliers" style="width: 100%" id="" required>
                                 <option value="">Pilih Suppliers</option>
                                 @foreach ($suppliers as $item)
                                 <option value="{{ $item->id }}" {{ $item->id == $data->id_master_suppliers ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -114,13 +116,31 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper required-field">
+                    {{-- <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Qc Check </label>
                         <div class="col-sm-9">
                             <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }} required>
                             <label for="qc_check_Y">Y</label>
                             <input type="radio" id="qc_check_N" name="qc_check" value="N" {{ $data->qc_check == 'N' ? 'checked' : '' }}>
                             <label for="qc_check_N">N</label>
+                        </div>
+                    </div> --}}
+                    <div class="row mb-4 field-wrapper required-field">
+                        <label class="col-sm-3 col-form-label">Qc Check</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control custom-bg-gray" name="qc_check" value="{{ $data->qc_check }}" placeholder="Otomatis Terisi.." readonly required>
+                        </div>
+                    </div>
+                    <div class="row mb-4 field-wrapper required-field">
+                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Status </label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control custom-bg-gray" name="status" value="{{ $data->status }}" readonly required>
+                        </div>
+                    </div>
+                    <div class="row mb-4 field-wrapper required-field">
+                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type </label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control custom-bg-gray" name="type" value="{{ $data->type }}" readonly required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
@@ -141,18 +161,6 @@
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier Remarks </label>
                         <div class="col-sm-9">
                             <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->supplier_remarks }}</textarea>
-                        </div>
-                    </div>
-                    <div class="row mb-4 field-wrapper required-field">
-                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Status </label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control custom-bg-gray" name="status" value="{{ $data->status }}" readonly required>
-                        </div>
-                    </div>
-                    <div class="row mb-4 field-wrapper required-field">
-                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type </label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control custom-bg-gray" name="type" value="{{ $data->type }}" readonly required>
                         </div>
                     </div>
                 </div>
@@ -177,9 +185,9 @@
                 <h4 class="card-title">List Item Product <b>"{{ $data->type }}"</b></h4>
             </div>
             <div class="card-body p-4">
-                <a href="" class="btn btn-info waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addProduct">
+                {{-- <a href="" class="btn btn-info waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addProduct">
                     <i class="mdi mdi-plus label-icon"></i> Tambah Product <b>"{{ $data->type }}"</b>
-                </a>
+                </a> --}}
                 <table class="table table-bordered dt-responsive w-100" style="font-size: small" id="tableItem">
                     <thead>
                         <tr>
@@ -250,13 +258,13 @@
                                     <a href="{{ route('po.editItem', encrypt($item->id)) }}">
                                         <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
                                     </a>
-                                    <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
+                                    {{-- <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
                                         <i class="bx bx-trash-alt" title="Hapus Data"></i>
-                                    </button>
+                                    </button> --}}
                                 </td>
                             </tr>
                             {{-- Modal Delete --}}
-                            <div class="modal fade" id="delete{{ $item->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            {{-- <div class="modal fade" id="delete{{ $item->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-top" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -290,7 +298,7 @@
                                         </script>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         @endforeach
                         @if(!$itemDatas->isEmpty())
                         <tr>
@@ -323,7 +331,7 @@
             </div>
             
             {{-- Modal Add --}}
-            <div class="modal fade" id="addProduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            {{-- <div class="modal fade" id="addProduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-top modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -478,7 +486,7 @@
                         </form>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <div class="card-footer p-4"></div>
         </div>
     </div>

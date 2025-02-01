@@ -39,7 +39,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Product {{ $data->type_product }}</label>
                         <div class="col-sm-9">
-                            <select class="form-select request_number data-select2" name="master_products_id" required>
+                            <select class="form-select request_number data-select2" name="master_products_id" style="width: 100%" required>
                                 <option value="">Pilih Product {{ $data->type_product }}</option>
                                 @foreach ($products as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->master_products_id ? 'selected' : '' }}>{{ $item->description }}
@@ -61,7 +61,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Units</label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="master_units_id" required>
+                            <select class="form-select data-select2" name="master_units_id" style="width: 100%" required>
                                 <option value="">Pilih Units</option>
                                 @foreach ($units as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->master_units_id ? 'selected' : '' }}>{{ $item->unit_code }}</option>
@@ -78,7 +78,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">CC / CO</label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="cc_co" required>
+                            <select class="form-select data-select2" name="cc_co" style="width: 100%" required>
                                 <option value="">Pilih CC / CO</option>
                                 @foreach ($requesters as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->cc_co ? 'selected' : '' }}>{{ $item->nm_requester }}</option>

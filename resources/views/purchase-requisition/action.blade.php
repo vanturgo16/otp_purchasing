@@ -1,8 +1,14 @@
+<a href="{{ route('pr.print', ['lang' => 'en', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+    <i class="bx bx-printer" title="Print in English"></i>
+</a>
+<a href="{{ route('pr.print', ['lang' => 'idn', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
+    <i class="bx bx-printer" title="Cetak dalam Indonesia"></i>
+</a>
 @if(in_array($data->status, ['Request', 'Un Posted']))
     <button class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $data->id }}">
         <i class="bx bx-trash-alt" title="Hapus Data"></i>
     </button>
-    <a href="{{ route('pr.edit', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+    <a href="{{ route('pr.edit', encrypt($data->id)) }}" class="btn btn-sm btn-primary waves-effect waves-light my-half">
         <i class="bx bx-edit-alt" title="Edit Data"></i>
     </a>
     @if($data->count == 0)
@@ -14,32 +20,6 @@
             <i class="bx bx-paper-plane" title="Posted PR"></i>
         </button>
     @endif
-    {{-- Modal Delete --}}
-    <div class="modal fade" id="delete{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-top" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('pr.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body p-4">
-                        <div class="text-center">
-                            Apakah Anda Yakin Untuk <b>Menghapus</b> Data?
-                            <br><b>"{{ $data->request_number }}"</b>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light">
-                            <i class="mdi mdi-delete-alert label-icon"></i>Delete
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     {{-- Modal Posted --}}
     <div class="modal fade" id="posted{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
@@ -86,19 +66,34 @@
             </div>
         </div>
     </div>
+    {{-- Modal Delete --}}
+    <div class="modal fade" id="delete{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('pr.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="text-center">
+                            Apakah Anda Yakin Untuk <b>Menghapus</b> Data?
+                            <br><b>"{{ $data->request_number }}"</b>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light">
+                            <i class="mdi mdi-delete-alert label-icon"></i>Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endif
-
-
-@if(in_array($data->status, ['Posted', 'Created PO', 'Closed']))
-    <a href="{{ route('pr.print', ['lang' => 'en', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
-        <i class="bx bx-printer" title="Print in English"></i>
-    </a>
-    <a href="{{ route('pr.print', ['lang' => 'idn', 'id' => encrypt($data->id)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
-        <i class="bx bx-printer" title="Cetak dalam Indonesia"></i>
-    </a>
-@endif
-
-@if(in_array($data->status, ['Posted']))
+@if(in_array($data->status, ['Posted', 'Created PO']))
     @can('PPIC_unposted')
         <button class="btn btn-sm btn-secondary my-half" data-bs-toggle="modal" data-bs-target="#unposted{{ $data->id }}">
             <i class="mdi mdi-arrow-left-top-bold" title="Un Posted" >Un-Posted</i>

@@ -251,7 +251,39 @@ class PurchaseController extends Controller
         $id = decrypt($id);
         DB::beginTransaction();
         try{
-            PurchaseRequisitions::where('id', $id)->update(['status' => 'Posted']);
+            // Check PO Created Or NOT
+            $status = PurchaseOrders::where('reference_number', $id)->exists() ? 'Created PO' : 'Posted';
+
+            if($status == 'Created PO'){
+                $idPO = PurchaseOrders::where('reference_number', $id)->first()->id;
+                //Delete PO Detail Before
+                PurchaseOrderDetails::where('id_purchase_orders', $idPO)->delete();
+                //Get Item PR After
+                $dataItemPR = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $id)->get();
+                foreach($dataItemPR as $item){
+                    PurchaseOrderDetails::create([
+                        'id_purchase_orders' => $idPO,
+                        'type_product' => $item->type_product,
+                        'master_products_id' => $item->master_products_id,
+                        'qty' => $item->qty,
+                        'master_units_id' => $item->master_units_id,
+                    ]);
+                }
+                $dataPR = PurchaseRequisitions::where('id', $id)->first();
+                PurchaseOrders::where('id', $idPO)->update([
+                    'id_master_suppliers' => $dataPR->id_master_suppliers,
+                    'qc_check' => $dataPR->qc_check,
+                    'type' => $dataPR->type,
+                    'sub_total' => null,
+                    'total_discount' => null,
+                    'total_sub_amount' => null,
+                    'total_ppn' => null,
+                    'total_amount' => null,
+                ]);
+            }
+
+            // Update Status PR
+            PurchaseRequisitions::where('id', $id)->update(['status' => $status]);
 
             // Audit Log
             $this->auditLogsShort('Posted Purchase Requisitions ('.$id.')');
@@ -886,6 +918,13 @@ class PurchaseController extends Controller
     {
         $id = decrypt($id);
 
+        //Check IF PR Still in UnPost
+        $idPR = PurchaseOrders::where('id', $id)->first()->reference_number;
+        $status = PurchaseRequisitions::where('id', $idPR)->first()->status;
+        if($status != 'Created PO'){
+            return redirect()->back()->with(['fail' => 'Gagal Posted Data PO!, Purchase Requisition Belum Di Posted']);
+        }
+
         //Check Set Price In Product Or Not
         $product = PurchaseOrderDetails::where('id_purchase_orders', $id)->get();
         $hasNullPrice = $product->contains(function ($order) {
@@ -897,6 +936,7 @@ class PurchaseController extends Controller
 
         DB::beginTransaction();
         try{
+            PurchaseRequisitions::where('id', $idPR)->update(['status' => 'Closed']);
             PurchaseOrders::where('id', $id)->update(['status' => 'Posted']);
 
             // Audit Log
@@ -911,8 +951,10 @@ class PurchaseController extends Controller
     public function unpostedPO($id)
     {
         $id = decrypt($id);
+        $idPR = PurchaseOrders::where('id', $id)->first()->reference_number;
         DB::beginTransaction();
         try{
+            PurchaseRequisitions::where('id', $idPR)->update(['status' => 'Created PO']);
             PurchaseOrders::where('id', $id)->update(['status' => 'Un Posted']);
 
             // Audit Log
