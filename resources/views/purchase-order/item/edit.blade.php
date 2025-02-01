@@ -3,7 +3,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -21,7 +20,7 @@
                 </div>
             </div>
         </div>
-
+        @include('layouts.alert')
         <form method="post" action="{{ route('po.updateItem', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="id_purchase_orders" value="{{ $data->id_purchase_orders }}">
@@ -45,7 +44,10 @@
                                         <option value="">Pilih Product {{ $data->type_product }}</option>
                                         @foreach ($products as $item)
                                             <option value="{{ $item->id }}" {{ $item->id == $data->master_products_id ? 'selected' : '' }}>{{ $item->description }}
-                                                @if($data->type_product == 'FG')  || {{ $item->perforasi }} || Group Sub :{{ $item->group_sub_code }} @endif
+                                                @if($data->type_product == 'FG')
+                                                    @if(!empty($item->perforasi)) || {{ $item->perforasi }} @endif
+                                                    @if(!empty($item->group_sub_code)) || Group Sub: {{ $item->group_sub_code }} @endif
+                                                @endif
                                             </option>
                                         @endforeach
                                     </select>

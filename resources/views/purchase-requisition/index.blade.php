@@ -61,6 +61,12 @@
         var url = '{!! route('pr.index') !!}';
 
         var dataTable = $('#server-side-table').DataTable({
+            scrollX: true,
+            responsive: false,
+            fixedColumns: {
+                leftColumns: 2, // Freeze first two columns
+                rightColumns: 1 // Freeze last column (Aksi)
+            },
             processing: true,
             serverSide: true,
             pageLength: 5,
@@ -81,14 +87,14 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'text-center fw-bold',
+                    className: 'text-center fw-bold freeze-column',
                 },
                 {
                     data: 'request_number',
                     name: 'request_number',
                     orderable: true,
                     searchable: true,
-                    className: 'align-top fw-bold'
+                    className: 'align-top fw-bold freeze-column'
                 },
                 {
                     data: 'requisition_date',
@@ -169,27 +175,45 @@
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-top text-center',
+                    className: 'align-top text-center freeze-column',
                 },
             ],
             createdRow: function(row, data, dataIndex) {
+                let bgColor = '';
+                let darkColor = '#FAFAFA';
                 if (data.status === 'Posted') {
-                    $(row).addClass('table-success');
+                    bgColor = 'table-success';
+                    darkColor = '#CFEBE0';
                 }
                 if (data.status === 'Request') {
-                    $(row).addClass('table-secondary');
+                    bgColor = 'table-secondary';
+                    darkColor = '#DFE0E3';
                 }
+                if (bgColor) {
+                    $(row).addClass(bgColor);
+                }
+                $(row).find('.freeze-column').css('background-color', darkColor);
             },
-            columnDefs: [
-                {
-                    width: '10%',
-                    targets: [2],
-                },
-                {
-                    width: '10%',
-                    targets: [11],
-                },
-            ],
+        });
+        $('.dataTables_scrollHeadInner thead th').each(function(index) {
+            let $this = $(this);
+            let isFrozenColumn = index < 2 || index === $('.dataTables_scrollHeadInner thead th').length - 1;
+            if (isFrozenColumn) {
+                $this.css({
+                    'background-color': '#FAFAFA',
+                    'position': 'sticky',
+                    'z-index': '3',
+                    'left': index < 2 ? ($this.outerWidth() * index) + 'px' : 'auto',
+                    'right': index === $('.dataTables_scrollHeadInner thead th').length - 1 ? '0px' : 'auto'
+                });
+            }
+        });
+        // **Fix Header and Body Misalignment on Sidebar Toggle**
+        $('#vertical-menu-btn').on('click', function() {
+            setTimeout(function() {
+                dataTable.columns.adjust().draw();
+                window.dispatchEvent(new Event('resize'));
+            }, 10);
         });
     });
 </script>

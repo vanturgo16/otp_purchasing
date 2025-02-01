@@ -3,7 +3,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -21,6 +20,7 @@
                 </div>
             </div>
         </div>
+        @include('layouts.alert')
         {{-- ITEM PR --}}
         <div class="card">
             <div class="card-header">
@@ -40,10 +40,13 @@
                         <label class="col-sm-3 col-form-label">Product {{ $data->type_product }}</label>
                         <div class="col-sm-9">
                             <select class="form-select request_number data-select2" name="master_products_id" required>
-                                <option value="">Pilih Product {{ $data->type }}</option>
+                                <option value="">Pilih Product {{ $data->type_product }}</option>
                                 @foreach ($products as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->master_products_id ? 'selected' : '' }}>{{ $item->description }}
-                                        @if($data->type == 'FG')  || {{ $item->perforasi }} || Group Sub :{{ $item->group_sub_code }} @endif
+                                        @if($data->type_product == 'FG')
+                                            @if(!empty($item->perforasi)) || {{ $item->perforasi }} @endif
+                                            @if(!empty($item->group_sub_code)) || Group Sub: {{ $item->group_sub_code }} @endif
+                                        @endif
                                     </option>
                                 @endforeach
                             </select>
