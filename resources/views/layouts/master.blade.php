@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Purchase Order | PT. OTP</title>
+    <title>Purchasing | PT. OTP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/icon-otp.png') }}">
@@ -36,6 +36,16 @@
         div.required-field label::after {
             content: " *";
             color: red;
+        }
+        /* Make Select2 appear disabled */
+        .readonly-select2 + .select2-container .select2-selection--single {
+            background-color: #e2e2e2 !important;
+            border: 1px solid #e2e2e2 !important;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+        .readonly-select2 + .select2-container .select2-selection__rendered {
+            background-color: #e2e2e2 !important;
         }
     </style>
 </head>
@@ -515,14 +525,45 @@
             rightColumns: 1 // Freeze last column (Aksi)
         }
     });
-    $('#tableItem').DataTable({
+    // $('#tableItem').DataTable({
+    //     paging: false,
+    //     info: false,
+    //     searching: false,
+    //     lengthChange: false,
+    //     responsive: true,
+    //     ordering: false,
+    // });
+    
+    var tables = $('#tableItem').DataTable({
+        scrollX: true,
         paging: false,
         info: false,
         searching: false,
         lengthChange: false,
-        responsive: true,
+        responsive: false,
         ordering: false,
+        fixedColumns: {
+            leftColumns: 2, // Freeze first two columns
+            rightColumns: 1 // Freeze last column (Aksi)
+        }
     });
+    function adjustTable() {
+        setTimeout(function () {
+            tables.columns.adjust().draw(false); // Adjust column widths
+        }, 10); // Delay to ensure animations finish
+    }
+    // Adjust table when vertical menu button is clicked
+    $('#vertical-menu-btn').on('click', function () {
+        adjustTable();
+    });
+    var observer = new MutationObserver(function (mutationsList) {
+        mutationsList.forEach(function (mutation) {
+            if (mutation.attributeName === "class") {
+                adjustTable(); // Adjust table when class changes
+            }
+        });
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 
     // Format Rupiah
     function formatCurrencyInput(event) {
@@ -538,7 +579,6 @@
         }
         event.target.value = value;
     }
-
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".rupiah-input").forEach((input) => {
             input.addEventListener("input", formatCurrencyInput);
