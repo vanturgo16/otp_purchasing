@@ -42,32 +42,33 @@
                                                 </div>
                                             </div>
                                             <div class="row mb-4 field-wrapper required-field">
-                                                <label class="col-sm-3 col-form-label">Supplier</label>
+                                                <label class="col-sm-3 col-form-label">Date</label>
                                                 <div class="col-sm-9">
-                                                    <select class="form-select data-select2 readonly-select2" name="id_master_suppliers" id="" style="width: 100%" required readonly>
-                                                        <option value="">Otomatis Terisi..</option>
-                                                        @foreach ($suppliers as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    <input type="text" name="date" class="form-control custom-bg-gray" value="" readonly required>
                                                 </div>
                                             </div>
                                             <div class="row mb-4 field-wrapper required-field">
-                                                <label class="col-sm-3 col-form-label">Qc Check</label>
+                                                <label class="col-sm-3 col-form-label">Suppliers</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" class="form-control custom-bg-gray" name="qc_check" value="" placeholder="Otomatis Terisi.." readonly required>
+                                                    <input type="text" name="id_master_suppliers" class="form-control custom-bg-gray" value="" placeholder="Otomatis Terisi.." readonly required>
                                                 </div>
                                             </div>
                                             <div class="row mb-4 field-wrapper required-field">
-                                                <label class="col-sm-3 col-form-label">Status </label>
+                                                <label class="col-sm-3 col-form-label">Requester</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" class="form-control custom-bg-gray" name="status" value="Request" readonly required>
+                                                    <input type="text" name="requester" class="form-control custom-bg-gray" value="" placeholder="Otomatis Terisi.." value="" readonly required>
                                                 </div>
                                             </div>
                                             <div class="row mb-4 field-wrapper required-field">
-                                                <label class="col-sm-3 col-form-label">Type </label>
+                                                <label class="col-sm-3 col-form-label">Qc Check </label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" class="form-control custom-bg-gray" name="type" value="" placeholder="Otomatis Terisi.." readonly required>
+                                                    <input type="text" name="qc_check" class="form-control custom-bg-gray" value="" placeholder="Otomatis Terisi.." value="" readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper">
+                                                <label class="col-sm-3 col-form-label">Note</label>
+                                                <div class="col-sm-9">
+                                                    <textarea name="note" rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Note.. (Opsional)" readonly></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -81,18 +82,27 @@
                                 </form>
                                 <script>
                                     $(document).ready(function() {
+                                        $('[data-bs-toggle="tooltip"]').tooltip();
                                         $('select[name="reference_number"]').change(function() {
+                                            $('.mdi-information-outline').tooltip('show');
+                                            setTimeout(function () {
+                                                $('.mdi-information-outline').tooltip('hide');
+                                            }, 3000);
+            
                                             var referenceId = $(this).val();
                                             if (referenceId) {
                                                 $.ajax({
-                                                    url: "{{ route('pr.getPRDetails') }}",
+                                                    url: "{{ route('pr.price.getPRDetails') }}",
                                                     method: 'GET',
                                                     data: { reference_id: referenceId },
                                                     success: function(response) {
                                                         if (response.success) {
-                                                            $('select[name="id_master_suppliers"]').val(response.data.id_master_suppliers).trigger('change');
+                                                            $('input[name="date"]').val(response.data.date);
+                                                            $('input[name="id_master_suppliers"]').val(response.data.supplier_name);
+                                                            $('input[name="requester"]').val(response.data.nm_requester);
                                                             $('input[name="qc_check"]').val(response.data.qc_check);
-                                                            $('input[name="type"]').val(response.data.type);
+                                                            $('textarea[name="note"]').val(response.data.note);
+                                                            $('textarea[name="note"]').html(response.data.note);
                                                         } else {
                                                             alert('No data found for this reference number.');
                                                         }
@@ -102,9 +112,12 @@
                                                     }
                                                 });
                                             } else {
-                                                $('select[name="id_master_suppliers"]').val('');
+                                                $('input[name="date"]').val('');
+                                                $('input[name="id_master_suppliers"]').val('');
+                                                $('input[name="requester"]').val('');
                                                 $('input[name="qc_check"]').val('');
-                                                $('input[name="type"]').val('');
+                                                $('textarea[name="note"]').val('');
+                                                $('textarea[name="note"]').html('');
                                             }
                                         });
                                     });

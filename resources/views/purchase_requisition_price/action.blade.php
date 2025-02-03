@@ -1,5 +1,5 @@
 @if(in_array($data->status, ['Posted', 'Closed']))
-<a href="{{ route('pr.edit', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+<a href="{{ route('pr.price.detail', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
     <i class="fas fa-info" title="Detail"></i> Detail
 </a>
 @endif
@@ -7,7 +7,7 @@
     <button class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $data->id }}">
         <i class="bx bx-trash-alt" title="Hapus Data"></i>
     </button>
-    <a href="{{ route('pr.edit', encrypt($data->id)) }}" class="btn btn-sm btn-primary waves-effect waves-light my-half">
+    <a href="{{ route('pr.price.edit', encrypt($data->id)) }}" class="btn btn-sm btn-primary waves-effect waves-light my-half">
         <i class="bx bx-edit-alt" title="Edit Data"></i>
     </a>
     @if($data->count == 0)
@@ -27,7 +27,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Posted</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('pr.posted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pr.price.posted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body p-4">
                         <div class="text-center">
@@ -73,7 +73,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('pr.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pr.price.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body p-4">
                         <div class="text-center">
@@ -105,7 +105,7 @@
                         <h5 class="modal-title" id="staticBackdropLabel">Un-Posted</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{ route('pr.unposted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('pr.price.unposted', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body p-4">
                             <div class="text-center">

@@ -142,7 +142,14 @@
                     name: 'po_number',
                     orderable: true,
                     searchable: true,
-                    className: 'align-top'
+                    className: 'align-top',
+                    render: function (data, type, row) {
+                        if(row.input_price === 'Y'){
+                            return `<span class="badge bg-info text-white">Input Price</span>`;
+                        } else {
+                            return data;
+                        }
+                    }
                 },
                 {
                     data: 'type',

@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(PurchaseRequisitionPriceController::class)->group(function () {
             Route::prefix('purchase_requisition_price')->group(function () {
                 Route::get('/', 'index')->name('pr.price.index');
+                Route::get('/detail/{id}', 'edit')->name('pr.price.detail');
                 Route::get('/edit/{id}', 'edit')->name('pr.price.edit');
                 Route::post('/store', 'store')->name('pr.price.store');
                 Route::post('/update/{id}', 'update')->name('pr.price.update');

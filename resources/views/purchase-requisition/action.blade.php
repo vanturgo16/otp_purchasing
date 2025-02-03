@@ -80,6 +80,11 @@
                         <div class="text-center">
                             Apakah Anda Yakin Untuk <b>Menghapus</b> Data?
                             <br><b>"{{ $data->request_number }}"</b>
+                            @if($data->po_number)
+                                <br>
+                                <br>
+                                Purchase Order dengan nomor PR akan terhapus
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">
