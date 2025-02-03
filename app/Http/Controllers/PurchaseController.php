@@ -877,7 +877,7 @@ class PurchaseController extends Controller
         $currentMonth = $this->romanMonth(date('n'));
         $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
 
-        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->get();
+        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->where('input_price', '!=', 'Y')->get();
         $suppliers = MstSupplier::get();
 
         $datas = PurchaseOrders::select(
@@ -1027,7 +1027,7 @@ class PurchaseController extends Controller
         $statusPR = PurchaseRequisitions::where('id', $data->reference_number)->first()->status;
 
         // Dropdown
-        $reference_number = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->orWhere('id', $data->reference_number)->get();
+        $reference_number = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->where('input_price', '!=', 'Y')->orWhere('id', $data->reference_number)->get();
         $suppliers = MstSupplier::get();
 
         $currency = MstCurrencies::get();

@@ -168,6 +168,14 @@
                                 </a>
                             </li>
                             @endcan
+                            @can('Purchasing_Requisition')
+                            <li class="{{ request()->is('purchase_requisition_price/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('pr.price.index') }}">
+                                    <i class="mdi mdi-file-send"></i>
+                                    <span><small>Purchase Requisition (Price)</small></span>
+                                </a>
+                            </li>
+                            @endcan
                             @can('Purchasing_Item')
                             <li>
                                 <a href="{{ route('pr.indexItem') }}">
