@@ -146,8 +146,8 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Down Payment </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control number-format" name="down_payment" placeholder="Masukkan Down Payment.. (Opsional)" 
-                                value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '' }}" 
+                            <input type="text" class="form-control number-format" name="down_payment" placeholder="Masukkan Down Payment.." 
+                                value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '0' }}" 
                                 required>
                         </div>
                     </div>
@@ -192,12 +192,12 @@
                     <thead>
                         <tr>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">No.</th>
-                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Product</th>
+                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-right: 3px solid #e2e2e2;">Product</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Note</th>
-                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Aksi</th>
+                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
                         </tr>
                         <tr>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Price</th>
@@ -212,7 +212,7 @@
                         @foreach ($itemDatas as $item)
                             <tr>
                                 <td class="align-top text-center"><b>{{ $loop->iteration }}</b></td>
-                                <td class="align-top">
+                                <td class="align-top" style="border-right: 3px solid #e2e2e2;">
                                     <b>{{ $item->type_product }}</b>
                                     <br>{!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->product_desc), 10))) !!}  {{-- max 10 word one line --}}
                                 </td>
@@ -254,10 +254,14 @@
                                       {{ strlen($item->note) > 70 ? substr($item->note, 0, 70) . '...' : $item->note }}
                                     </span>
                                 </td>
-                                <td class="align-top text-center">
-                                    <a href="{{ route('po.editItem', encrypt($item->id)) }}">
-                                        <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
-                                    </a>
+                                <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
+                                    @if($statusPR == 'Created PO')
+                                        <a href="{{ route('po.editItem', encrypt($item->id)) }}">
+                                            <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
+                                        </a>
+                                    @else
+                                        <span class="badge bg-warning">PR Sedang UnPost</span>
+                                    @endif
                                     {{-- <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
                                         <i class="bx bx-trash-alt" title="Hapus Data"></i>
                                     </button> --}}

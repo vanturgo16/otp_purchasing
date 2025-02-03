@@ -91,7 +91,7 @@
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control number-format" placeholder="Masukkan Price.." name="price" id="price" 
-                                        value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 3, ',', '.')) : '' }}" 
+                                        value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 3, ',', '.')) : '0' }}" 
                                     required>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control number-format" placeholder="Masukkan Discount.." name="discount" id="discount" 
-                                        value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 3, ',', '.')) : '' }}" 
+                                        value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 3, ',', '.')) : '0' }}" 
                                         required>
                                 </div>
                             </div>
