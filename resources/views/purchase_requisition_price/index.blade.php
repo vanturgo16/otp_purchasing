@@ -10,23 +10,118 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">List Purchase Requisition (PR)</h5>
+                            <h5 class="mb-0">List Purchase Requisition (PR) With Price</h5>
                             <div>
-                                <a href="{{ route('pr.add', 'RM') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Raw Material">
-                                    <i class="mdi mdi-plus label-icon"></i> PR <b>(RM)</b>
+                                <a href="" class="btn btn-sm btn-primary waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addPRPrice" title="Tambah PR Price">
+                                    <i class="mdi mdi-plus label-icon"></i> Tambah Data
                                 </a>
-                                <a href="{{ route('pr.add', 'WIP') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR WIP">
-                                    <i class="mdi mdi-plus label-icon"></i> PR <b>(WIP)</b>
-                                </a>
-                                <a href="{{ route('pr.add', 'FG') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Finished Goods">
-                                    <i class="mdi mdi-plus label-icon"></i> PR <b>(FG)</b>
-                                </a>
-                                <a href="{{ route('pr.add', 'TA') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Auxalary & Sparepart">
-                                    <i class="mdi mdi-plus label-icon"></i> PR <b>(Aux & Sparepart)</b>
-                                </a>
-                                <a href="{{ route('pr.add', 'Other') }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light" title="Tambah PR Lainnya">
-                                    <i class="mdi mdi-plus label-icon"></i> PR <b>(Other)</b>
-                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {{-- Modal Add --}}
+                    <div class="modal fade" id="addPRPrice" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-top modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">Tambah Harga Pada Purchase Requisition</b></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form class="formLoad" action="{{ route('pr.price.store') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
+                                        <div class="container">
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Reference Number (PR)</label>
+                                                <div class="col-sm-9">
+                                                    <select class="form-select data-select2" name="reference_number" id="" style="width: 100%" required>
+                                                        <option value="">Pilih Reference Number</option>
+                                                        @foreach ($postedPRs as $item)
+                                                            <option value="{{ $item->id }}">{{ $item->request_number }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Date</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" name="date" class="form-control custom-bg-gray" value="" readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Suppliers</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" name="id_master_suppliers" class="form-control custom-bg-gray" value="" placeholder="Otomatis Terisi.." readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Requester</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" name="requester" class="form-control custom-bg-gray" value="" placeholder="Otomatis Terisi.." value="" readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper required-field">
+                                                <label class="col-sm-3 col-form-label">Qc Check </label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" name="qc_check" class="form-control custom-bg-gray" value="" placeholder="Otomatis Terisi.." value="" readonly required>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 field-wrapper">
+                                                <label class="col-sm-3 col-form-label">Note</label>
+                                                <div class="col-sm-9">
+                                                    <textarea name="note" rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Note.. (Opsional)" readonly></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light">
+                                            <i class="mdi mdi-plus label-icon"></i>Tambah
+                                        </button>
+                                    </div>
+                                </form>
+                                <script>
+                                    $(document).ready(function() {
+                                        $('[data-bs-toggle="tooltip"]').tooltip();
+                                        $('select[name="reference_number"]').change(function() {
+                                            $('.mdi-information-outline').tooltip('show');
+                                            setTimeout(function () {
+                                                $('.mdi-information-outline').tooltip('hide');
+                                            }, 3000);
+            
+                                            var referenceId = $(this).val();
+                                            if (referenceId) {
+                                                $.ajax({
+                                                    url: "{{ route('pr.price.getPRDetails') }}",
+                                                    method: 'GET',
+                                                    data: { reference_id: referenceId },
+                                                    success: function(response) {
+                                                        if (response.success) {
+                                                            $('input[name="date"]').val(response.data.date);
+                                                            $('input[name="id_master_suppliers"]').val(response.data.supplier_name);
+                                                            $('input[name="requester"]').val(response.data.nm_requester);
+                                                            $('input[name="qc_check"]').val(response.data.qc_check);
+                                                            $('textarea[name="note"]').val(response.data.note);
+                                                            $('textarea[name="note"]').html(response.data.note);
+                                                        } else {
+                                                            alert('No data found for this reference number.');
+                                                        }
+                                                    },
+                                                    error: function() {
+                                                        alert('Error fetching data. Please try again.');
+                                                    }
+                                                });
+                                            } else {
+                                                $('input[name="date"]').val('');
+                                                $('input[name="id_master_suppliers"]').val('');
+                                                $('input[name="requester"]').val('');
+                                                $('input[name="qc_check"]').val('');
+                                                $('textarea[name="note"]').val('');
+                                                $('textarea[name="note"]').html('');
+                                            }
+                                        });
+                                    });
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -41,7 +136,6 @@
                                     <th class="align-middle text-center">Requester</th>
                                     <th class="align-middle text-center">QC Check</th>
                                     <th class="align-middle text-center">Note</th>
-                                    <th class="align-middle text-center">PO Number</th>
                                     <th class="align-middle text-center">Type</th>
                                     <th class="align-middle text-center">Total Product</th>
                                     <th class="align-middle text-center">Status</th>
@@ -58,7 +152,7 @@
 
 <script>
     $(document).ready(function() {
-        var url = '{!! route('pr.index') !!}';
+        var url = '{!! route('pr.price.index') !!}';
 
         var dataTable = $('#server-side-table').DataTable({
             scrollX: true,
@@ -135,20 +229,6 @@
                             return `<span class="note-tooltip" title="${data}">${data.substring(0, 70)}...</span>`;
                         }
                         return data;
-                    }
-                },
-                {
-                    data: 'po_number',
-                    name: 'po_number',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-top',
-                    render: function (data, type, row) {
-                        if(row.input_price === 'Y'){
-                            return `<span class="badge bg-info text-white">Input Price</span>`;
-                        } else {
-                            return data;
-                        }
                     }
                 },
                 {
@@ -280,7 +360,6 @@
                     <option value="All">-- Semua Status --</option>
                     <option value="Request">Request</option>
                     <option value="Posted">Posted</option>
-                    <option value="Created PO">Created PO</option>
                     <option value="Closed">Closed</option>
                     <option value="Un Posted">Un Posted</option>
                 </select>

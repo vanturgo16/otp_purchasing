@@ -21,6 +21,7 @@ use App\Models\MstUnits;
 use App\Models\MstWip;
 use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseOrderDetails;
+use App\Models\PurchaseRequisitionsPrice;
 
 class PurchaseController extends Controller
 {
@@ -31,7 +32,7 @@ class PurchaseController extends Controller
     {
         $datas = PurchaseRequisitions::select('purchase_requisitions.id', 'purchase_requisitions.request_number',
                 'purchase_requisitions.date as requisition_date', 'purchase_requisitions.qc_check', 'purchase_requisitions.note',
-                'purchase_requisitions.type', 'purchase_requisitions.status',
+                'purchase_requisitions.type', 'purchase_requisitions.status', 'purchase_requisitions.input_price',
                 'master_suppliers.name as supplier_name', 'master_requester.nm_requester', 'purchase_orders.po_number',
                 \DB::raw('(SELECT COUNT(*) FROM purchase_requisition_details WHERE purchase_requisition_details.id_purchase_requisitions = purchase_requisitions.id) as count'))
             ->leftjoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
@@ -110,7 +111,6 @@ class PurchaseController extends Controller
                 'note' => $request->note,
                 'status' => $request->status,
                 'type' => $request->type,
-                'input_price' => $request->input_price,
             ]);
 
             // Audit Log
@@ -208,7 +208,6 @@ class PurchaseController extends Controller
         $dataBefore->requester = $request->requester;
         $dataBefore->qc_check = $request->qc_check;
         $dataBefore->note = $request->note;
-        $dataBefore->input_price = $request->input_price;
 
         if($dataBefore->isDirty()){
             DB::beginTransaction();
@@ -219,7 +218,6 @@ class PurchaseController extends Controller
                     'requester' => $request->requester,
                     'qc_check' => $request->qc_check,
                     'note' => $request->note,
-                    'input_price' => $request->input_price,
                 ]);
                 PurchaseOrders::where('reference_number', $id)->update([
                     'id_master_suppliers' => $request->id_master_suppliers,
@@ -243,8 +241,22 @@ class PurchaseController extends Controller
         $id = decrypt($id);
         DB::beginTransaction();
         try{
+            $dataPR = PurchaseRequisitions::where('id', $id)->first();
+            // Delete PR
             PurchaseRequisitions::where('id', $id)->delete();
             PurchaseRequisitionsDetail::where('id_purchase_requisitions', $id)->delete();
+
+            // IF PR Inpit Price
+            if($dataPR->input_price == 'Y'){
+                PurchaseRequisitionsPrice::where('id_purchase_requisitions', $id)->delete();
+            }
+
+            // IF PO has been created
+            $dataPO = PurchaseOrders::where('reference_number', $id)->first();
+            if($dataPO){
+                PurchaseOrders::where('reference_number', $id)->delete();
+                PurchaseOrderDetails::where('id_purchase_orders', $dataPO->id)->delete();
+            }
 
             // Audit Log
             $this->auditLogsShort('Hapus Purchase Requisitions');
@@ -258,18 +270,6 @@ class PurchaseController extends Controller
     public function postedPR($id)
     {
         $id = decrypt($id);
-
-        $inputPrice = PurchaseRequisitions::where('id', $id)->first()->input_price;
-        if($inputPrice == 'Y'){
-            //Check Set Price In Product Or Not
-            $product = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $id)->get();
-            $hasNullPrice = $product->contains(function ($order) {
-                return is_null($order->price);
-            });
-            if ($hasNullPrice) {
-                return redirect()->back()->with(['fail' => 'Gagal Posted Data PR!, Masih Ada Produk dalam PR yang Belum Memiliki Harga (PR Input Price (Y))']);
-            }
-        }
 
         DB::beginTransaction();
         try{
@@ -390,11 +390,6 @@ class PurchaseController extends Controller
             'master_units_id' => 'required',
             'required_date' => 'required',
             'cc_co' => 'required',
-            'currency' => $request->input_price == 'Y' ? 'required' : '',
-            'price' => $request->input_price == 'Y' ? 'required' : '',
-            'sub_total' => $request->input_price == 'Y' ? 'required' : '',
-            'discount' => $request->input_price == 'Y' ? 'required' : '',
-            'amount' => $request->input_price == 'Y' ? 'required' : '',
         ], [
             'request_number.required' => 'Request Number masih kosong.',
             'type_product.required' => 'Type Produk masih kosong.',
@@ -403,23 +398,11 @@ class PurchaseController extends Controller
             'master_units_id.required' => 'Unit harus diisi.',
             'required_date.required' => 'Required Date harus diisi.',
             'cc_co.required' => 'CC / CO harus diisi.',
-            'currency.required' => 'Currency harus diisi.',
-            'price.required' => 'Price harus diisi.',
-            'sub_total.required' => 'Subtotal masih kosong.',
-            'discount.required' => 'Diskon masih kosong.',
-            'amount.required' => 'Jumlah harus diisi.',
         ]);
-        if ($request->input_price == 'Y') {
-            $totalAmount = str_replace(['.', ','], ['', '.'], $request->total_amount);
-            $limitPRPrice = MstRules::where('rule_name', 'Limit Price PR')->first()->rule_value;
-            if($totalAmount > $limitPRPrice){
-                return redirect()->back()->with(['fail' => 'Gagal Tambah Item PR!, Total Harga Produk Melebihi Limit Harga PR']);
-            }
-        }
         
         DB::beginTransaction();
         try{
-            $storeData = [
+            $storeData = PurchaseRequisitionsDetail::create([
                 'id_purchase_requisitions' => $id,
                 'type_product' => $request->type_product,
                 'master_products_id' => $request->master_products_id,
@@ -429,75 +412,18 @@ class PurchaseController extends Controller
                 'cc_co' => $request->cc_co,
                 'remarks' => $request->remarks,
                 'request_number' => $request->request_number,
-            ];
-            if ($request->input_price == 'Y') {
-                $storeData = array_merge($storeData, [
-                    'currency' => $request->currency,
-                    'price' => str_replace(['.', ','], ['', '.'], $request->price),
-                    'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
-                    'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
-                    'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
-                    'tax' => $request->tax,
-                    'tax_rate' => $request->tax_rate,
-                    'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
-                    'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
-                ]);
-            }
-            $storeData = PurchaseRequisitionsDetail::create($storeData);
+            ]);
 
             // ADD ITEM PRODUCT IN PO DETAIL ALSO IF PO IS ALREADY EXIST
             $dataPO = PurchaseOrders::where('reference_number', $id)->first();
             if($dataPO){
-                $storeDataItemPO = [
+                PurchaseOrderDetails::create([
                     'id_purchase_orders' => $dataPO->id,
                     'type_product' => $request->type_product,
                     'master_products_id' => $request->master_products_id,
                     'qty' => $request->qty,
                     'master_units_id' => $request->master_units_id,
                     'id_purchase_requisition_details' => $storeData->id,
-                ];
-                if ($request->input_price == 'Y') {
-                    $storeDataItemPO = array_merge($storeDataItemPO, [
-                        'currency' => $request->currency,
-                        'price' => str_replace(['.', ','], ['', '.'], $request->price),
-                        'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
-                        'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
-                        'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
-                        'tax' => $request->tax,
-                        'tax_rate' => $request->tax_rate,
-                        'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
-                        'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
-                    ]);
-                }
-                $storeDataItemPO = PurchaseOrderDetails::create($storeDataItemPO);
-            }
-            
-            if ($request->input_price == 'Y') {
-                $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $id)
-                    ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
-                        SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
-                    ->first();
-                // Round up to 3 decimal places
-                $sub_total = round($totals->total_sub_total, 3);
-                $total_discount = round($totals->total_discount, 3);
-                $total_sub_amount = round($totals->total_sub_amount, 3);
-                $total_ppn = round($totals->total_ppn, 3);
-                $total_amount = round($totals->total_amount, 3);
-                // Update PR Data
-                PurchaseRequisitions::where('id', $id)->update([
-                    'sub_total' => $sub_total,
-                    'total_discount' => $total_discount,
-                    'total_sub_amount' => $total_sub_amount,
-                    'total_ppn' => $total_ppn,
-                    'total_amount' => $total_amount,
-                ]);
-                // Update PO Data If Exist
-                PurchaseOrders::where('reference_number', $id)->update([
-                    'sub_total' => $sub_total,
-                    'total_discount' => $total_discount,
-                    'total_sub_amount' => $total_sub_amount,
-                    'total_ppn' => $total_ppn,
-                    'total_amount' => $total_amount,
                 ]);
             }
 
@@ -514,7 +440,6 @@ class PurchaseController extends Controller
     {
         $id = decrypt($id);
         $data = PurchaseRequisitionsDetail::where('id', $id)->first();
-        $inputPrice = PurchaseRequisitions::Where('id', $data->id_purchase_requisitions)->first()->input_price;
         if($data->type_product == 'RM'){
             $products = MstRawMaterial::select('id', 'description')->get();
         } elseif($data->type_product == 'WIP'){
@@ -530,9 +455,8 @@ class PurchaseController extends Controller
         }
         $units = MstUnits::select('id', 'unit_code')->get();
         $requesters = MstRequester::get();
-        $currency = MstCurrencies::get();
             
-        return view('purchase-requisition.item.edit', compact('data', 'inputPrice', 'products', 'units', 'requesters', 'currency'));
+        return view('purchase-requisition.item.edit', compact('data', 'products', 'units', 'requesters'));
     }
     public function updateItemPR(Request $request, $id)
     {
@@ -543,31 +467,13 @@ class PurchaseController extends Controller
             'master_units_id' => 'required',
             'required_date' => 'required',
             'cc_co' => 'required',
-            'currency' => $request->input_price == 'Y' ? 'required' : '',
-            'price' => $request->input_price == 'Y' ? 'required' : '',
-            'sub_total' => $request->input_price == 'Y' ? 'required' : '',
-            'discount' => $request->input_price == 'Y' ? 'required' : '',
-            'amount' => $request->input_price == 'Y' ? 'required' : '',
         ], [
             'master_products_id.required' => 'Produk harus diisi.',
             'qty.required' => 'Qty harus diisi.',
             'master_units_id.required' => 'Unit harus diisi.',
             'required_date.required' => 'Required Date harus diisi.',
             'cc_co.required' => 'CC / CO harus diisi.',
-            'currency.required' => 'Currency harus diisi.',
-            'price.required' => 'Price harus diisi.',
-            'sub_total.required' => 'Subtotal masih kosong.',
-            'discount.required' => 'Diskon masih kosong.',
-            'amount.required' => 'Jumlah harus diisi.',
         ]);
-
-        if ($request->input_price == 'Y') {
-            $totalAmount = str_replace(['.', ','], ['', '.'], $request->total_amount);
-            $limitPRPrice = MstRules::where('rule_name', 'Limit Price PR')->first()->rule_value;
-            if($totalAmount > $limitPRPrice){
-                return redirect()->back()->with(['fail' => 'Gagal Tambah Item PR!, Total Harga Produk Melebihi Limit Harga PR']);
-            }
-        }
 
         $dataBefore = PurchaseRequisitionsDetail::where('id', $id)->first();
         $dataBefore->master_products_id = $request->master_products_id;
@@ -576,128 +482,103 @@ class PurchaseController extends Controller
         $dataBefore->required_date = $request->required_date;
         $dataBefore->cc_co = $request->cc_co;
         $dataBefore->remarks = $request->remarks;
-        if($request->input_price == 'Y'){
-            $dataBefore->currency = $request->currency;
-            $dataBefore->price = str_replace(['.', ','], ['', '.'], $request->price);
-            $dataBefore->sub_total = str_replace(['.', ','], ['', '.'], $request->sub_total);
-            $dataBefore->discount = str_replace(['.', ','], ['', '.'], $request->discount);
-            $dataBefore->amount = str_replace(['.', ','], ['', '.'], $request->amount);
-            $dataBefore->tax = $request->tax;
-            $dataBefore->tax_rate = $request->tax_rate;
-            $dataBefore->tax_value = str_replace(['.', ','], ['', '.'], $request->tax_value);
-            $dataBefore->total_amount = str_replace(['.', ','], ['', '.'], $request->total_amount);
-        }
 
         if($dataBefore->isDirty()){
             DB::beginTransaction();
             try{
-                $storeData = [
+                $dataPR = PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->first();
+                PurchaseRequisitionsDetail::where('id', $id)->update([
                     'master_products_id' => $request->master_products_id,
                     'qty' => $request->qty,
                     'master_units_id' => $request->master_units_id,
                     'required_date' => $request->required_date,
                     'cc_co' => $request->cc_co,
                     'remarks' => $request->remarks,
-                ];
-                $storeDataItemPO = [
+                ]);
+                // Update Item PO Also IF Has Created PO
+                PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
                     'master_products_id' => $request->master_products_id,
                     'qty' => $request->qty,
                     'master_units_id' => $request->master_units_id,
-                ];
-                if ($request->input_price == 'Y') {
-                    $storeData = array_merge($storeData, [
-                        'currency' => $request->currency,
-                        'price' => str_replace(['.', ','], ['', '.'], $request->price),
-                        'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
-                        'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
-                        'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
-                        'tax' => $request->tax,
-                        'tax_rate' => $request->tax_rate,
-                        'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
-                        'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
-                    ]);
-                    $storeDataItemPO = array_merge($storeDataItemPO, [
-                        'currency' => $request->currency,
-                        'price' => str_replace(['.', ','], ['', '.'], $request->price),
-                        'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
-                        'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
-                        'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
-                        'tax' => $request->tax,
-                        'tax_rate' => $request->tax_rate,
-                        'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
-                        'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
-                    ]);
+                ]);
+
+                // IF Input Price Re-Calculate Price With New QTY
+                if ($dataPR->input_price == 'Y') {
+                    $dataItemPR = PurchaseRequisitionsDetail::where('id', $id)->first();
+                    if($dataItemPR->price){
+                        $qty = $request->qty;
+                        $price = isset($dataItemPR->price) ? $dataItemPR->price : 0;
+                        $discount = isset($dataItemPR->discount) ? $dataItemPR->discount : 0;
+                        $tax_rate = isset($dataItemPR->tax_rate) ? $dataItemPR->tax_rate : 0;
+                        $sub_total = round(($qty * $price), 3);
+                        $amount = round(($sub_total - $discount), 3);
+                        $tax_value = round((($tax_rate/100) * $amount), 3);
+                        $total_amount = round(($amount + $tax_value), 3);
+
+                        PurchaseRequisitionsDetail::where('id', $id)->update([
+                            'sub_total' => $sub_total,
+                            'amount' => $amount,
+                            'tax_value' => $tax_value,
+                            'total_amount' => $total_amount
+                        ]);
+                        $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)
+                            ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
+                                SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
+                            ->first();
+                        // Round up to 3 decimal places
+                        $sub_total = round($totals->total_sub_total, 3);
+                        $total_discount = round($totals->total_discount, 3);
+                        $total_sub_amount = round($totals->total_sub_amount, 3);
+                        $total_ppn = round($totals->total_ppn, 3);
+                        $total_amount = round($totals->total_amount, 3);
+                        // Update PR Data
+                        PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update([
+                            'sub_total' => $sub_total,
+                            'total_discount' => $total_discount,
+                            'total_sub_amount' => $total_sub_amount,
+                            'total_ppn' => $total_ppn,
+                            'total_amount' => $total_amount,
+                        ]);
+                    }
                 }
-                $storeData = PurchaseRequisitionsDetail::where('id', $id)->update($storeData);
-                $storeDataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update($storeDataItemPO);
 
-                if ($request->input_price == 'Y') {
-                    $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)
-                        ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
-                            SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
-                        ->first();
-                    // Round up to 3 decimal places
-                    $sub_total = round($totals->total_sub_total, 3);
-                    $total_discount = round($totals->total_discount, 3);
-                    $total_sub_amount = round($totals->total_sub_amount, 3);
-                    $total_ppn = round($totals->total_ppn, 3);
-                    $total_amount = round($totals->total_amount, 3);
-                    // Update PR Data
-                    PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update([
-                        'sub_total' => $sub_total,
-                        'total_discount' => $total_discount,
-                        'total_sub_amount' => $total_sub_amount,
-                        'total_ppn' => $total_ppn,
-                        'total_amount' => $total_amount,
-                    ]);
-                    // Update PO Data
-                    PurchaseOrders::where('reference_number', $dataBefore->id_purchase_requisitions)->update([
-                        'sub_total' => $sub_total,
-                        'total_discount' => $total_discount,
-                        'total_sub_amount' => $total_sub_amount,
-                        'total_ppn' => $total_ppn,
-                        'total_amount' => $total_amount,
-                    ]);
-                } else {
-                    //Re-Calculate Item PO IF QTY CHANGE
-                    $dataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->first();
-                    if($dataItemPO){
-                        if($dataItemPO->price){
-                            $qty = $request->qty;
-                            $price = $dataItemPO->price;
-                            $discount = isset($dataItemPO->discount) ? $dataItemPO->discount : 0;
-                            $tax_rate = isset($dataItemPO->tax_rate) ? $dataItemPO->tax_rate : 0;
+                // IF Has Created PO Re-Calculate Price With New QTY
+                $dataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->first();
+                if($dataItemPO){
+                    if($dataItemPO->price){
+                        $qty = $request->qty;
+                        $price = $dataItemPO->price;
+                        $discount = isset($dataItemPO->discount) ? $dataItemPO->discount : 0;
+                        $tax_rate = isset($dataItemPO->tax_rate) ? $dataItemPO->tax_rate : 0;
+                        $sub_total = round(($qty * $price), 3);
+                        $amount = round(($sub_total - $discount), 3);
+                        $tax_value = round((($tax_rate/100) * $amount), 3);
+                        $total_amount = round(($amount + $tax_value), 3);
 
-                            $sub_total = round(($qty * $price), 3);
-                            $amount = round(($sub_total - $discount), 3);
-                            $tax_value = round((($tax_rate/100) * $amount), 3);
-                            $total_amount = round(($amount + $tax_value), 3);
-
-                            PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
-                                'sub_total' => $sub_total,
-                                'amount' => $amount,
-                                'tax_value' => $tax_value,
-                                'total_amount' => $total_amount
-                            ]);
-                            $totals = PurchaseOrderDetails::where('id_purchase_orders', $dataItemPO->id_purchase_orders)
-                                ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
-                                    SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
-                                ->first();
-                            // Round up to 3 decimal places
-                            $sub_total = round($totals->total_sub_total, 3);
-                            $total_discount = round($totals->total_discount, 3);
-                            $total_sub_amount = round($totals->total_sub_amount, 3);
-                            $total_ppn = round($totals->total_ppn, 3);
-                            $total_amount = round($totals->total_amount, 3);
-                            // Update PO Data
-                            PurchaseOrders::where('id', $dataItemPO->id_purchase_orders)->update([
-                                'sub_total' => $sub_total,
-                                'total_discount' => $total_discount,
-                                'total_sub_amount' => $total_sub_amount,
-                                'total_ppn' => $total_ppn,
-                                'total_amount' => $total_amount,
-                            ]);
-                        }
+                        PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
+                            'sub_total' => $sub_total,
+                            'amount' => $amount,
+                            'tax_value' => $tax_value,
+                            'total_amount' => $total_amount
+                        ]);
+                        $totals = PurchaseOrderDetails::where('id_purchase_orders', $dataItemPO->id_purchase_orders)
+                            ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
+                                SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
+                            ->first();
+                        // Round up to 3 decimal places
+                        $sub_total = round($totals->total_sub_total, 3);
+                        $total_discount = round($totals->total_discount, 3);
+                        $total_sub_amount = round($totals->total_sub_amount, 3);
+                        $total_ppn = round($totals->total_ppn, 3);
+                        $total_amount = round($totals->total_amount, 3);
+                        // Update PO Data
+                        PurchaseOrders::where('id', $dataItemPO->id_purchase_orders)->update([
+                            'sub_total' => $sub_total,
+                            'total_discount' => $total_discount,
+                            'total_sub_amount' => $total_sub_amount,
+                            'total_ppn' => $total_ppn,
+                            'total_amount' => $total_amount,
+                        ]);
                     }
                 }
 
@@ -716,15 +597,17 @@ class PurchaseController extends Controller
     public function deleteItemPR($id)
     {
         $id = decrypt($id);
+        $idPR = PurchaseRequisitionsDetail::where('id', $id)->first()->id_purchase_requisitions;
+        $dataPR = PurchaseRequisitions::where('id', $idPR)->first();
+
         DB::beginTransaction();
         try{
-            $idPR = PurchaseRequisitionsDetail::where('id', $id)->first()->id_purchase_requisitions;
-            $dataPR = PurchaseRequisitions::where('id', $idPR)->first();
-            $dataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->first();
-
+            // Delete Item PR
             PurchaseRequisitionsDetail::where('id', $id)->delete();
+            // Delete Item PO Also IF Has Created PO
             PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->delete();
 
+            // IF Input Price Re-Calculate Total Price
             if ($dataPR->input_price == 'Y') {
                 $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataPR->id)
                     ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
@@ -744,35 +627,29 @@ class PurchaseController extends Controller
                     'total_ppn' => $total_ppn,
                     'total_amount' => $total_amount,
                 ]);
+            }
+
+            // IF Has Created PO Re-Calculate Total Price In PO
+            $dataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->first();
+            if($dataItemPO){
+                $totals = PurchaseOrderDetails::where('id_purchase_orders', $dataItemPO->id_purchase_orders)
+                    ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
+                        SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
+                    ->first();
+                // Round up to 3 decimal places
+                $sub_total = round($totals->total_sub_total, 3);
+                $total_discount = round($totals->total_discount, 3);
+                $total_sub_amount = round($totals->total_sub_amount, 3);
+                $total_ppn = round($totals->total_ppn, 3);
+                $total_amount = round($totals->total_amount, 3);
                 // Update PO Data
-                PurchaseOrders::where('reference_number', $dataPR->id)->update([
+                PurchaseOrders::where('id', $dataItemPO->id_purchase_orders)->update([
                     'sub_total' => $sub_total,
                     'total_discount' => $total_discount,
                     'total_sub_amount' => $total_sub_amount,
                     'total_ppn' => $total_ppn,
                     'total_amount' => $total_amount,
                 ]);
-            } else {
-                if($dataItemPO){
-                    $totals = PurchaseOrderDetails::where('id_purchase_orders', $dataItemPO->id_purchase_orders)
-                        ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
-                            SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
-                        ->first();
-                    // Round up to 3 decimal places
-                    $sub_total = round($totals->total_sub_total, 3);
-                    $total_discount = round($totals->total_discount, 3);
-                    $total_sub_amount = round($totals->total_sub_amount, 3);
-                    $total_ppn = round($totals->total_ppn, 3);
-                    $total_amount = round($totals->total_amount, 3);
-                    // Update PO Data
-                    PurchaseOrders::where('id', $dataItemPO->id_purchase_orders)->update([
-                        'sub_total' => $sub_total,
-                        'total_discount' => $total_discount,
-                        'total_sub_amount' => $total_sub_amount,
-                        'total_ppn' => $total_ppn,
-                        'total_amount' => $total_amount,
-                    ]);
-                }
             }
 
             // Audit Log
@@ -877,7 +754,7 @@ class PurchaseController extends Controller
         $currentMonth = $this->romanMonth(date('n'));
         $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
 
-        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->get();
+        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->where('input_price', '!=', 'Y')->get();
         $suppliers = MstSupplier::get();
 
         $datas = PurchaseOrders::select(
@@ -952,8 +829,7 @@ class PurchaseController extends Controller
         
         DB::beginTransaction();
         try{
-            $dataPR = PurchaseRequisitions::where('id', $request->reference_number)->first();
-            $storeData = [
+            $storeData = PurchaseOrders::create([
                 'po_number' => $formattedCode,
                 'date' => $request->date,
                 'delivery_date' => $request->delivery_date,
@@ -967,44 +843,20 @@ class PurchaseController extends Controller
                 'supplier_remarks' => $request->supplier_remarks,
                 'status' => $request->status,
                 'type' => $request->type,
-            ];
-            if ($dataPR->input_price == 'Y') {
-                $storeData = array_merge($storeData, [
-                    'sub_total' => $dataPR->sub_total,
-                    'total_discount' => $dataPR->total_discount,
-                    'total_sub_amount' => $dataPR->total_sub_amount,
-                    'total_ppn' => $dataPR->total_ppn,
-                    'total_amount' => $dataPR->total_amount,
-                ]);
-            }
-            $storeData = PurchaseOrders::create($storeData);
+            ]);
 
             PurchaseRequisitions::where('id', $request->reference_number)->update(['status' => 'Created PO']);
             // Get Item PR
             $dataItemPR = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $request->reference_number)->get();
             foreach($dataItemPR as $item){
-                $storeItemData = [
+                PurchaseOrderDetails::create([
                     'id_purchase_orders' => $storeData->id,
                     'type_product' => $item->type_product,
                     'master_products_id' => $item->master_products_id,
                     'qty' => $item->qty,
                     'master_units_id' => $item->master_units_id,
                     'id_purchase_requisition_details' => $item->id,
-                ];
-                if ($dataPR->input_price == 'Y') {
-                    $storeItemData = array_merge($storeItemData, [
-                        'currency' => $item->currency,
-                        'price' => $item->price,
-                        'sub_total' => $item->sub_total,
-                        'discount' => $item->discount,
-                        'amount' => $item->amount,
-                        'tax' => $item->tax,
-                        'tax_rate' => $item->tax_rate,
-                        'tax_value' => $item->tax_value,
-                        'total_amount' => $item->total_amount,
-                    ]);
-                }
-                PurchaseOrderDetails::create($storeItemData);
+                ]);
             }
 
             // Audit Log
@@ -1027,7 +879,7 @@ class PurchaseController extends Controller
         $statusPR = PurchaseRequisitions::where('id', $data->reference_number)->first()->status;
 
         // Dropdown
-        $reference_number = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->orWhere('id', $data->reference_number)->get();
+        $reference_number = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->where('input_price', '!=', 'Y')->orWhere('id', $data->reference_number)->get();
         $suppliers = MstSupplier::get();
 
         $currency = MstCurrencies::get();
@@ -1155,52 +1007,26 @@ class PurchaseController extends Controller
                     PurchaseRequisitions::where('id', $request->reference_number)->update(['status' => 'Created PO']);
                     //Delete PO Detail Before
                     PurchaseOrderDetails::where('id_purchase_orders', $id)->delete();
-                    
-                    $dataPR = PurchaseRequisitions::where('id', $request->reference_number)->first();
                     //Get Item PR After
                     $dataItemPR = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $request->reference_number)->get();
                     foreach($dataItemPR as $item){
-                        $storeItemData = [
+                        PurchaseOrderDetails::create([
                             'id_purchase_orders' => $id,
                             'type_product' => $item->type_product,
                             'master_products_id' => $item->master_products_id,
                             'qty' => $item->qty,
                             'master_units_id' => $item->master_units_id,
                             'id_purchase_requisition_details' => $item->id,
-                        ];
-                        if ($dataPR->input_price == 'Y') {
-                            $storeItemData = array_merge($storeItemData, [
-                                'currency' => $item->currency,
-                                'price' => $item->price,
-                                'sub_total' => $item->sub_total,
-                                'discount' => $item->discount,
-                                'amount' => $item->amount,
-                                'tax' => $item->tax,
-                                'tax_rate' => $item->tax_rate,
-                                'tax_value' => $item->tax_value,
-                                'total_amount' => $item->total_amount,
-                            ]);
-                        }
-                        PurchaseOrderDetails::create($storeItemData);
-                    }
-                    if ($dataPR->input_price == 'Y') {
-                        PurchaseOrders::where('id', $id)->update([
-                            'sub_total' => $dataPR->sub_total,
-                            'total_discount' => $dataPR->total_discount,
-                            'total_sub_amount' => $dataPR->total_sub_amount,
-                            'total_ppn' => $dataPR->total_ppn,
-                            'total_amount' => $dataPR->total_amount,
-                        ]);
-                    } else {
-                        //Set Null All Total
-                        PurchaseOrders::where('id', $id)->update([
-                            'sub_total' => null,
-                            'total_discount' => null,
-                            'total_sub_amount' => null,
-                            'total_ppn' => null,
-                            'total_amount' => null,
                         ]);
                     }
+                    //Set Null All Total
+                    PurchaseOrders::where('id', $id)->update([
+                        'sub_total' => null,
+                        'total_discount' => null,
+                        'total_sub_amount' => null,
+                        'total_ppn' => null,
+                        'total_amount' => null,
+                    ]);
                 }
     
                 // Audit Log

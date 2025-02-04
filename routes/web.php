@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\PurchaseRequisitionPriceController;
+
 use App\Models\MstProcessProductions;
 
 /*
@@ -115,6 +117,23 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/item/store/{id}', 'storeItemPR')->name('pr.storeItem');
                 Route::post('/item/update/{id}', 'updateItemPR')->name('pr.updateItem');
                 Route::post('/item/delete/{id}', 'deleteItemPR')->name('pr.deleteItem');
+            });
+        });
+        // Purchase Requisition With Price
+        Route::controller(PurchaseRequisitionPriceController::class)->group(function () {
+            Route::prefix('purchase_requisition_price')->group(function () {
+                Route::get('/', 'index')->name('pr.price.index');
+                Route::get('/detail/{id}', 'edit')->name('pr.price.detail');
+                Route::get('/edit/{id}', 'edit')->name('pr.price.edit');
+                Route::post('/store', 'store')->name('pr.price.store');
+                Route::post('/update/{id}', 'update')->name('pr.price.update');
+                Route::post('/delete/{id}', 'delete')->name('pr.price.delete');
+                Route::post('/posted/{id}', 'posted')->name('pr.price.posted');
+                Route::post('/unposted/{id}', 'unposted')->name('pr.price.unposted');
+                Route::get('/get-pr-details', 'getPRDetails')->name('pr.price.getPRDetails');
+                //ITEM PR
+                Route::get('/item/edit/{id}', 'editItem')->name('pr.price.editItem');
+                Route::post('/item/update/{id}', 'updateItem')->name('pr.price.updateItem');
             });
         });
         // Purchase Requisition Items
