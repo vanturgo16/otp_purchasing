@@ -270,7 +270,7 @@
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
                 let darkColor = '#FAFAFA';
-                if (['Posted', 'Created PO'].includes(data.status)) {
+                if (['Posted', 'Created GRN'].includes(data.status)) {
                     bgColor = 'table-success';
                     darkColor = '#CFEBE0';
                 }
