@@ -1,4 +1,4 @@
-@if(in_array($data->status, ['Posted', 'Closed']))
+@if(in_array($data->status, ['Posted', 'Created GRN', 'Closed']))
 <a href="{{ route('pr.price.detail', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
     <i class="fas fa-info" title="Detail"></i> Detail
 </a>
