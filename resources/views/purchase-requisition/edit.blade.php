@@ -135,7 +135,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Qty</label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control" name="qty" id="qty" placeholder="Masukkan Qty.." required>
+                            <input type="text" class="form-control number-format" name="qty" id="qty" placeholder="Masukkan Qty.." required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
@@ -216,7 +216,13 @@
                                 <td class="text-center">{{ $item->required_date}}</td>
                                 <td class="align-top">{{ $item->cc_co_name}}</td>
                                 <td class="text-center">
-                                    <b>{{ $item->qty }}</b>
+                                    <b>
+                                        {{ $item->qty 
+                                            ? (strpos(strval($item->qty), '.') !== false 
+                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                : number_format($item->qty, 0, ',', '.')) 
+                                            : '0' }}
+                                    </b>
                                 </td>
                                 <td class="text-center">
                                     {{ $item->unit_code }}

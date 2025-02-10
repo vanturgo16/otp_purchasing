@@ -183,7 +183,13 @@
                                 <td class="text-center">{{ $item->required_date}}</td>
                                 <td class="align-top">{{ $item->cc_co_name}}</td>
                                 <td class="text-center">
-                                    <b>{{ $item->qty }}</b>
+                                    <b>
+                                        {{ $item->qty 
+                                            ? (strpos(strval($item->qty), '.') !== false 
+                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                : number_format($item->qty, 0, ',', '.')) 
+                                            : '0' }}
+                                    </b>
                                     <br>({{ $item->unit_code }})
                                 </td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
