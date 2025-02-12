@@ -327,10 +327,14 @@
                     bgColor = 'table-success-closed';
                     darkColor = '#a6eed1';
                 }
-                // if (data.status === 'Request') {
-                //     bgColor = 'table-secondary';
-                //     darkColor = '#DFE0E3';
-                // }
+                if (data.status === 'Request') {
+                    bgColor = 'table-secondary';
+                    darkColor = '#DFE0E3';
+                }
+                if (data.status === 'Un Posted') {
+                    bgColor = 'table-warning';
+                    darkColor = '#FFF3CB';
+                }
                 if (bgColor) {
                     $(row).addClass(bgColor);
                 }
@@ -408,9 +412,10 @@
                 <select id="filterStatus">
                     <option value="All">-- Semua Status --</option>
                     <option value="Request">Request</option>
-                    <option value="Posted">Posted</option>
-                    <option value="Closed">Closed</option>
                     <option value="Un Posted">Un Posted</option>
+                    <option value="Posted">Posted</option>
+                    <option value="Created GRN">Created GRN</option>
+                    <option value="Closed">Closed</option>
                 </select>
             </label>
         `;
