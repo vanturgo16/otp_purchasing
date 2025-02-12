@@ -1,6 +1,10 @@
 @extends('layouts.master')
 @section('konten')
 
+@php
+    $statusDetail = ['Created GRN', 'Closed'];
+    $statusEdit = ['Request', 'Un Posted'];
+@endphp
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -14,7 +18,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Edit Purchase Order {{ $data->type }}</li>
+                            <li class="breadcrumb-item active"> {{ (in_array($data->status, $statusDetail)) ? 'Detail' : 'Edit' }} Purchase Order {{ $data->type }}</li>
                         </ol>
                     </div>
                 </div>
@@ -24,7 +28,7 @@
         {{-- DATA PO --}}
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Edit Purchase Order</h4>
+                <h4 class="card-title">{{ (in_array($data->status, $statusDetail)) ? 'Detail' : 'Edit' }} Purchase Order</h4>
             </div>
             <form method="POST" action="{{ route('po.update', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
                 @csrf
@@ -39,22 +43,32 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Date</label>
                         <div class="col-sm-9">
-                            <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
+                            @if(in_array($data->status, $statusDetail))
+                                <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
+                            @else
+                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Delivery Date</label>
                         <div class="col-sm-9">
-                            <input type="date" name="delivery_date" class="form-control" value="{{ $data->delivery_date }}">
+                            @if(in_array($data->status, $statusDetail))
+                                <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
+                            @else
+                                <input type="date" name="delivery_date" class="form-control" value="{{ $data->date }}" required>>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">
                             Reference Number (PR)
-                            <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
+                            @if(in_array($data->status, $statusEdit))
+                                <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
+                            @endif
                         </label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="reference_number" id="reference_number" style="width: 100%" required>
+                            <select class="form-select data-select2 @if(in_array($data->status, $statusDetail)) readonly-select2 @endif" name="reference_number" id="reference_number" style="width: 100%" required>
                                 <option value="">Pilih Reference Number</option>
                                 @foreach ($reference_number as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->reference_number ? 'selected' : '' }}>
@@ -84,11 +98,6 @@
                                                 $('select[name="id_master_suppliers"]').val(response.data.id_master_suppliers).trigger('change');
                                                 $('input[name="type"]').val(response.data.type);
                                                 $('input[name="qc_check"]').val(response.data.qc_check);
-                                                // if (response.data.qc_check === 'Y') {
-                                                //     $('#qc_check_Y').prop('checked', true);
-                                                // } else if (response.data.qc_check === 'N') {
-                                                //     $('#qc_check_N').prop('checked', true);
-                                                // }
                                             } else {
                                                 alert('No data found for this reference number.');
                                             }
@@ -116,15 +125,6 @@
                             </select>
                         </div>
                     </div>
-                    {{-- <div class="row mb-4 field-wrapper required-field">
-                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Qc Check </label>
-                        <div class="col-sm-9">
-                            <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }} required>
-                            <label for="qc_check_Y">Y</label>
-                            <input type="radio" id="qc_check_N" name="qc_check" value="N" {{ $data->qc_check == 'N' ? 'checked' : '' }}>
-                            <label for="qc_check_N">N</label>
-                        </div>
-                    </div> --}}
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Qc Check</label>
                         <div class="col-sm-9">
@@ -146,24 +146,33 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Down Payment </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control number-format" name="down_payment" placeholder="Masukkan Down Payment.." 
+                            <input type="text" class="form-control number-format @if(in_array($data->status, $statusDetail)) custom-bg-gray @endif" name="down_payment" placeholder="Masukkan Down Payment.." 
                                 value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '0' }}" 
-                                required>
+                                required @if(in_array($data->status, $statusDetail)) readonly @endif>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Own Remarks </label>
                         <div class="col-sm-9">
-                            <textarea name="own_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->own_remarks }}</textarea>
+                            @if(in_array($data->status, $statusDetail))
+                                <textarea rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Remarks.. (Opsional)" readonly>{{ $data->own_remarks }}</textarea>
+                            @else
+                                <textarea name="own_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->own_remarks }}</textarea>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier Remarks </label>
                         <div class="col-sm-9">
-                            <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->supplier_remarks }}</textarea>
+                            @if(in_array($data->status, $statusDetail))
+                                <textarea rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Remarks.. (Opsional)" readonly>{{ $data->supplier_remarks }}</textarea>
+                            @else
+                                <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->supplier_remarks }}</textarea>
+                            @endif
                         </div>
                     </div>
                 </div>
+                @if(in_array($data->status, $statusEdit))
                 <div class="card-footer">
                     <div class="row text-end">
                         <div>
@@ -176,6 +185,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </form>
         </div>
 
@@ -185,19 +195,22 @@
                 <h4 class="card-title">List Item Product <b>"{{ $data->type }}"</b></h4>
             </div>
             <div class="card-body p-4">
-                {{-- <a href="" class="btn btn-info waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addProduct">
-                    <i class="mdi mdi-plus label-icon"></i> Tambah Product <b>"{{ $data->type }}"</b>
-                </a> --}}
                 <table class="table table-bordered dt-responsive w-100" style="font-size: small" id="tableItem">
                     <thead>
                         <tr>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">No.</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-right: 3px solid #e2e2e2;">Product</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
+                            @if(in_array($data->status, $statusDetail))
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Outstanding Qty</th>
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Status</th>
+                            @endif
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Note</th>
-                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
+                            @if(in_array($data->status, $statusEdit))
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
+                            @endif
                         </tr>
                         <tr>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Price</th>
@@ -226,6 +239,22 @@
                                     </b>
                                     <br>({{ $item->unit_code }})
                                 </td>
+                                @if(in_array($data->status, $statusDetail))
+                                    <td class="text-center">
+                                        <b>
+                                            {{ $item->outstanding_qty 
+                                                ? (strpos(strval($item->outstanding_qty), '.') !== false 
+                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 3, ',', '.'), '0'), ',') 
+                                                    : number_format($item->outstanding_qty, 0, ',', '.')) 
+                                                : '0' }}
+                                        </b>
+                                    </td>
+                                    <td class="align-top text-center">
+                                        @if ($item->status)
+                                            <span class="badge bg-{{ $item->status === 'Open' ? 'info' : 'success' }}">{{ ucfirst($item->status) }}</span>
+                                        @endif
+                                    </td>
+                                @endif
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
                                 <td class="text-end">
                                     {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
@@ -260,15 +289,17 @@
                                       {{ strlen($item->note) > 70 ? substr($item->note, 0, 70) . '...' : $item->note }}
                                     </span>
                                 </td>
-                                <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
-                                    @if($statusPR == 'Created PO')
-                                        <a href="{{ route('po.editItem', encrypt($item->id)) }}">
-                                            <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
-                                        </a>
-                                    @else
-                                        <span class="badge bg-warning">PR Sedang UnPost</span>
-                                    @endif
-                                </td>
+                                @if(in_array($data->status, $statusEdit))
+                                    <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
+                                        @if($statusPR == 'Un Posted')
+                                            <span class="badge bg-warning">PR Sedang UnPost</span>
+                                        @else
+                                            <a href="{{ route('po.editItem', encrypt($item->id)) }}">
+                                                <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
+                                            </a>
+                                        @endif
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                         @if(!$itemDatas->isEmpty())
@@ -277,6 +308,10 @@
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;" class="text-end"><b>Total</b></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                            @if(in_array($data->status, $statusDetail))
+                                <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                                <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                            @endif
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
                                 {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
@@ -294,7 +329,9 @@
                                 {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
-                            <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
+                            @if(in_array($data->status, $statusEdit))
+                                <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
+                            @endif
                         </tr>
                         @endif
                     </tbody>
