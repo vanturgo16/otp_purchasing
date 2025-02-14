@@ -145,7 +145,7 @@
                     className: 'align-top',
                     render: function (data, type, row) {
                         if(row.input_price === 'Y'){
-                            return `<span class="badge bg-info text-white">Input Price</span>`;
+                            return `<span class="badge bg-info text-white">With Price</span>`;
                         } else {
                             return data;
                         }

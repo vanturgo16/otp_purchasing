@@ -46,7 +46,7 @@
                             @if(in_array($data->status, $statusDetail))
                                 <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
                             @else
-                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>>
+                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
                             @endif
                         </div>
                     </div>
