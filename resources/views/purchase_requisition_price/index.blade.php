@@ -278,10 +278,14 @@
                     bgColor = 'table-success-closed';
                     darkColor = '#a6eed1';
                 }
-                // if (data.status === 'Request') {
-                //     bgColor = 'table-secondary';
-                //     darkColor = '#DFE0E3';
-                // }
+                if (data.status === 'Request') {
+                    bgColor = 'table-secondary';
+                    darkColor = '#DFE0E3';
+                }
+                if (data.status === 'Un Posted') {
+                    bgColor = 'table-warning';
+                    darkColor = '#FFF3CB';
+                }
                 if (bgColor) {
                     $(row).addClass(bgColor);
                 }

@@ -406,7 +406,8 @@ class PurchaseController extends Controller
                 'id_purchase_requisitions' => $id,
                 'type_product' => $request->type_product,
                 'master_products_id' => $request->master_products_id,
-                'qty' => $request->qty,
+                'qty' => str_replace(['.', ','], ['', '.'], $request->qty),
+                'outstanding_qty' => str_replace(['.', ','], ['', '.'], $request->qty),
                 'master_units_id' => $request->master_units_id,
                 'required_date' => $request->required_date,
                 'cc_co' => $request->cc_co,
@@ -477,7 +478,7 @@ class PurchaseController extends Controller
 
         $dataBefore = PurchaseRequisitionsDetail::where('id', $id)->first();
         $dataBefore->master_products_id = $request->master_products_id;
-        $dataBefore->qty = $request->qty;
+        $dataBefore->qty = str_replace(['.', ','], ['', '.'], $request->qty);
         $dataBefore->master_units_id = $request->master_units_id;
         $dataBefore->required_date = $request->required_date;
         $dataBefore->cc_co = $request->cc_co;
@@ -489,7 +490,8 @@ class PurchaseController extends Controller
                 $dataPR = PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->first();
                 PurchaseRequisitionsDetail::where('id', $id)->update([
                     'master_products_id' => $request->master_products_id,
-                    'qty' => $request->qty,
+                    'qty' => str_replace(['.', ','], ['', '.'], $request->qty),
+                    'outstanding_qty' => str_replace(['.', ','], ['', '.'], $request->qty),
                     'master_units_id' => $request->master_units_id,
                     'required_date' => $request->required_date,
                     'cc_co' => $request->cc_co,
@@ -498,7 +500,8 @@ class PurchaseController extends Controller
                 // Update Item PO Also IF Has Created PO
                 PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
                     'master_products_id' => $request->master_products_id,
-                    'qty' => $request->qty,
+                    'qty' => str_replace(['.', ','], ['', '.'], $request->qty),
+                    'outstanding_qty' => str_replace(['.', ','], ['', '.'], $request->qty),
                     'master_units_id' => $request->master_units_id,
                 ]);
 
@@ -506,7 +509,7 @@ class PurchaseController extends Controller
                 if ($dataPR->input_price == 'Y') {
                     $dataItemPR = PurchaseRequisitionsDetail::where('id', $id)->first();
                     if($dataItemPR->price){
-                        $qty = $request->qty;
+                        $qty = str_replace(['.', ','], ['', '.'], $request->qty);
                         $price = isset($dataItemPR->price) ? $dataItemPR->price : 0;
                         $discount = isset($dataItemPR->discount) ? $dataItemPR->discount : 0;
                         $tax_rate = isset($dataItemPR->tax_rate) ? $dataItemPR->tax_rate : 0;
@@ -546,7 +549,7 @@ class PurchaseController extends Controller
                 $dataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->first();
                 if($dataItemPO){
                     if($dataItemPO->price){
-                        $qty = $request->qty;
+                        $qty = str_replace(['.', ','], ['', '.'], $request->qty);
                         $price = $dataItemPO->price;
                         $discount = isset($dataItemPO->discount) ? $dataItemPO->discount : 0;
                         $tax_rate = isset($dataItemPO->tax_rate) ? $dataItemPO->tax_rate : 0;
@@ -854,6 +857,7 @@ class PurchaseController extends Controller
                     'type_product' => $item->type_product,
                     'master_products_id' => $item->master_products_id,
                     'qty' => $item->qty,
+                    'outstanding_qty' => $item->outstanding_qty,
                     'master_units_id' => $item->master_units_id,
                     'id_purchase_requisition_details' => $item->id,
                 ]);
@@ -1302,9 +1306,9 @@ class PurchaseController extends Controller
         ]);
         // Compare With Data Before
         $dataBefore = PurchaseOrderDetails::where('id', $id)->first();
-        $dataBefore->master_products_id = $request->master_products_id;
-        $dataBefore->qty = $request->qty;
-        $dataBefore->master_units_id = $request->master_units_id;
+        // $dataBefore->master_products_id = $request->master_products_id;
+        // $dataBefore->qty = $request->qty;
+        // $dataBefore->master_units_id = $request->master_units_id;
         $dataBefore->currency = $request->currency;
         $dataBefore->price = str_replace(['.', ','], ['', '.'], $request->price);
         $dataBefore->sub_total = str_replace(['.', ','], ['', '.'], $request->sub_total);
@@ -1322,8 +1326,8 @@ class PurchaseController extends Controller
                 // Update ITEM
                 PurchaseOrderDetails::where('id', $id)->update([
                     'master_products_id' => $request->master_products_id,
-                    'qty' => $request->qty,
-                    'master_units_id' => $request->master_units_id,
+                    // 'qty' => $request->qty,
+                    // 'master_units_id' => $request->master_units_id,
                     'currency' => $request->currency,
                     'price' => str_replace(['.', ','], ['', '.'], $request->price),
                     'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),

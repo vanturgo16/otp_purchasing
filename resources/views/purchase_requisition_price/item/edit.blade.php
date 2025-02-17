@@ -55,7 +55,13 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Qty</label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control custom-bg-gray" name="qty" id="qty" value="{{ $data->qty }}" placeholder="Masukkan Qty.." readonly required>
+                            <input type="text" class="form-control custom-bg-gray" name="qty" id="qty" 
+                                value="{{ $data->qty 
+                                ? (strpos(strval($data->qty), '.') !== false 
+                                    ? rtrim(rtrim(number_format($data->qty, 3, ',', '.'), '0'), ',') 
+                                    : number_format($data->qty, 0, ',', '.')) 
+                                : '0' }}"
+                                placeholder="Masukkan Qty.." readonly required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">

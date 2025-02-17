@@ -1,6 +1,10 @@
 @extends('layouts.master')
 @section('konten')
 
+@php
+    $statusDetail = ['Created GRN', 'Closed'];
+    $statusEdit = ['Request', 'Un Posted'];
+@endphp
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -14,7 +18,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Edit Purchase Order {{ $data->type }}</li>
+                            <li class="breadcrumb-item active"> {{ (in_array($data->status, $statusDetail)) ? 'Detail' : 'Edit' }} Purchase Order {{ $data->type }}</li>
                         </ol>
                     </div>
                 </div>
@@ -24,7 +28,7 @@
         {{-- DATA PO --}}
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Edit Purchase Order</h4>
+                <h4 class="card-title">{{ (in_array($data->status, $statusDetail)) ? 'Detail' : 'Edit' }} Purchase Order</h4>
             </div>
             <form method="POST" action="{{ route('po.update', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
                 @csrf
@@ -39,22 +43,32 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Date</label>
                         <div class="col-sm-9">
-                            <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
+                            @if(in_array($data->status, $statusDetail))
+                                <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
+                            @else
+                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-email-input" class="col-sm-3 col-form-label">Delivery Date</label>
                         <div class="col-sm-9">
-                            <input type="date" name="delivery_date" class="form-control" value="{{ $data->delivery_date }}">
+                            @if(in_array($data->status, $statusDetail))
+                                <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
+                            @else
+                                <input type="date" name="delivery_date" class="form-control" value="{{ $data->date }}" required>>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-password-input" class="col-sm-3 col-form-label">
                             Reference Number (PR)
-                            <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
+                            @if(in_array($data->status, $statusEdit))
+                                <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
+                            @endif
                         </label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="reference_number" id="reference_number" style="width: 100%" required>
+                            <select class="form-select data-select2 @if(in_array($data->status, $statusDetail)) readonly-select2 @endif" name="reference_number" id="reference_number" style="width: 100%" required>
                                 <option value="">Pilih Reference Number</option>
                                 @foreach ($reference_number as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->reference_number ? 'selected' : '' }}>
@@ -84,11 +98,6 @@
                                                 $('select[name="id_master_suppliers"]').val(response.data.id_master_suppliers).trigger('change');
                                                 $('input[name="type"]').val(response.data.type);
                                                 $('input[name="qc_check"]').val(response.data.qc_check);
-                                                // if (response.data.qc_check === 'Y') {
-                                                //     $('#qc_check_Y').prop('checked', true);
-                                                // } else if (response.data.qc_check === 'N') {
-                                                //     $('#qc_check_N').prop('checked', true);
-                                                // }
                                             } else {
                                                 alert('No data found for this reference number.');
                                             }
@@ -116,15 +125,6 @@
                             </select>
                         </div>
                     </div>
-                    {{-- <div class="row mb-4 field-wrapper required-field">
-                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Qc Check </label>
-                        <div class="col-sm-9">
-                            <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }} required>
-                            <label for="qc_check_Y">Y</label>
-                            <input type="radio" id="qc_check_N" name="qc_check" value="N" {{ $data->qc_check == 'N' ? 'checked' : '' }}>
-                            <label for="qc_check_N">N</label>
-                        </div>
-                    </div> --}}
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Qc Check</label>
                         <div class="col-sm-9">
@@ -146,24 +146,33 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Down Payment </label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control number-format" name="down_payment" placeholder="Masukkan Down Payment.." 
+                            <input type="text" class="form-control number-format @if(in_array($data->status, $statusDetail)) custom-bg-gray @endif" name="down_payment" placeholder="Masukkan Down Payment.." 
                                 value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '0' }}" 
-                                required>
+                                required @if(in_array($data->status, $statusDetail)) readonly @endif>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Own Remarks </label>
                         <div class="col-sm-9">
-                            <textarea name="own_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->own_remarks }}</textarea>
+                            @if(in_array($data->status, $statusDetail))
+                                <textarea rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Remarks.. (Opsional)" readonly>{{ $data->own_remarks }}</textarea>
+                            @else
+                                <textarea name="own_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->own_remarks }}</textarea>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Supplier Remarks </label>
                         <div class="col-sm-9">
-                            <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->supplier_remarks }}</textarea>
+                            @if(in_array($data->status, $statusDetail))
+                                <textarea rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Remarks.. (Opsional)" readonly>{{ $data->supplier_remarks }}</textarea>
+                            @else
+                                <textarea name="supplier_remarks" rows="3" cols="50" class="form-control" placeholder="Remarks.. (Opsional)">{{ $data->supplier_remarks }}</textarea>
+                            @endif
                         </div>
                     </div>
                 </div>
+                @if(in_array($data->status, $statusEdit))
                 <div class="card-footer">
                     <div class="row text-end">
                         <div>
@@ -176,6 +185,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </form>
         </div>
 
@@ -185,19 +195,22 @@
                 <h4 class="card-title">List Item Product <b>"{{ $data->type }}"</b></h4>
             </div>
             <div class="card-body p-4">
-                {{-- <a href="" class="btn btn-info waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addProduct">
-                    <i class="mdi mdi-plus label-icon"></i> Tambah Product <b>"{{ $data->type }}"</b>
-                </a> --}}
                 <table class="table table-bordered dt-responsive w-100" style="font-size: small" id="tableItem">
                     <thead>
                         <tr>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">No.</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-right: 3px solid #e2e2e2;">Product</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
+                            @if(in_array($data->status, $statusDetail))
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Outstanding Qty</th>
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Status</th>
+                            @endif
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Note</th>
-                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
+                            @if(in_array($data->status, $statusEdit))
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
+                            @endif
                         </tr>
                         <tr>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Price</th>
@@ -217,9 +230,31 @@
                                     <br>{!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->product_desc), 10))) !!}  {{-- max 10 word one line --}}
                                 </td>
                                 <td class="text-center">
-                                    <b>{{ $item->qty }}</b>
+                                    <b>
+                                        {{ $item->qty 
+                                            ? (strpos(strval($item->qty), '.') !== false 
+                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                : number_format($item->qty, 0, ',', '.')) 
+                                            : '0' }}
+                                    </b>
                                     <br>({{ $item->unit_code }})
                                 </td>
+                                @if(in_array($data->status, $statusDetail))
+                                    <td class="text-center">
+                                        <b>
+                                            {{ $item->outstanding_qty 
+                                                ? (strpos(strval($item->outstanding_qty), '.') !== false 
+                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 3, ',', '.'), '0'), ',') 
+                                                    : number_format($item->outstanding_qty, 0, ',', '.')) 
+                                                : '0' }}
+                                        </b>
+                                    </td>
+                                    <td class="align-top text-center">
+                                        @if ($item->status)
+                                            <span class="badge bg-{{ $item->status === 'Open' ? 'info' : 'success' }}">{{ ucfirst($item->status) }}</span>
+                                        @endif
+                                    </td>
+                                @endif
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
                                 <td class="text-end">
                                     {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
@@ -254,55 +289,18 @@
                                       {{ strlen($item->note) > 70 ? substr($item->note, 0, 70) . '...' : $item->note }}
                                     </span>
                                 </td>
-                                <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
-                                    @if($statusPR == 'Created PO')
-                                        <a href="{{ route('po.editItem', encrypt($item->id)) }}">
-                                            <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
-                                        </a>
-                                    @else
-                                        <span class="badge bg-warning">PR Sedang UnPost</span>
-                                    @endif
-                                    {{-- <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
-                                        <i class="bx bx-trash-alt" title="Hapus Data"></i>
-                                    </button> --}}
-                                </td>
+                                @if(in_array($data->status, $statusEdit))
+                                    <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
+                                        @if($statusPR == 'Un Posted')
+                                            <span class="badge bg-warning">PR Sedang UnPost</span>
+                                        @else
+                                            <a href="{{ route('po.editItem', encrypt($item->id)) }}">
+                                                <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
+                                            </a>
+                                        @endif
+                                    </td>
+                                @endif
                             </tr>
-                            {{-- Modal Delete --}}
-                            {{-- <div class="modal fade" id="delete{{ $item->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-top" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="staticBackdropLabel">Delete</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form action="{{ route('po.deleteItem', encrypt($item->id)) }}" method="POST" enctype="multipart/form-data" id="formDelete{{ $item->id }}">
-                                            @csrf
-                                            <input type="hidden" name="id_purchase_orders" value="{{ $item->id_purchase_orders }}">
-                                            <div class="modal-body p-4">
-                                                <div class="text-center">
-                                                    Apakah Anda Yakin Untuk <b>Menghapus</b> Data?
-                                                    <br><b>"{{ $item->product_desc }}"</b>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="btnFormDelete{{ $item->id }}">
-                                                    <i class="mdi mdi-delete-alert label-icon"></i>Delete
-                                                </button>
-                                            </div>
-                                        </form>
-                                        <script>
-                                            var idList = "{{ $item->id }}";
-                                            $('#formDelete' + idList).submit(function() {
-                                                if (!$('#formDelete' + idList).valid()) return false;
-                                                $('#btnFormDelete' + idList).attr("disabled", "disabled");
-                                                $('#btnFormDelete' + idList).html('<i class="mdi mdi-loading mdi-spin label-icon"></i>Please Wait...');
-                                                return true;
-                                            });
-                                        </script>
-                                    </div>
-                                </div>
-                            </div> --}}
                         @endforeach
                         @if(!$itemDatas->isEmpty())
                         <tr>
@@ -310,6 +308,10 @@
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;" class="text-end"><b>Total</b></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                            @if(in_array($data->status, $statusDetail))
+                                <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                                <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                            @endif
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
                                 {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
@@ -327,170 +329,14 @@
                                 {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
-                            <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
+                            @if(in_array($data->status, $statusEdit))
+                                <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
+                            @endif
                         </tr>
                         @endif
                     </tbody>
                 </table>
             </div>
-            
-            {{-- Modal Add --}}
-            {{-- <div class="modal fade" id="addProduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-top modal-xl" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel">Tambah Product <b>"{{ $data->type }}"</b></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form class="formLoad" action="{{ route('po.storeItem', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="id_purchase_orders" value="{{ $data->id }}">
-                            <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
-                                <div class="container">
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Type Product</label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control custom-bg-gray" placeholder="Masukkan Type Product.." name="type_product" value="{{ $data->type }}" readonly required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Product {{ $data->type }}</label>
-                                        <div class="col-sm-9">
-                                            <select class="form-select request_number data-select2" name="master_products_id" style="width: 100%" required>
-                                                <option value="">Pilih Product {{ $data->type }}</option>
-                                                @foreach ($products as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->description }}
-                                                        @if($data->type == 'FG')
-                                                            @if(!empty($item->perforasi)) || {{ $item->perforasi }} @endif
-                                                            @if(!empty($item->group_sub_code)) || Group Sub: {{ $item->group_sub_code }} @endif
-                                                        @endif
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <br><br>
-                                    
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
-                                        <div class="col-sm-9">
-                                            <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
-                                        <div class="col-sm-9">
-                                            <select class="form-select data-select2" name="master_units_id" id="unit_code" style="width: 100%" required>
-                                                <option>Pilih Units</option>
-                                                @foreach ($units as $item)
-                                                    <option value="{{ $item->id }}">
-                                                        {{ $item->unit_code }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Currency</label>
-                                        <div class="col-sm-9">
-                                            <select class="form-select data-select2" name="currency" id="" style="width: 100%" required>
-                                                <option>Pilih Currency</option>
-                                                @foreach ($currency as $item)
-                                                    <option value="{{ $item->currency_code }}">
-                                                        {{ $item->currency_code }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Price </label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control number-format" placeholder="Masukkan Price.." name="price" id="price" value="" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Sub Total</label>
-                                        <div class="col-sm-9">
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control custom-bg-gray" placeholder="Sub Total.. (Terisi Otomatis)" value="" name="sub_total" id="sub_total" readonly>
-                                                <span class="input-group-text">(Qty * Price)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <br><br>
-        
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Discount </label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control number-format" placeholder="Masukkan Discount.." name="discount" id="discount" value="" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Amount</label>
-                                        <div class="col-sm-9">
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control custom-bg-gray" placeholder="Amount.. (Terisi Otomatis)" name="amount" id="amount" value="" readonly>
-                                                <span class="input-group-text">(Sub Total - Discount)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <br><br>
-        
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax</label>
-                                        <div class="col-sm-9">
-                                            <input type="radio" id="tax_Y" name="tax" value="Y" required>
-                                            <label for="tax_Y">Y</label>
-                                            <input type="radio" id="tax_N" name="tax" value="N">
-                                            <label for="tax_N">N</label>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax Rate (%)</label>
-                                        <div class="col-sm-9">
-                                            <input type="number" class="form-control" placeholder="Masukkan Tax.." name="tax_rate" id="tax_rate" value="" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Tax Value </label>
-                                        <div class="col-sm-9">
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control custom-bg-gray" placeholder="Tax Value.. (Terisi Otomatis)" name="tax_value" id="tax_value" value="" readonly>
-                                                <span class="input-group-text">(Tax Rate/100 * Amount)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <br><br>
-
-                                    <div class="row mb-2 field-wrapper required-field">
-                                        <label class="col-sm-3 col-form-label">Total Amount </label>
-                                        <div class="col-sm-9">
-                                            <div class="input-group mb-3">
-                                                <input type="text" class="form-control custom-bg-gray" placeholder="Total Amount.. (Terisi Otomatis)" name="total_amount" id="total_amount" value="" readonly>
-                                                <span class="input-group-text">(Amount + Tax)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2 field-wrapper">
-                                        <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Note</label>
-                                        <div class="col-sm-9">
-                                            <textarea name="note" rows="4" cols="50" class="form-control" placeholder="Note.. (Opsional)"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary waves-effect btn-label waves-light">
-                                    <i class="mdi mdi-plus label-icon"></i>Tambah Ke Tabel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div> --}}
             <div class="card-footer p-4"></div>
         </div>
     </div>

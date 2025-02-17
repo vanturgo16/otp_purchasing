@@ -27,7 +27,7 @@ class PurchaseRequisitionPriceController extends Controller
     //DATA PR PRICE
     public function index(Request $request)
     {
-        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->where('input_price', '!=', 'Y')->get();
+        $postedPRs = PurchaseRequisitions::select('id', 'request_number')->whereIn('status', ['Posted', 'Created GRN', 'Closed'])->where('input_price', '!=', 'Y')->get();
         $suppliers = MstSupplier::get();
 
         $datas = PurchaseRequisitionsPrice::select('purchase_requisitions_price.id', 'purchase_requisitions_price.id_purchase_requisitions', 'purchase_requisitions_price.status', 
@@ -244,8 +244,6 @@ class PurchaseRequisitionPriceController extends Controller
 
         DB::beginTransaction();
         try{
-            // Update Status PR
-            PurchaseRequisitions::where('id', $idPR)->update(['status' => 'Closed']);
             PurchaseRequisitionsPrice::where('id', $id)->update(['status' => 'Posted']);
 
             // Audit Log
@@ -264,8 +262,6 @@ class PurchaseRequisitionPriceController extends Controller
 
         DB::beginTransaction();
         try{
-            // Update Status PR
-            PurchaseRequisitions::where('id', $idPR)->update(['status' => 'Posted']);
             PurchaseRequisitionsPrice::where('id', $id)->update(['status' => 'Un Posted']);
 
             // Audit Log

@@ -105,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', 'indexPR')->name('pr.index');
                 Route::get('/add/{type}', 'addPR')->name('pr.add');
                 Route::get('/edit/{id}', 'editPR')->name('pr.edit');
+                Route::get('/detail/{id}', 'editPR')->name('pr.detail');
                 Route::post('/store', 'storePR')->name('pr.store');
                 Route::post('/update/{id}', 'updatePR')->name('pr.update');
                 Route::post('/delete/{id}', 'deletePR')->name('pr.delete');
@@ -147,6 +148,7 @@ Route::middleware(['auth'])->group(function () {
             Route::prefix('purchase_orders')->group(function () {
                 Route::get('/', 'indexPO')->name('po.index');
                 Route::get('/edit/{id}', 'editPO')->name('po.edit');
+                Route::get('/detail/{id}', 'editPO')->name('po.detail');
                 Route::post('/store', 'storePO')->name('po.store');
                 Route::post('/update/{id}', 'updatePO')->name('po.update');
                 Route::post('/delete/{id}', 'deletePO')->name('po.delete');

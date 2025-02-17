@@ -145,7 +145,7 @@
                     className: 'align-top',
                     render: function (data, type, row) {
                         if(row.input_price === 'Y'){
-                            return `<span class="badge bg-info text-white">Input Price</span>`;
+                            return `<span class="badge bg-info text-white">With Price</span>`;
                         } else {
                             return data;
                         }
@@ -190,7 +190,7 @@
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
                 let darkColor = '#FAFAFA';
-                if (['Posted', 'Created PO'].includes(data.status)) {
+                if (['Posted', 'Created PO', 'Created GRN'].includes(data.status)) {
                     bgColor = 'table-success';
                     darkColor = '#CFEBE0';
                 }
@@ -198,10 +198,14 @@
                     bgColor = 'table-success-closed';
                     darkColor = '#a6eed1';
                 }
-                // if (data.status === 'Request') {
-                //     bgColor = 'table-secondary';
-                //     darkColor = '#DFE0E3';
-                // }
+                if (data.status === 'Request') {
+                    bgColor = 'table-secondary';
+                    darkColor = '#DFE0E3';
+                }
+                if (data.status === 'Un Posted') {
+                    bgColor = 'table-warning';
+                    darkColor = '#FFF3CB';
+                }
                 if (bgColor) {
                     $(row).addClass(bgColor);
                 }
@@ -279,10 +283,11 @@
                 <select id="filterStatus">
                     <option value="All">-- Semua Status --</option>
                     <option value="Request">Request</option>
+                    <option value="Un Posted">Un Posted</option>
                     <option value="Posted">Posted</option>
                     <option value="Created PO">Created PO</option>
+                    <option value="Created GRN">Created GRN</option>
                     <option value="Closed">Closed</option>
-                    <option value="Un Posted">Un Posted</option>
                 </select>
             </label>
         `;

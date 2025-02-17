@@ -129,6 +129,12 @@
     @endcan
 @endif
 
+@if(in_array($data->status, ['Created GRN', 'Closed']))
+    <a href="{{ route('po.detail', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+        <i class="fas fa-info" title="Detail"></i> Detail
+    </a>
+@endif
+
 <script>
     $(document).on('click', '[data-bs-toggle="modal"]', function(e) {
         e.preventDefault();

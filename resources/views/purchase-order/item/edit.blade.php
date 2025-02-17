@@ -58,7 +58,13 @@
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                 <div class="col-sm-9">
-                                    <input type="number" class="form-control custom-bg-gray" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}" required readonly>
+                                    <input type="text" class="form-control custom-bg-gray" placeholder="Masukkan Qty.." name="qty" id="qty" 
+                                        value="{{ $data->qty 
+                                        ? (strpos(strval($data->qty), '.') !== false 
+                                            ? rtrim(rtrim(number_format($data->qty, 3, ',', '.'), '0'), ',') 
+                                            : number_format($data->qty, 0, ',', '.')) 
+                                        : '0' }}"
+                                        required readonly>
                                 </div>
                             </div>
                             <div class="row mb-2 field-wrapper required-field">
@@ -208,7 +214,7 @@
         return formatted;
     }
     function calculateSubTotal() {
-        let qty = parseFloat($('#qty').val()) || 0;
+        let qty = formatPrice($('#qty').val()) || 0;
         let price = formatPrice($('#price').val()) || 0;
         let subTotal = qty * price;
         subTotal = Math.round(subTotal * 1000) / 1000; // Round to 3 decimal places

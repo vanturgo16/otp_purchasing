@@ -14,7 +14,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> {{ $data->status == 'Closed' ? 'Detail' : 'Edit' }} PR Price ({{ $data->type }})</li>
+                            <li class="breadcrumb-item active"> {{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? 'Detail' : 'Edit' }} PR Price ({{ $data->type }})</li>
                         </ol>
                     </div>
                 </div>
@@ -24,14 +24,14 @@
         {{-- DATA PR --}}
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">{{ $data->status == 'Closed' ? 'Detail' : 'Edit' }} Purchase Requisition Price ({{ $data->type }})</h4>
+                <h4 class="card-title">{{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? 'Detail' : 'Edit' }} Purchase Requisition Price ({{ $data->type }})</h4>
             </div>
             <form method="POST" action="{{ route('pr.price.update', encrypt($prPrice->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="reference_number_before" value="{{ $data->id }}">
                 <div class="card-body p-4">
-                    <div class="row mb-4 field-wrapper {{ $data->status == 'Closed' ? '' : 'required-field' }}">
-                        @if($data->status != 'Closed')
+                    <div class="row mb-4 field-wrapper {{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? '' : 'required-field' }}">
+                        @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                             <label for="horizontal-password-input" class="col-sm-3 col-form-label">
                                 Reference Number (PR)
                                 <i class="mdi mdi-information-outline" data-bs-toggle="tooltip" data-bs-placement="top" title="Mengubah Nomor Referensi akan memperbarui item produk sesuai Purchase Request."></i>
@@ -95,25 +95,25 @@
                             });
                         });
                     </script>
-                    <div class="row mb-4 field-wrapper {{ $data->status == 'Closed' ? '' : 'required-field' }}">
+                    <div class="row mb-4 field-wrapper {{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? '' : 'required-field' }}">
                         <label class="col-sm-3 col-form-label">Date</label>
                         <div class="col-sm-9">
                             <input type="text" name="date" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper {{ $data->status == 'Closed' ? '' : 'required-field' }}">
+                    <div class="row mb-4 field-wrapper {{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? '' : 'required-field' }}">
                         <label class="col-sm-3 col-form-label">Suppliers</label>
                         <div class="col-sm-9">
                             <input type="text" name="id_master_suppliers" class="form-control custom-bg-gray" value="{{ $data->supplier_name }}" readonly required>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper {{ $data->status == 'Closed' ? '' : 'required-field' }}">
+                    <div class="row mb-4 field-wrapper {{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? '' : 'required-field' }}">
                         <label class="col-sm-3 col-form-label">Requester</label>
                         <div class="col-sm-9">
                             <input type="text" name="requester" class="form-control custom-bg-gray" value="{{ $data->nm_requester }}" readonly required>
                         </div>
                     </div>
-                    <div class="row mb-4 field-wrapper {{ $data->status == 'Closed' ? '' : 'required-field' }}">
+                    <div class="row mb-4 field-wrapper {{ (in_array($prPrice->status, ['Posted', 'Closed'])) ? '' : 'required-field' }}">
                         <label class="col-sm-3 col-form-label">Qc Check </label>
                         <div class="col-sm-9">
                             <input type="text" name="qc_check" class="form-control custom-bg-gray" value="{{ $data->qc_check }}" readonly required>
@@ -126,7 +126,7 @@
                         </div>
                     </div>
                 </div>
-                @if($data->status != 'Closed')
+                @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                 <div class="card-footer">
                     <div class="row text-end">
                         <div>
@@ -159,7 +159,7 @@
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Remarks</th>
-                            @if($data->status != 'Closed')
+                            @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
                             @endif
                         </tr>
@@ -183,7 +183,13 @@
                                 <td class="text-center">{{ $item->required_date}}</td>
                                 <td class="align-top">{{ $item->cc_co_name}}</td>
                                 <td class="text-center">
-                                    <b>{{ $item->qty }}</b>
+                                    <b>
+                                        {{ $item->qty 
+                                            ? (strpos(strval($item->qty), '.') !== false 
+                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                : number_format($item->qty, 0, ',', '.')) 
+                                            : '0' }}
+                                    </b>
                                     <br>({{ $item->unit_code }})
                                 </td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
@@ -218,14 +224,14 @@
                                 <td>
                                     {!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->remarks), 10))) !!}
                                 </td>
-                                @if($data->status != 'Closed')
+                                @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                                 <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
-                                    @if($data->status == 'Posted')
+                                    @if($data->status == 'Un Posted')
+                                        <span class="badge bg-warning">PR Sedang UnPost</span>
+                                    @else
                                         <a href="{{ route('pr.price.editItem', encrypt($item->id)) }}">
                                             <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
                                         </a>
-                                    @else
-                                        <span class="badge bg-warning">PR Sedang UnPost</span>
                                     @endif
                                 </td>
                                 @endif
@@ -275,7 +281,7 @@
                                 {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
-                            @if($data->status != 'Closed')
+                            @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                             <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             @endif
                         </tr>

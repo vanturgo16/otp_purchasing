@@ -1,6 +1,10 @@
 @extends('layouts.master')
 @section('konten')
 
+@php
+    $statusDetail = ['Created GRN', 'Closed'];
+    $statusEdit = ['Request', 'Un Posted'];
+@endphp
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -14,7 +18,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Purchase</a></li>
-                            <li class="breadcrumb-item active"> Edit PR ({{ $data->type }})</li>
+                            <li class="breadcrumb-item active"> {{ (in_array($data->status, $statusDetail)) ? 'Detail' : 'Edit' }} PR ({{ $data->type }})</li>
                         </ol>
                     </div>
                 </div>
@@ -24,7 +28,7 @@
         {{-- DATA PR --}}
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Edit Purchase Requisition ({{ $data->type }})</h4>
+                <h4 class="card-title">{{ (in_array($data->status, $statusDetail)) ? 'Detail' : 'Edit' }} Purchase Requisition ({{ $data->type }})</h4>
             </div>
             <form method="POST" action="{{ route('pr.update', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
                 @csrf
@@ -39,13 +43,17 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Date</label>
                         <div class="col-sm-9">
-                            <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
+                            @if(in_array($data->status, $statusDetail))
+                                <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
+                            @else
+                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Suppliers</label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="id_master_suppliers" style="width: 100%" required>
+                            <select class="form-select data-select2 @if(in_array($data->status, $statusDetail)) readonly-select2 @endif" name="id_master_suppliers" style="width: 100%" required>
                                 <option value="">Pilih Suppliers</option>
                                 @foreach ($suppliers as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->id_master_suppliers ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -56,7 +64,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Requester</label>
                         <div class="col-sm-9">
-                            <select class="form-select data-select2" name="requester" style="width: 100%" required>
+                            <select class="form-select data-select2 @if(in_array($data->status, $statusDetail)) readonly-select2 @endif" name="requester" style="width: 100%" required>
                                 <option value="">Pilih Requester</option>
                                 @foreach ($requesters as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $data->requester ? 'selected' : '' }}>{{ $item->nm_requester }}</option>
@@ -67,16 +75,24 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Qc Check </label>
                         <div class="col-sm-9">
-                            <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }} required>
-                            <label for="qc_check_Y">Y</label>
-                            <input type="radio" id="qc_check_N" name="qc_check" value="N" {{ $data->qc_check == 'N' ? 'checked' : '' }} >
-                            <label for="qc_check_N">N</label>
+                            @if(in_array($data->status, $statusDetail))
+                                <input type="text" class="form-control custom-bg-gray" value="{{ $data->qc_check }}" readonly required>
+                            @else
+                                <input type="radio" id="qc_check_Y" name="qc_check" value="Y" {{ $data->qc_check == 'Y' ? 'checked' : '' }} required>
+                                <label for="qc_check_Y">Y</label>
+                                <input type="radio" id="qc_check_N" name="qc_check" value="N" {{ $data->qc_check == 'N' ? 'checked' : '' }} >
+                                <label for="qc_check_N">N</label>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper">
                         <label class="col-sm-3 col-form-label">Note</label>
                         <div class="col-sm-9">
-                            <textarea name="note" rows="3" cols="50" class="form-control" placeholder="Note.. (Opsional)">{{ $data->note }}</textarea>
+                            @if(in_array($data->status, $statusDetail))
+                                <textarea name="note" rows="3" cols="50" class="form-control custom-bg-gray" placeholder="Note.. (Opsional)" readonly>{{ $data->note }}</textarea>
+                            @else
+                                <textarea name="note" rows="3" cols="50" class="form-control" placeholder="Note.. (Opsional)">{{ $data->note }}</textarea>
+                            @endif
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
@@ -86,6 +102,7 @@
                         </div>
                     </div>
                 </div>
+                @if(in_array($data->status, $statusEdit))
                 <div class="card-footer">
                     <div class="row text-end">
                         <div>
@@ -98,9 +115,11 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </form>
         </div>
         {{-- ITEM PR --}}
+        @if(in_array($data->status, $statusEdit))
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title">Tambah Purchase Requisition Detail ({{ $data->type }})</h4>
@@ -135,7 +154,7 @@
                     <div class="row mb-4 field-wrapper required-field">
                         <label class="col-sm-3 col-form-label">Qty</label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control" name="qty" id="qty" placeholder="Masukkan Qty.." required>
+                            <input type="text" class="form-control number-format" name="qty" id="qty" placeholder="Masukkan Qty.." required>
                         </div>
                     </div>
                     <div class="row mb-4 field-wrapper required-field">
@@ -187,6 +206,9 @@
                 </div>
             </form>
         </div>
+        @endif
+
+        {{-- LIST ITEM PR --}}
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title">List Item Product <b>"{{ $data->type }}"</b></h4>
@@ -200,9 +222,17 @@
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Required Date</th>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">CC / CO</th>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
+                            @if(in_array($data->status, $statusDetail))
+                                <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Outstanding Qty</th>
+                            @endif
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Units</th>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Remarks</th>
-                            <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
+                            @if(in_array($data->status, $statusDetail))
+                                <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Status</th>
+                            @endif
+                            @if(in_array($data->status, $statusEdit))
+                                <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -216,22 +246,49 @@
                                 <td class="text-center">{{ $item->required_date}}</td>
                                 <td class="align-top">{{ $item->cc_co_name}}</td>
                                 <td class="text-center">
-                                    <b>{{ $item->qty }}</b>
+                                    <b>
+                                        {{ $item->qty 
+                                            ? (strpos(strval($item->qty), '.') !== false 
+                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                : number_format($item->qty, 0, ',', '.')) 
+                                            : '0' }}
+                                    </b>
                                 </td>
+                                @if(in_array($data->status, $statusDetail))
+                                    <td class="text-center">
+                                        <b>
+                                            {{ $item->outstanding_qty 
+                                                ? (strpos(strval($item->outstanding_qty), '.') !== false 
+                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 3, ',', '.'), '0'), ',') 
+                                                    : number_format($item->outstanding_qty, 0, ',', '.')) 
+                                                : '0' }}
+                                        </b>
+                                    </td>
+                                @endif
                                 <td class="text-center">
                                     {{ $item->unit_code }}
                                 </td>
                                 <td>
                                     {!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->remarks), 10))) !!}
                                 </td>
-                                <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
-                                    <a href="{{ route('pr.editItem', encrypt($item->id)) }}">
-                                        <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
-                                    </a>
-                                    <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
-                                        <i class="bx bx-trash-alt" title="Hapus Data"></i>
-                                    </button>
-                                </td>
+                                @if(in_array($data->status, $statusDetail))
+                                    <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
+                                        @if ($item->status)
+                                            <span class="badge bg-{{ $item->status === 'Open' ? 'info' : 'success' }}">{{ ucfirst($item->status) }}</span>
+                                        @endif
+                                    </td>
+                                @endif
+                                
+                                @if(in_array($data->status, $statusEdit))
+                                    <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
+                                        <a href="{{ route('pr.editItem', encrypt($item->id)) }}">
+                                            <button type="button" class="btn btn-sm btn-info my-half"><i class="bx bx-edit-alt" title="Edit Data"></i></button>
+                                        </a>
+                                        <button type="submit" class="btn btn-sm btn-danger my-half" data-bs-toggle="modal" data-bs-target="#delete{{ $item->id }}">
+                                            <i class="bx bx-trash-alt" title="Hapus Data"></i>
+                                        </button>
+                                    </td>
+                                @endif
                             </tr>
                             <div class="modal fade" id="delete{{ $item->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-top" role="document">
