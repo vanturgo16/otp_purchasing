@@ -226,7 +226,7 @@
     }
 
     function calculateSubTotal() {
-        let qty = parseFloat($('#qty').val()) || 0;
+        let qty = formatPrice($('#qty').val()) || 0;
         let price = formatPrice($('#price').val()) || 0;
         let subTotal = qty * price;
         subTotal = Math.round(subTotal * 1000) / 1000; // Round to 3 decimal places
