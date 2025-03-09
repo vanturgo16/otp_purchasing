@@ -3,12 +3,11 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <div class="page-title-left">
-                        <a href="{{ route('edit_po', $data->id_purchase_orders) }}" class="btn btn-light waves-effect btn-label waves-light">
+                        <a href="{{ route('po.edit', encrypt($data->id_purchase_orders)) }}" class="btn btn-light waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left label-icon"></i> Back To Data Purchase Order
                         </a>
                     </div>
@@ -21,8 +20,8 @@
                 </div>
             </div>
         </div>
-
-        <form method="post" action="{{ route('updateItemPO', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
+        @include('layouts.alert')
+        <form method="post" action="{{ route('po.updateItem', encrypt($data->id)) }}" class="form-material m-t-40 formLoad" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="id_purchase_orders" value="{{ $data->id_purchase_orders }}">
             <div class="row">
@@ -39,50 +38,18 @@
                                 </div>
                             </div>
                             <div class="row mb-2 field-wrapper required-field">
-                                <label for="horizontal-email-input" class="col-sm-3 col-form-label">Product {{ $data->type_product; }}</label>
+                                <label class="col-sm-3 col-form-label">Product {{ $data->type_product }}</label>
                                 <div class="col-sm-9">
-                                    <select class="form-select request_number data-select2" name="master_products_id" id="" style="width: 100%" required>
-                                        @if($data->type_product=='RM')
-                                            <option value="">Pilih Product RM</option>
-                                            @foreach ($rawMaterials as $item)
-                                                <option value="{{ $item->id }}" data-id="{{ $item->id }}" 
-                                                    @if($data->master_products_id == $item->id) selected @endif>
-                                                    {{ $item->description }}
-                                                </option>
-                                            @endforeach
-                                        @elseif($data->type_product=='WIP')
-                                            <option value="">Pilih Product WIP</option>
-                                            @foreach ($wip as $item)
-                                                <option value="{{ $item->id }}" data-id="{{ $item->id }}" 
-                                                    @if($data->master_products_id == $item->id) selected @endif>
-                                                    {{ $item->description }}
-                                                </option>
-                                            @endforeach
-                                        @elseif($data->type_product=='FG')
-                                            <option value="">Pilih Product FG</option>
-                                            @foreach ($fg as $item)
-                                                <option value="{{ $item->id }}" data-id="{{ $item->id }}" 
-                                                    @if($data->master_products_id == $item->id) selected @endif>
-                                                    {{ $item->description }} || {{ $item->perforasi }}
-                                                </option>
-                                            @endforeach
-                                        @elseif($data->type_product=='TA')
-                                            <option value="">Pilih Product Sparepart & Auxiliaries</option>
-                                            @foreach ($ta as $item)
-                                                <option value="{{ $item->id }}" data-id="{{ $item->id }}" 
-                                                    @if($data->master_products_id == $item->id) selected @endif>
-                                                    {{ $item->description }}
-                                                </option>
-                                            @endforeach
-                                        @elseif($data->type_product=='Other')
-                                            <option value="">Pilih Product Other</option>
-                                            @foreach ($other as $item)
-                                                <option value="{{ $item->id }}" data-id="{{ $item->id }}" 
-                                                    @if($data->master_products_id == $item->id) selected @endif>
-                                                    {{ $item->description }}
-                                                </option>
-                                            @endforeach
-                                        @endif
+                                    <select class="form-select request_number data-select2 readonly-select2" name="master_products_id" style="width: 100%" required>
+                                        <option value="">Pilih Product {{ $data->type_product }}</option>
+                                        @foreach ($products as $item)
+                                            <option value="{{ $item->id }}" {{ $item->id == $data->master_products_id ? 'selected' : '' }}>{{ $item->description }}
+                                                @if($data->type_product == 'FG')
+                                                    @if(!empty($item->perforasi)) || {{ $item->perforasi }} @endif
+                                                    @if(!empty($item->group_sub_code)) || Group Sub: {{ $item->group_sub_code }} @endif
+                                                @endif
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -91,13 +58,19 @@
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-password-input" class="col-sm-3 col-form-label">Qty</label>
                                 <div class="col-sm-9">
-                                    <input type="number" class="form-control" placeholder="Masukkan Qty.." name="qty" id="qty" value="{{ $data->qty }}" required>
+                                    <input type="text" class="form-control custom-bg-gray" placeholder="Masukkan Qty.." name="qty" id="qty" 
+                                        value="{{ $data->qty 
+                                        ? (strpos(strval($data->qty), '.') !== false 
+                                            ? rtrim(rtrim(number_format($data->qty, 6, ',', '.'), '0'), ',') 
+                                            : number_format($data->qty, 0, ',', '.')) 
+                                        : '0' }}"
+                                        required readonly>
                                 </div>
                             </div>
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Units </label>
                                 <div class="col-sm-9">
-                                    <select class="form-select data-select2" name="master_units_id" id="unit_code" style="width: 100%" required>
+                                    <select class="form-select data-select2 readonly-select2" name="master_units_id" id="unit_code" style="width: 100%" required>
                                         <option>Pilih Units</option>
                                         @foreach ($units as $item)
                                             <option value="{{ $item->id }}" @if($data->master_units_id == $item->id) selected @endif>
@@ -123,14 +96,18 @@
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control rupiah-input" placeholder="Masukkan Price.." name="price" id="price" value="{{ number_format($data->price, 3, ',', '.') }}" required>
+                                    <input type="text" class="form-control number-format" placeholder="Masukkan Price.." name="price" id="price" 
+                                        value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 6, ',', '.')) : '0' }}" 
+                                    required>
                                 </div>
                             </div>
                             <div class="row mb-2 field-wrapper required-field">
                                 <label class="col-sm-3 col-form-label">Sub Total</label>
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control custom-bg-gray rupiah-input" placeholder="Sub Total.. (Terisi Otomatis)" value="{{ number_format($data->sub_total, 3, ',', '.') }}" name="subTotal" id="subTotal" readonly>
+                                        <input type="text" class="form-control custom-bg-gray" placeholder="Sub Total.. (Terisi Otomatis)"
+                                            value="{{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 6, ',', '.')) : '' }}" 
+                                            name="sub_total" id="sub_total" readonly>
                                         <span class="input-group-text">(Qty * Price)</span>
                                     </div>
                                 </div>
@@ -140,14 +117,18 @@
                             <div class="row mb-2 field-wrapper required-field">
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" placeholder="Masukkan Discount.." name="discount" id="discount" value="{{ number_format($data->discount, 3, ',', '.') }}" required>
+                                    <input type="text" class="form-control number-format" placeholder="Masukkan Discount.." name="discount" id="discount" 
+                                        value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 6, ',', '.')) : '0' }}" 
+                                        required>
                                 </div>
                             </div>
                             <div class="row mb-2 field-wrapper required-field">
                                 <label class="col-sm-3 col-form-label">Amount</label>
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control custom-bg-gray" placeholder="Amount.. (Terisi Otomatis)" name="amount" id="amount" value="{{ number_format($data->amount, 3, ',', '.') }}" readonly>
+                                        <input type="text" class="form-control custom-bg-gray" placeholder="Amount.. (Terisi Otomatis)" name="amount" id="amount" 
+                                            value="{{ $data->amount ? (strpos($data->amount, '.') === false ? number_format($data->amount, 0, ',', '.') : number_format($data->amount, 6, ',', '.')) : '' }}" 
+                                            readonly>
                                         <span class="input-group-text">(Sub Total - Discount)</span>
                                     </div>
                                 </div>
@@ -173,7 +154,9 @@
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Tax Value </label>
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control custom-bg-gray" placeholder="Tax Value.. (Terisi Otomatis)" name="tax_value" id="tax_value" value="{{ number_format($data->tax_value, 3, ',', '.') }}" readonly>
+                                        <input type="text" class="form-control custom-bg-gray" placeholder="Tax Value.. (Terisi Otomatis)" name="tax_value" id="tax_value" 
+                                            value="{{ $data->tax_value ? (strpos($data->tax_value, '.') === false ? number_format($data->tax_value, 0, ',', '.') : number_format($data->tax_value, 6, ',', '.')) : '' }}" 
+                                            readonly>
                                         <span class="input-group-text">(Tax Rate/100 * Amount)</span>
                                     </div>
                                 </div>
@@ -184,7 +167,9 @@
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Total Amount </label>
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control custom-bg-gray" placeholder="Total Amount.. (Terisi Otomatis)" name="total_amount" id="total_amount" value="{{ number_format($data->total_amount, 3, ',', '.') }}" readonly>
+                                        <input type="text" class="form-control custom-bg-gray" placeholder="Total Amount.. (Terisi Otomatis)" name="total_amount" id="total_amount" 
+                                            value="{{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 6, ',', '.')) : '' }}" 
+                                            readonly>
                                         <span class="input-group-text">(Amount + Tax)</span>
                                     </div>
                                 </div>
@@ -200,9 +185,9 @@
                         <div class="card-footer">
                             <div class="row text-end">
                                 <div>
-                                    <button type="reset" class="btn btn-secondary waves-effect btn-label waves-light">
+                                    <a href="{{ route('po.editItem', encrypt($data->id)) }}" type="button" class="btn btn-secondary waves-effect btn-label waves-light">
                                         <i class="mdi mdi-reload label-icon"></i>Reset
-                                    </button>
+                                    </a>
                                     <button type="submit" class="btn btn-primary waves-effect btn-label waves-light">
                                         <i class="mdi mdi-update label-icon"></i>Update
                                     </button>
@@ -222,15 +207,26 @@
         return num;
     }
     function formatPriceDisplay(value) {
-        return value.toFixed(3).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
+        let formatted = value.toFixed(6).replace('.', ','); // Convert decimal separator
+        let parts = formatted.split(",");
 
+        // Apply thousands separator only to the integer part
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Remove unnecessary trailing zeros after the comma
+        if (parts[1]) {
+            parts[1] = parts[1].replace(/0+$/, ""); // Remove trailing zeros
+            if (parts[1] === "") return parts[0]; // If decimal part is empty, return only integer part
+        }
+
+        return parts.join(",");
+    }
     function calculateSubTotal() {
         let qty = formatPrice($('#qty').val()) || 0;
         let price = formatPrice($('#price').val()) || 0;
         let subTotal = qty * price;
-        subTotal = Math.round(subTotal * 1000) / 1000; // Round to 3 decimal places
-        $('#subTotal').val(formatPriceDisplay(subTotal));
+        subTotal = Math.round(subTotal * 1e6) / 1e6; 
+        $('#sub_total').val(formatPriceDisplay(subTotal));
         calculateAmount();
         calculateTotalAmount();
     }
@@ -239,10 +235,10 @@
     });
 
     function calculateAmount() {
-        let subTotal = formatPrice($('#subTotal').val()) || 0;
+        let subTotal = formatPrice($('#sub_total').val()) || 0;
         let disc = formatPrice($('#discount').val()) || 0; 
         let amount = subTotal - disc;
-        amount = Math.round(amount * 1000) / 1000;
+        amount = Math.round(amount * 1e6) / 1e6; 
         $('#amount').val(formatPriceDisplay(amount));
         calculateTotalAmount();
     }
@@ -254,11 +250,11 @@
         let amount = formatPrice($('#amount').val()) || 0; 
         let taxRate = parseFloat($('#tax_rate').val()) || 0; 
         let taxValue = (taxRate/100) * amount;
-        taxValue = Math.round(taxValue * 1000) / 1000;
+        taxValue = Math.round(taxValue * 1e6) / 1e6; 
         $('#tax_value').val(formatPriceDisplay(taxValue));
 
         let totalAmount = amount + taxValue;
-        totalAmount = Math.round(totalAmount * 1000) / 1000;
+        totalAmount = Math.round(totalAmount * 1e6) / 1e6; 
         $('#total_amount').val(formatPriceDisplay(totalAmount));
     }
     $('#tax_rate').on('input', function () {
@@ -273,5 +269,6 @@
         $('#tax_rate').prop('readonly', false).removeClass('custom-bg-gray');
     });
 </script>
+
 
 @endsection

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Purchase Order | PT. OTP</title>
+    <title>Purchasing | PT. OTP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/icon-otp.png') }}">
@@ -23,10 +23,31 @@
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     {{-- Custom --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.2.2/css/fixedColumns.dataTables.min.css">
-    <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css" />
     {{-- Jquery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <style> 
+        div.field-wrapper label {
+            text-align: right;
+            padding-right: 50px
+        }
+
+        div.required-field label::after {
+            content: " *";
+            color: red;
+        }
+        /* Make Select2 appear disabled */
+        .readonly-select2 + .select2-container .select2-selection--single {
+            background-color: #e2e2e2 !important;
+            border: 1px solid #e2e2e2 !important;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+        .readonly-select2 + .select2-container .select2-selection__rendered {
+            background-color: #e2e2e2 !important;
+        }
+    </style>
 </head>
 
 
@@ -39,7 +60,7 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="index.html" class="logo logo-dark">
+                        <a href="https://sso.olefinatifaplas.my.id/menu" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/icon-otp.png') }}" alt="" height="30">
                             </span>
@@ -48,7 +69,7 @@
                             </span>
                         </a>
 
-                        <a href="index.html" class="logo logo-light">
+                        <a href="https://sso.olefinatifaplas.my.id/menu" class="logo logo-light">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/icon-otp.png') }}" alt="" height="30">
                             </span>
@@ -138,25 +159,60 @@
                             </a>
                         </li>
                         @can('Purchasing')
+                            <li class="menu-title" data-key="t-menu">Purchase Requisition (PR)</li>
+                            @can('Purchasing_Requisition')
+                            <li class="{{ request()->is('purchase_requisition/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('pr.index') }}">
+                                    <i class="mdi mdi-file-export"></i>
+                                    <span><small>Purchase Requisition</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            @can('Purchasing_Requisition')
+                            <li class="{{ request()->is('purchase_requisition_price/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('pr.price.index') }}">
+                                    <i class="mdi mdi-file-send"></i>
+                                    <span><small>Purchase Requisition (Price)</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            @can('Purchasing_Item')
+                            <li>
+                                <a href="{{ route('pr.indexItem') }}">
+                                    <i class="mdi mdi-file-document-multiple"></i>
+                                    <span><small>Purchase Requisition Items</small></span>
+                                </a>
+                            </li>
+                            @endcan
                             
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow">
-                            <i class="mdi mdi-file-alert"></i>
-                                <span data-key="t-blog">Purchasing</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                @can('Purchasing_Requisition')
-                                <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
-                                @endcan
+                            <li class="menu-title" data-key="t-menu">Purchase Order (PO)</li>
+                            @can('Purchasing_Order')
+                            <li class="{{ request()->is('purchase_orders/*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('po.index') }}">
+                                    <i class="mdi mdi-file-check"></i>
+                                    <span><small>Purchase Order</small></span>
+                                </a>
+                            </li>
+                            @endcan
+                            
+                            {{-- <li>
+                                <a href="javascript: void(0);" class="has-arrow">
+                                <i class="mdi mdi-file-alert"></i>
+                                    <span data-key="t-blog">Purchasing</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    @can('Purchasing_Requisition')
+                                    <li><a href="/purchase" data-key="t-blog-grid">Purchase Requisition</a></li>
+                                    @endcan
 
-                                @can('Purchasing_Item')
-                                <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
-                                @endcan
-                                @can('Purchasing_Order')
-                                <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
-                                @endcan
-                            </ul>
-                        </li>
+                                    @can('Purchasing_Item')
+                                    <li><a href="/purchase-requisition-items" data-key="t-blog-grid">Purchase Requisition Items</a></li>
+                                    @endcan
+                                    @can('Purchasing_Order')
+                                    <li><a href="/purchase-order" data-key="t-blog-list">Purchase Order</a></li>
+                                    @endcan
+                                </ul>
+                            </li> --}}
                         @endcan 
                         
 
@@ -477,6 +533,45 @@
             rightColumns: 1 // Freeze last column (Aksi)
         }
     });
+    // $('#tableItem').DataTable({
+    //     paging: false,
+    //     info: false,
+    //     searching: false,
+    //     lengthChange: false,
+    //     responsive: true,
+    //     ordering: false,
+    // });
+    
+    var tables = $('#tableItem').DataTable({
+        scrollX: true,
+        paging: false,
+        info: false,
+        searching: false,
+        lengthChange: false,
+        responsive: false,
+        ordering: false,
+        fixedColumns: {
+            leftColumns: 2, // Freeze first two columns
+            rightColumns: 1 // Freeze last column (Aksi)
+        }
+    });
+    function adjustTable() {
+        setTimeout(function () {
+            tables.columns.adjust().draw(false); // Adjust column widths
+        }, 10); // Delay to ensure animations finish
+    }
+    // Adjust table when vertical menu button is clicked
+    $('#vertical-menu-btn').on('click', function () {
+        adjustTable();
+    });
+    var observer = new MutationObserver(function (mutationsList) {
+        mutationsList.forEach(function (mutation) {
+            if (mutation.attributeName === "class") {
+                adjustTable(); // Adjust table when class changes
+            }
+        });
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 
     // Format Rupiah
     function formatCurrencyInput(event) {
@@ -492,11 +587,43 @@
         }
         event.target.value = value;
     }
-
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".rupiah-input").forEach((input) => {
             input.addEventListener("input", formatCurrencyInput);
         });
+    });
+</script>
+
+<script>
+    function formatNumberInput(event) {
+        let input = event.target;
+        let value = input.value.replace(/[^0-9,.]/g, "");
+        value = value.replace(/\./g, "");
+        let parts = value.split(",");
+        let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        if (parts.length > 1) {
+            let decimalPart = parts[1].substring(0, 6); // Limit to 6 decimal places
+            input.value = integerPart + "," + decimalPart;
+        } else {
+            input.value = integerPart;
+        }
+    }
+    document.querySelectorAll(".number-format").forEach(input => {
+        input.addEventListener("input", formatNumberInput);
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        var scrollTo = "{{ session('scrollTo') }}";
+        if (scrollTo) {
+            var element = $("#" + scrollTo);
+            if (element.length) {
+                $('html, body').animate({
+                    scrollTop: element.offset().top
+                }, 1500);
+            }
+        }
     });
 </script>
 <script>

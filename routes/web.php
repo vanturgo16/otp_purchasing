@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\PurchaseRequisitionPriceController;
+
 use App\Models\MstProcessProductions;
 
 /*
@@ -76,22 +78,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/posted_pr/{request_number}', [PurchaseController::class, 'posted_pr'])->name('posted_pr');
         Route::put('/unposted_pr/{request_number}', [PurchaseController::class, 'unposted_pr'])->name('unposted_pr');
         Route::get('/edit-po/{id}', [PurchaseController::class, 'edit_po'])->name('edit_po');
-
-        Route::controller(PurchaseController::class)->group(function () {
-            Route::prefix('purchase_orders')->group(function () {
-                Route::get('/', 'indexPO')->name('po.index');
-                Route::post('/update/{id}', 'updatePO')->name('updatePO');
-                Route::post('item/add/{id}', 'addItemPO')->name('addItemPO');
-                Route::post('item/update/{id}', 'updateItemPO')->name('updateItemPO');
-                Route::post('item/delete/{id}', 'deleteItemPO')->name('deleteItemPO');
-            });
-        });
-
-        // Route::post('/update-po/{id}', [PurchaseController::class, 'updatePO'])->name('updatePO');
-        // Route::post('/add-item-po/{id}', [PurchaseController::class, 'addItemPO'])->name('addItemPO');
-        // Route::post('/update-item-po/{id}', [PurchaseController::class, 'updateItemPO'])->name('updateItemPO');
-        // Route::post('/delete-item-po/{id}', [PurchaseController::class, 'deleteItemPO'])->name('deleteItemPO');
-
         Route::get('/edit-po-item/{id}', [PurchaseController::class, 'edit_po_item'])->name('edit_po_item');
         Route::get('/edit-po-item-smt/{id}', [PurchaseController::class, 'edit_po_item_smt'])->name('edit_po_item_smt');
         Route::get('/tambah_detail_po/{reference_number}/{id}', [PurchaseController::class, 'tambah_detail_po'])->name('tambah_detail_po');
@@ -110,5 +96,73 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/print-po-ind/{id}', [PurchaseController::class, 'print_po_ind'])->name('print_po_ind');
         Route::get('/print-pr/{request_number}', [PurchaseController::class, 'print_pr'])->name('print_pr');
         Route::get('/print-pr-ind/{request_number}', [PurchaseController::class, 'print_pr_ind'])->name('print_pr_ind');
+
+
+        // Purchase Requisition
+        Route::controller(PurchaseController::class)->group(function () {
+            Route::prefix('purchase_requisition')->group(function () {
+                //DATA PR
+                Route::get('/', 'indexPR')->name('pr.index');
+                Route::get('/add/{type}', 'addPR')->name('pr.add');
+                Route::get('/edit/{id}', 'editPR')->name('pr.edit');
+                Route::get('/detail/{id}', 'editPR')->name('pr.detail');
+                Route::post('/store', 'storePR')->name('pr.store');
+                Route::post('/update/{id}', 'updatePR')->name('pr.update');
+                Route::post('/delete/{id}', 'deletePR')->name('pr.delete');
+                Route::post('/posted/{id}', 'postedPR')->name('pr.posted');
+                Route::post('/unposted/{id}', 'unpostedPR')->name('pr.unposted');
+                Route::get('/print/{lang}/{id}', 'printPR')->name('pr.print');
+                Route::get('/get-pr-details', 'getPRDetails')->name('pr.getPRDetails');
+                //ITEM PR
+                Route::get('/item/edit/{id}', 'editItemPR')->name('pr.editItem');
+                Route::post('/item/store/{id}', 'storeItemPR')->name('pr.storeItem');
+                Route::post('/item/update/{id}', 'updateItemPR')->name('pr.updateItem');
+                Route::post('/item/delete/{id}', 'deleteItemPR')->name('pr.deleteItem');
+            });
+        });
+        // Purchase Requisition With Price
+        Route::controller(PurchaseRequisitionPriceController::class)->group(function () {
+            Route::prefix('purchase_requisition_price')->group(function () {
+                Route::get('/', 'index')->name('pr.price.index');
+                Route::get('/detail/{id}', 'edit')->name('pr.price.detail');
+                Route::get('/edit/{id}', 'edit')->name('pr.price.edit');
+                Route::post('/store', 'store')->name('pr.price.store');
+                Route::post('/update/{id}', 'update')->name('pr.price.update');
+                Route::post('/delete/{id}', 'delete')->name('pr.price.delete');
+                Route::post('/posted/{id}', 'posted')->name('pr.price.posted');
+                Route::post('/unposted/{id}', 'unposted')->name('pr.price.unposted');
+                Route::get('/get-pr-details', 'getPRDetails')->name('pr.price.getPRDetails');
+                Route::get('/print/{lang}/{id}', 'printPR')->name('pr.price.print');
+                //ITEM PR
+                Route::get('/item/edit/{id}', 'editItem')->name('pr.price.editItem');
+                Route::post('/item/update/{id}', 'updateItem')->name('pr.price.updateItem');
+            });
+        });
+        // Purchase Requisition Items
+        Route::controller(PurchaseController::class)->group(function () {
+            Route::prefix('purchase_requisition_items')->group(function () {
+                Route::get('/', 'indexItemPR')->name('pr.indexItem');
+            });
+        });
+        // Purchase Order
+        Route::controller(PurchaseController::class)->group(function () {
+            Route::prefix('purchase_orders')->group(function () {
+                Route::get('/', 'indexPO')->name('po.index');
+                Route::get('/edit/{id}', 'editPO')->name('po.edit');
+                Route::get('/detail/{id}', 'editPO')->name('po.detail');
+                Route::post('/store', 'storePO')->name('po.store');
+                Route::post('/update/{id}', 'updatePO')->name('po.update');
+                Route::post('/delete/{id}', 'deletePO')->name('po.delete');
+                Route::post('/posted/{id}', 'postedPO')->name('po.posted');
+                Route::post('/unposted/{id}', 'unpostedPO')->name('po.unposted');
+                Route::get('/print/{lang}/{id}', 'printPO')->name('po.print');
+                //ITEM PO
+                Route::get('/item/edit/{id}', 'editItemPO')->name('po.editItem');
+                Route::post('/item/store/{id}', 'storeItemPO')->name('po.storeItem');
+                Route::post('/item/update/{id}', 'updateItemPO')->name('po.updateItem');
+                Route::post('item/delete/{id}', 'deleteItemPO')->name('po.deleteItem');
+                Route::post('item/cancel/{id}', 'cancelQtyItemPO')->name('po.cancelQtyItem');
+            });
+        });
     });
 });
