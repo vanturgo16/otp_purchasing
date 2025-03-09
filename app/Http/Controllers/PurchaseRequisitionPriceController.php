@@ -289,10 +289,10 @@ class PurchaseRequisitionPriceController extends Controller
             // Audit Log
             $this->auditLogsShort('Posted Purchase Requisitions Price ID ('.$id.')');
             DB::commit();
-            return redirect()->back()->with(['success' => 'Berhasil Posted Data PR Price']);
+            return redirect()->route('pr.price.index', ['idUpdated' => $id])->with(['success' => 'Berhasil Posted Data PR Price']);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Gagal Posted Data PR Price!']);
+            return redirect()->route('pr.price.index', ['idUpdated' => $id])->with(['fail' => 'Gagal Posted Data PR Price!']);
         }
     }
     public function unposted($id)
@@ -311,10 +311,10 @@ class PurchaseRequisitionPriceController extends Controller
             // Audit Log
             $this->auditLogsShort('Un-Posted Purchase Requisitions Price ID ('.$id.')');
             DB::commit();
-            return redirect()->back()->with(['success' => 'Berhasil Un-Posted Data PR Price']);
+            return redirect()->route('pr.price.index', ['idUpdated' => $id])->with(['success' => 'Berhasil Un-Posted Data PR Price']);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Gagal Un-Posted Data PR Price!']);
+            return redirect()->route('pr.price.index', ['idUpdated' => $id])->with(['fail' => 'Gagal Un-Posted Data PR Price!']);
         }
     }
     public function getPRDetails(Request $request)
