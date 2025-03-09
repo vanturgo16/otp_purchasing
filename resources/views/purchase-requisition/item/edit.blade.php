@@ -58,7 +58,7 @@
                             <input type="text" class="form-control number-format" name="qty" id="qty" 
                                 value="{{ $data->qty 
                                             ? (strpos(strval($data->qty), '.') !== false 
-                                                ? rtrim(rtrim(number_format($data->qty, 3, ',', '.'), '0'), ',') 
+                                                ? rtrim(rtrim(number_format($data->qty, 6, ',', '.'), '0'), ',') 
                                                 : number_format($data->qty, 0, ',', '.')) 
                                             : '0' }}"
                                 placeholder="Masukkan Qty.." required>

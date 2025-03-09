@@ -1,3 +1,10 @@
+<a href="{{ route('pr.price.print', ['lang' => 'en', 'id' => encrypt($data->id_purchase_requisitions)]) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
+    <i class="bx bx-printer" title="Print in English"></i>
+</a>
+<a href="{{ route('pr.price.print', ['lang' => 'idn', 'id' => encrypt($data->id_purchase_requisitions)]) }}" class="btn btn-sm btn-success waves-effect waves-light my-half">
+    <i class="bx bx-printer" title="Cetak dalam Indonesia"></i>
+</a>
+
 @if(in_array($data->status, ['Posted', 'Created GRN', 'Closed']))
 <a href="{{ route('pr.price.detail', encrypt($data->id)) }}" class="btn btn-sm btn-info waves-effect waves-light my-half">
     <i class="fas fa-info" title="Detail"></i> Detail

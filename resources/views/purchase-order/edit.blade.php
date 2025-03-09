@@ -11,9 +11,16 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <div class="page-title-left">
-                        <a href="{{ route('po.index') }}" class="btn btn-light waves-effect btn-label waves-light">
+                        <form action="{{ route('po.index') }}" method="GET" id="resetForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="idUpdated" value="{{ $data->id }}">
+                            <button type="submit" class="btn btn-light waves-effect btn-label waves-light">
+                                <i class="mdi mdi-arrow-left label-icon"></i> Back To List Purchase Order    
+                            </button>
+                        </form>
+                        {{-- <a href="{{ route('po.index') }}" class="btn btn-light waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left label-icon"></i> Back To List Purchase Order
-                        </a>
+                        </a> --}}
                     </div>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
@@ -46,7 +53,7 @@
                             @if(in_array($data->status, $statusDetail))
                                 <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
                             @else
-                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>>
+                                <input type="date" name="date" class="form-control" value="{{ $data->date }}" required>
                             @endif
                         </div>
                     </div>
@@ -56,7 +63,7 @@
                             @if(in_array($data->status, $statusDetail))
                                 <input type="text" class="form-control custom-bg-gray" value="{{ $data->date }}" readonly required>
                             @else
-                                <input type="date" name="delivery_date" class="form-control" value="{{ $data->date }}" required>>
+                                <input type="date" name="delivery_date" class="form-control" value="{{ $data->date }}" required>
                             @endif
                         </div>
                     </div>
@@ -147,7 +154,7 @@
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Down Payment </label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control number-format @if(in_array($data->status, $statusDetail)) custom-bg-gray @endif" name="down_payment" placeholder="Masukkan Down Payment.." 
-                                value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 3, ',', '.')) : '0' }}" 
+                                value="{{ $data->down_payment ? (strpos($data->down_payment, '.') === false ? number_format($data->down_payment, 0, ',', '.') : number_format($data->down_payment, 6, ',', '.')) : '0' }}" 
                                 required @if(in_array($data->status, $statusDetail)) readonly @endif>
                         </div>
                     </div>
@@ -202,15 +209,14 @@
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-right: 3px solid #e2e2e2;">Product</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
                             @if(in_array($data->status, $statusDetail))
+                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Cancel Qty</th>
                                 <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Outstanding Qty</th>
                                 <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Status</th>
                             @endif
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Note</th>
-                            @if(in_array($data->status, $statusEdit))
-                                <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
-                            @endif
+                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
                         </tr>
                         <tr>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Price</th>
@@ -233,7 +239,7 @@
                                     <b>
                                         {{ $item->qty 
                                             ? (strpos(strval($item->qty), '.') !== false 
-                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
                                                 : number_format($item->qty, 0, ',', '.')) 
                                             : '0' }}
                                     </b>
@@ -242,9 +248,18 @@
                                 @if(in_array($data->status, $statusDetail))
                                     <td class="text-center">
                                         <b>
+                                            {{ $item->cancel_qty 
+                                                ? (strpos(strval($item->cancel_qty), '.') !== false 
+                                                    ? rtrim(rtrim(number_format($item->cancel_qty, 6, ',', '.'), '0'), ',') 
+                                                    : number_format($item->cancel_qty, 0, ',', '.')) 
+                                                : '0' }}
+                                        </b>
+                                    </td>
+                                    <td class="text-center">
+                                        <b>
                                             {{ $item->outstanding_qty 
                                                 ? (strpos(strval($item->outstanding_qty), '.') !== false 
-                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 3, ',', '.'), '0'), ',') 
+                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 6, ',', '.'), '0'), ',') 
                                                     : number_format($item->outstanding_qty, 0, ',', '.')) 
                                                 : '0' }}
                                         </b>
@@ -257,16 +272,16 @@
                                 @endif
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
                                 <td class="text-end">
-                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
+                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
+                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
+                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}
+                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
                                     @if($item->tax == 'N')
@@ -274,15 +289,15 @@
                                     @elseif($item->tax == null)
                                         0
                                     @else
-                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 3, ',', '.')) : '0' }}
+                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 6, ',', '.')) : '0' }}
                                         <br><span class="badge bg-info" 
-                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}">
+                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 6, ',', '.')) : '0' }}">
                                             ({{ $item->tax_rate }}%)
                                         </span>
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 3, ',', '.')) : '0' }}
+                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td>
                                     <span title="{{ strlen($item->note) > 70 ? $item->note : '' }}">
@@ -299,8 +314,102 @@
                                             </a>
                                         @endif
                                     </td>
+                                @else 
+                                    <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
+                                        @if($item->outstanding_qty > 0)
+                                            <button type="button" class="btn btn-sm btn-danger my-half" 
+                                                data-bs-toggle="modal" data-bs-target="#cancelQty{{ $item->id }}"><i class="bx bx-x" title="Cancel Qty"></i> Cancel Qty
+                                            </button>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 @endif
                             </tr>
+                            @if($item->outstanding_qty > 0)
+                                <div class="modal fade" id="cancelQty{{ $item->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="staticBackdropLabel">Cancel Qty</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ route('po.cancelQtyItem', encrypt($item->id)) }}" method="POST" enctype="multipart/form-data" id="formCancel{{ $item->id }}">
+                                                @csrf
+                                                <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
+                                                    <div class="container">
+                                                        <div class="row mb-2 field-wrapper required-field">
+                                                            <label class="col-sm-3 col-form-label">Product</label>
+                                                            <div class="col-sm-9">
+                                                                <input type="text" class="form-control custom-bg-gray" placeholder="Product.." value="{{ $item->product_desc }}" readonly>
+                                                            </div>
+                                                        </div>
+                                                        <br>
+                                                        <div class="row mb-2 field-wrapper required-field">
+                                                            <label class="col-sm-3 col-form-label">Qty</label>
+                                                            <div class="col-sm-9">
+                                                                <input type="text" class="form-control custom-bg-gray" name="qty" id="qty" placeholder="Qty.." 
+                                                                    value="{{ $item->qty 
+                                                                    ? (strpos(strval($item->qty), '.') !== false 
+                                                                        ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
+                                                                        : number_format($item->qty, 0, ',', '.')) 
+                                                                    : '0' }}"
+                                                                    readonly required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2 field-wrapper required-field">
+                                                            <label class="col-sm-3 col-form-label">Cancel Qty</label>
+                                                            <div class="col-sm-9">
+                                                                <input type="text" class="form-control number-format" name="cancel_qty" id="cancel_qty" placeholder="Masukkan Cancel Qty.." 
+                                                                    value="{{ $item->cancel_qty 
+                                                                    ? (strpos(strval($item->cancel_qty), '.') !== false 
+                                                                        ? rtrim(rtrim(number_format($item->cancel_qty, 6, ',', '.'), '0'), ',') 
+                                                                        : number_format($item->cancel_qty, 0, ',', '.')) 
+                                                                    : '0' }}"
+                                                                    required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-2 field-wrapper required-field">
+                                                            <label class="col-sm-3 col-form-label">Outstanding Qty</label>
+                                                            <div class="col-sm-9">
+                                                                <input type="text" class="form-control custom-bg-gray" name="outstanding_qty" id="outstanding_qty" placeholder="Outstanding.. (Terisi Otomatis)" 
+                                                                    value="{{ $item->outstanding_qty 
+                                                                    ? (strpos(strval($item->outstanding_qty), '.') !== false 
+                                                                        ? rtrim(rtrim(number_format($item->outstanding_qty, 6, ',', '.'), '0'), ',') 
+                                                                        : number_format($item->outstanding_qty, 0, ',', '.')) 
+                                                                    : '0' }}"
+                                                                    readonly required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="btnFormCancel{{ $item->id }}">
+                                                        <i class="bx bx-x label-icon"></i>Cancel Qty
+                                                    </button>
+                                                </div>
+                                            </form>
+                                            <script>
+                                                $(document).on('submit', 'form[id^="formCancel"]', function(event) {
+                                                    event.preventDefault();
+                                                    let formId = this.id;
+                                                    let btnId = formId.replace("formCancel", "btnFormCancel");
+                                                    let btn = $("#" + btnId);
+                                                    if (typeof $.fn.valid === "function" && !$(this).valid()) {
+                                                        return false;
+                                                    }
+                                                    if (btn.length > 0) {
+                                                        btn.prop("disabled", true);
+                                                        btn.html('<i class="mdi mdi-loading mdi-spin label-icon"></i> Please Wait...');
+                                                    }
+                                                    this.submit();
+                                                });
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endforeach
                         @if(!$itemDatas->isEmpty())
                         <tr>
@@ -311,27 +420,26 @@
                             @if(in_array($data->status, $statusDetail))
                                 <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                                 <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                                <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             @endif
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
+                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }}
+                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }}
+                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }}
+                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end fw-bold">
-                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
+                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
-                            @if(in_array($data->status, $statusEdit))
-                                <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
-                            @endif
+                            <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
                         </tr>
                         @endif
                     </tbody>
@@ -348,17 +456,25 @@
         return num;
     }
     function formatPriceDisplay(value) {
-        let formatted = value.toFixed(3).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        if (formatted.endsWith(',000')) {
-            formatted = formatted.slice(0, -4);
+        let formatted = value.toFixed(6).replace('.', ','); // Convert decimal separator
+        let parts = formatted.split(",");
+
+        // Apply thousands separator only to the integer part
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Remove unnecessary trailing zeros after the comma
+        if (parts[1]) {
+            parts[1] = parts[1].replace(/0+$/, ""); // Remove trailing zeros
+            if (parts[1] === "") return parts[0]; // If decimal part is empty, return only integer part
         }
-        return formatted;
+
+        return parts.join(",");
     }
     function calculateSubTotal() {
         let qty = formatPrice($('#qty').val()) || 0;
         let price = formatPrice($('#price').val()) || 0;
         let subTotal = qty * price;
-        subTotal = Math.round(subTotal * 1000) / 1000; // Round to 3 decimal places
+        subTotal = Math.round(subTotal * 1e6) / 1e6; 
         $('#sub_total').val(formatPriceDisplay(subTotal));
         calculateAmount();
         calculateTotalAmount();
@@ -371,7 +487,7 @@
         let subTotal = formatPrice($('#sub_total').val()) || 0;
         let disc = formatPrice($('#discount').val()) || 0; 
         let amount = subTotal - disc;
-        amount = Math.round(amount * 1000) / 1000;
+        amount = Math.round(amount * 1e6) / 1e6; 
         $('#amount').val(formatPriceDisplay(amount));
         calculateTotalAmount();
     }
@@ -383,11 +499,11 @@
         let amount = formatPrice($('#amount').val()) || 0; 
         let taxRate = parseFloat($('#tax_rate').val()) || 0; 
         let taxValue = (taxRate/100) * amount;
-        taxValue = Math.round(taxValue * 1000) / 1000;
+        taxValue = Math.round(taxValue * 1e6) / 1e6; 
         $('#tax_value').val(formatPriceDisplay(taxValue));
 
         let totalAmount = amount + taxValue;
-        totalAmount = Math.round(totalAmount * 1000) / 1000;
+        totalAmount = Math.round(totalAmount * 1e6) / 1e6; 
         $('#total_amount').val(formatPriceDisplay(totalAmount));
     }
     $('#tax_rate').on('input', function () {

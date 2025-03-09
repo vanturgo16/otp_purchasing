@@ -163,7 +163,7 @@
                                     <th class="align-middle text-center">Total Amount</th>
                                     <th class="align-middle text-center">QC Check</th>
                                     <th class="align-middle text-center">Type</th>
-                                    <th class="align-middle text-center">Total Product</th>
+                                    <th class="align-middle text-center">Total Items</th>
                                     <th class="align-middle text-center">Status</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -179,6 +179,12 @@
 <script>
     $(document).ready(function() {
         var url = '{!! route('po.index') !!}';
+        
+        var idUpdated = '{{ $idUpdated }}';
+        var pageNumber = '{{ $page_number }}';
+        var pageLength = 5;
+        var displayStart = (pageNumber - 1) * pageLength;
+        var firstReload = true; 
 
         var dataTable = $('#server-side-table').DataTable({
             scrollX: true,
@@ -189,7 +195,10 @@
             },
             processing: true,
             serverSide: true,
-            pageLength: 5,
+            
+            displayStart: displayStart,
+            pageLength: pageLength,
+
             aaSorting: [],
             ajax: {
                 url: url,
@@ -242,7 +251,8 @@
                     className: 'align-top text-center',
                     render: function(data, type, row) {
                         if (data) {
-                            let parts = data.split('.');
+                            let number = parseFloat(data).toString(); // Convert to string without rounding
+                            let parts = number.split('.'); // Split integer and decimal parts
                             let integerPart = parts[0];
                             let decimalPart = parts[1] || '';
                             integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -261,7 +271,8 @@
                     className: 'align-top text-center',
                     render: function(data, type, row) {
                         if (data) {
-                            let parts = data.split('.');
+                            let number = parseFloat(data).toString(); // Convert to string without rounding
+                            let parts = number.split('.'); // Split integer and decimal parts
                             let integerPart = parts[0];
                             let decimalPart = parts[1] || '';
                             integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -315,6 +326,12 @@
                     searchable: false,
                     className: 'align-top text-center freeze-column',
                 },
+                {
+                    data: 'id',
+                    name: 'id',
+                    searchable: false,
+                    visible: false
+                },
             ],
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
@@ -340,6 +357,21 @@
                 }
                 $(row).find('.freeze-column').css('background-color', darkColor);
             },
+            drawCallback: function(settings) {
+                if (firstReload && idUpdated) {
+                    var row = dataTable.row(function(idx, data, node) {
+                        return data.id == idUpdated;
+                    });
+
+                    if (row.length) {
+                        var rowNode = row.node();
+                        $('html, body').animate({
+                            scrollTop: $(rowNode).offset().top - $(window).height() / 2
+                        }, 500);
+                    }
+                    firstReload = false;
+                }
+            }
         });
         $('.dataTables_scrollHeadInner thead th').each(function(index) {
             let $this = $(this);

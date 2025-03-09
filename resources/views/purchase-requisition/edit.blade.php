@@ -11,9 +11,16 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <div class="page-title-left">
-                        <a href="{{ route('pr.index') }}" class="btn btn-light waves-effect btn-label waves-light">
+                        <form action="{{ route('pr.index') }}" method="GET" id="resetForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="idUpdated" value="{{ $data->id }}">
+                            <button type="submit" class="btn btn-light waves-effect btn-label waves-light">
+                                <i class="mdi mdi-arrow-left label-icon"></i> Back To List Purchase Requisition    
+                            </button>
+                        </form>
+                        {{-- <a href="{{ route('pr.index') }}" class="btn btn-light waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left label-icon"></i> Back To List Purchase Requisition
-                        </a>
+                        </a> --}}
                     </div>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
@@ -223,6 +230,7 @@
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">CC / CO</th>
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
                             @if(in_array($data->status, $statusDetail))
+                                <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Cancel Qty</th>
                                 <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Outstanding Qty</th>
                             @endif
                             <th class="align-middle text-center" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Units</th>
@@ -249,7 +257,7 @@
                                     <b>
                                         {{ $item->qty 
                                             ? (strpos(strval($item->qty), '.') !== false 
-                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
                                                 : number_format($item->qty, 0, ',', '.')) 
                                             : '0' }}
                                     </b>
@@ -257,9 +265,18 @@
                                 @if(in_array($data->status, $statusDetail))
                                     <td class="text-center">
                                         <b>
+                                            {{ $item->cancel_qty 
+                                                ? (strpos(strval($item->cancel_qty), '.') !== false 
+                                                    ? rtrim(rtrim(number_format($item->cancel_qty, 6, ',', '.'), '0'), ',') 
+                                                    : number_format($item->cancel_qty, 0, ',', '.')) 
+                                                : '0' }}
+                                        </b>
+                                    </td>
+                                    <td class="text-center">
+                                        <b>
                                             {{ $item->outstanding_qty 
                                                 ? (strpos(strval($item->outstanding_qty), '.') !== false 
-                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 3, ',', '.'), '0'), ',') 
+                                                    ? rtrim(rtrim(number_format($item->outstanding_qty, 6, ',', '.'), '0'), ',') 
                                                     : number_format($item->outstanding_qty, 0, ',', '.')) 
                                                 : '0' }}
                                         </b>
