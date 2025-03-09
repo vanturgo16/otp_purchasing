@@ -308,6 +308,12 @@
             },
             drawCallback: function(settings) {
                 if (firstReload && idUpdated) {
+                    // Reset URL
+                    let urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.toString()) {
+                        let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                        history.pushState({}, "", newUrl);
+                    }
                     var row = dataTable.row(function(idx, data, node) {
                         return data.id == idUpdated;
                     });
