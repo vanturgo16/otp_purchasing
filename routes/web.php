@@ -132,6 +132,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/posted/{id}', 'posted')->name('pr.price.posted');
                 Route::post('/unposted/{id}', 'unposted')->name('pr.price.unposted');
                 Route::get('/get-pr-details', 'getPRDetails')->name('pr.price.getPRDetails');
+                Route::get('/print/{lang}/{id}', 'printPR')->name('pr.price.print');
                 //ITEM PR
                 Route::get('/item/edit/{id}', 'editItem')->name('pr.price.editItem');
                 Route::post('/item/update/{id}', 'updateItem')->name('pr.price.updateItem');
@@ -160,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/item/store/{id}', 'storeItemPO')->name('po.storeItem');
                 Route::post('/item/update/{id}', 'updateItemPO')->name('po.updateItem');
                 Route::post('item/delete/{id}', 'deleteItemPO')->name('po.deleteItem');
+                Route::post('item/cancel/{id}', 'cancelQtyItemPO')->name('po.cancelQtyItem');
             });
         });
     });

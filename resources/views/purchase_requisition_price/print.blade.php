@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PRINT PURCHASE REQUISITION</title>
+    <title>PRINT PURCHASE REQUISITION WITH PRICE</title>
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/customPrint.css') }}" rel="stylesheet" type="text/css" />
 </head>
@@ -31,7 +31,7 @@
         </div>
 
         <div class="row text-center">
-            <h4 style="margin-top: 3rem;">PURCHASE REQUISITION</h4>
+            <h4 style="margin-top: 3rem;">PURCHASE REQUISITION WITH PRICE</h4>
         </div>
 
         <table class="mb-3">
@@ -66,6 +66,8 @@
                             <td class="align-top">Unit</td>
                             <td class="align-top">Required</td>
                             <td class="align-top">CC/CO</td>
+                            <td class="align-top">Unit Price</td>
+                            <td class="align-top">Sub Total</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,10 +79,22 @@
                                     {{ $item->product_desc }} @if($item->type_product == 'FG') || {{ $item->perforasi }} @endif <br>
                                     {{ $item->remarks }}
                                 </td>
-                                <td>{{ $item->qty }}</td>
+                                <td>
+                                    {{ $item->qty 
+                                        ? (strpos(strval($item->qty), '.') !== false 
+                                            ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
+                                            : number_format($item->qty, 0, ',', '.')) 
+                                        : '0' }}
+                                </td>
                                 <td>{{ $item->unit_code }}</td>
                                 <td>{{ $item->required_date }}</td>
                                 <td>{{ $item->cc_co_name }}</td>
+                                <td>{{ $item->currency }} 
+                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 6, ',', '.')) : '0' }}
+                                </td>
+                                <td>
+                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 6, ',', '.')) : '0' }}
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

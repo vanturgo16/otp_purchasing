@@ -22,6 +22,7 @@ use App\Models\MstWip;
 use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseOrderDetails;
 use App\Models\PurchaseRequisitionsPrice;
+use App\Models\GoodReceiptNote;
 
 class PurchaseController extends Controller
 {
@@ -30,6 +31,8 @@ class PurchaseController extends Controller
     //DATA PR
     public function indexPR(Request $request)
     {
+        $idUpdated = $request->get('idUpdated');
+
         $datas = PurchaseRequisitions::select('purchase_requisitions.id', 'purchase_requisitions.request_number',
                 'purchase_requisitions.date as requisition_date', 'purchase_requisitions.qc_check', 'purchase_requisitions.note',
                 'purchase_requisitions.type', 'purchase_requisitions.status', 'purchase_requisitions.input_price',
@@ -48,6 +51,21 @@ class PurchaseController extends Controller
 
         $datas = $datas->orderBy('purchase_requisitions.created_at', 'desc')->get();
 
+        // Get Page Number
+        $page_number = 1;
+        if ($idUpdated) {
+            $page_size = 5;
+            $item = $datas->firstWhere('id', $idUpdated);
+            if ($item) {
+                $index = $datas->search(function ($value) use ($idUpdated) {
+                    return $value->id == $idUpdated;
+                });
+                $page_number = (int) ceil(($index + 1) / $page_size);
+            } else {
+                $page_number = 1;
+            }
+        }
+
         // Datatables
         if ($request->ajax()) {
             return DataTables::of($datas)
@@ -58,7 +76,7 @@ class PurchaseController extends Controller
 
         //Audit Log
         $this->auditLogsShort('View List Purchase Requisition');
-        return view('purchase-requisition.index');
+        return view('purchase-requisition.index', compact('idUpdated', 'page_number'));
     }
     public function addPR($type)
     {
@@ -513,10 +531,10 @@ class PurchaseController extends Controller
                         $price = isset($dataItemPR->price) ? $dataItemPR->price : 0;
                         $discount = isset($dataItemPR->discount) ? $dataItemPR->discount : 0;
                         $tax_rate = isset($dataItemPR->tax_rate) ? $dataItemPR->tax_rate : 0;
-                        $sub_total = round(($qty * $price), 3);
-                        $amount = round(($sub_total - $discount), 3);
-                        $tax_value = round((($tax_rate/100) * $amount), 3);
-                        $total_amount = round(($amount + $tax_value), 3);
+                        $sub_total = round(($qty * $price), 6);
+                        $amount = round(($sub_total - $discount), 6);
+                        $tax_value = round((($tax_rate/100) * $amount), 6);
+                        $total_amount = round(($amount + $tax_value), 6);
 
                         PurchaseRequisitionsDetail::where('id', $id)->update([
                             'sub_total' => $sub_total,
@@ -528,12 +546,12 @@ class PurchaseController extends Controller
                             ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                                 SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                             ->first();
-                        // Round up to 3 decimal places
-                        $sub_total = round($totals->total_sub_total, 3);
-                        $total_discount = round($totals->total_discount, 3);
-                        $total_sub_amount = round($totals->total_sub_amount, 3);
-                        $total_ppn = round($totals->total_ppn, 3);
-                        $total_amount = round($totals->total_amount, 3);
+                        // Round up to 6 decimal places
+                        $sub_total = round($totals->total_sub_total, 6);
+                        $total_discount = round($totals->total_discount, 6);
+                        $total_sub_amount = round($totals->total_sub_amount, 6);
+                        $total_ppn = round($totals->total_ppn, 6);
+                        $total_amount = round($totals->total_amount, 6);
                         // Update PR Data
                         PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update([
                             'sub_total' => $sub_total,
@@ -553,10 +571,10 @@ class PurchaseController extends Controller
                         $price = $dataItemPO->price;
                         $discount = isset($dataItemPO->discount) ? $dataItemPO->discount : 0;
                         $tax_rate = isset($dataItemPO->tax_rate) ? $dataItemPO->tax_rate : 0;
-                        $sub_total = round(($qty * $price), 3);
-                        $amount = round(($sub_total - $discount), 3);
-                        $tax_value = round((($tax_rate/100) * $amount), 3);
-                        $total_amount = round(($amount + $tax_value), 3);
+                        $sub_total = round(($qty * $price), 6);
+                        $amount = round(($sub_total - $discount), 6);
+                        $tax_value = round((($tax_rate/100) * $amount), 6);
+                        $total_amount = round(($amount + $tax_value), 6);
 
                         PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
                             'sub_total' => $sub_total,
@@ -569,11 +587,11 @@ class PurchaseController extends Controller
                                 SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                             ->first();
                         // Round up to 3 decimal places
-                        $sub_total = round($totals->total_sub_total, 3);
-                        $total_discount = round($totals->total_discount, 3);
-                        $total_sub_amount = round($totals->total_sub_amount, 3);
-                        $total_ppn = round($totals->total_ppn, 3);
-                        $total_amount = round($totals->total_amount, 3);
+                        $sub_total = round($totals->total_sub_total, 6);
+                        $total_discount = round($totals->total_discount, 6);
+                        $total_sub_amount = round($totals->total_sub_amount, 6);
+                        $total_ppn = round($totals->total_ppn, 6);
+                        $total_amount = round($totals->total_amount, 6);
                         // Update PO Data
                         PurchaseOrders::where('id', $dataItemPO->id_purchase_orders)->update([
                             'sub_total' => $sub_total,
@@ -616,12 +634,12 @@ class PurchaseController extends Controller
                     ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                         SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                     ->first();
-                // Round up to 3 decimal places
-                $sub_total = round($totals->total_sub_total, 3);
-                $total_discount = round($totals->total_discount, 3);
-                $total_sub_amount = round($totals->total_sub_amount, 3);
-                $total_ppn = round($totals->total_ppn, 3);
-                $total_amount = round($totals->total_amount, 3);
+                // Round up to 6 decimal places
+                $sub_total = round($totals->total_sub_total, 6);
+                $total_discount = round($totals->total_discount, 6);
+                $total_sub_amount = round($totals->total_sub_amount, 6);
+                $total_ppn = round($totals->total_ppn, 6);
+                $total_amount = round($totals->total_amount, 6);
                 // Update PR Data
                 PurchaseRequisitions::where('id', $dataPR->id)->update([
                     'sub_total' => $sub_total,
@@ -639,12 +657,12 @@ class PurchaseController extends Controller
                     ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                         SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                     ->first();
-                // Round up to 3 decimal places
-                $sub_total = round($totals->total_sub_total, 3);
-                $total_discount = round($totals->total_discount, 3);
-                $total_sub_amount = round($totals->total_sub_amount, 3);
-                $total_ppn = round($totals->total_ppn, 3);
-                $total_amount = round($totals->total_amount, 3);
+                // Round up to 6 decimal places
+                $sub_total = round($totals->total_sub_total, 6);
+                $total_discount = round($totals->total_discount, 6);
+                $total_sub_amount = round($totals->total_sub_amount, 6);
+                $total_ppn = round($totals->total_ppn, 6);
+                $total_amount = round($totals->total_amount, 6);
                 // Update PO Data
                 PurchaseOrders::where('id', $dataItemPO->id_purchase_orders)->update([
                     'sub_total' => $sub_total,
@@ -667,6 +685,53 @@ class PurchaseController extends Controller
 
     //PR ITEM INDEX
     public function indexItemPR(Request $request)
+    {
+        $datas = PurchaseRequisitionsDetail::select('purchase_requisition_details.*', 'purchase_requisitions.request_number', 'purchase_orders.po_number', 'master_suppliers.name as supplier_name',
+                'purchase_requisitions.date',
+                'purchase_orders.po_number', 'purchase_orders.delivery_date',
+                'master_units.unit', 'master_units.unit_code',
+                'purchase_order_details.currency as currencyPO', 'purchase_order_details.price as pricePO', 'purchase_order_details.discount as discountPO', 'purchase_order_details.amount as amountPO',
+                DB::raw('
+                CASE 
+                    WHEN purchase_requisition_details.type_product = "RM" THEN master_raw_materials.description 
+                    WHEN purchase_requisition_details.type_product = "WIP" THEN master_wips.description 
+                    WHEN purchase_requisition_details.type_product = "FG" THEN master_product_fgs.description 
+                    WHEN purchase_requisition_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.description 
+                END as product_desc'))
+            ->leftJoin('master_raw_materials', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"RM"'));
+            })
+            ->leftJoin('master_wips', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_wips.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"WIP"'));
+            })
+            ->leftJoin('master_product_fgs', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_product_fgs.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"FG"'));
+            })
+            ->leftJoin('master_tool_auxiliaries', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+                        ->whereIn('purchase_requisition_details.type_product', ['TA', 'Other']);
+            })
+            ->leftjoin('purchase_requisitions', 'purchase_requisition_details.id_purchase_requisitions', 'purchase_requisitions.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', '=', 'master_units.id')
+            ->leftjoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
+            ->leftjoin('purchase_orders', 'purchase_requisitions.id', 'purchase_orders.reference_number')
+            ->leftjoin('purchase_order_details', 'purchase_requisition_details.id', 'purchase_order_details.id_purchase_requisition_details')
+            ->orderBy('purchase_requisition_details.created_at', 'desc')
+            ->get();
+
+        // Datatables
+        if ($request->ajax()) {
+            return DataTables::of($datas)->make(true);
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Purchase Requisition Items');
+        return view('purchase-requisition-detail.index');
+    }
+    public function indexItemPROld(Request $request)
     {
         $data = DB::table('purchase_requisition_details as prd')
             ->join('purchase_requisitions as pr', 'prd.id_purchase_requisitions', '=', 'pr.id')
@@ -757,6 +822,8 @@ class PurchaseController extends Controller
         $currentMonth = $this->romanMonth(date('n'));
         $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
 
+        $idUpdated = $request->get('idUpdated');
+
         $postedPRs = PurchaseRequisitions::select('id', 'request_number')->where('status', 'Posted')->where('input_price', '!=', 'Y')->get();
         $suppliers = MstSupplier::get();
 
@@ -785,6 +852,22 @@ class PurchaseController extends Controller
 
         $datas = $datas->orderBy('purchase_orders.created_at', 'desc')->get();
 
+        // Get Page Number
+        $page_number = 1;
+        if ($idUpdated) {
+            $page_size = 5;
+            $item = $datas->firstWhere('id', $idUpdated);
+            if ($item) {
+                $index = $datas->search(function ($value) use ($idUpdated) {
+                    return $value->id == $idUpdated;
+                });
+                $page_number = (int) ceil(($index + 1) / $page_size);
+            } else {
+                $page_number = 1;
+            }
+        }
+        
+
         // Datatables
         if ($request->ajax()) {
             return DataTables::of($datas)
@@ -795,7 +878,8 @@ class PurchaseController extends Controller
 
         //Audit Log
         $this->auditLogsShort('View List Purchase Order');
-        return view('purchase-order.index', compact('formattedCode', 'postedPRs', 'suppliers'));
+        return view('purchase-order.index', compact('formattedCode', 'postedPRs', 'suppliers',
+            'idUpdated', 'page_number'));
     }
     public function storePO(Request $request)
     {
@@ -1227,12 +1311,12 @@ class PurchaseController extends Controller
                 ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                     SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                 ->first();
-            // Round up to 3 decimal places
-            $sub_total = round($totals->total_sub_total, 3);
-            $total_discount = round($totals->total_discount, 3);
-            $total_sub_amount = round($totals->total_sub_amount, 3);
-            $total_ppn = round($totals->total_ppn, 3);
-            $total_amount = round($totals->total_amount, 3);
+            // Round up to 6 decimal places
+            $sub_total = round($totals->total_sub_total, 6);
+            $total_discount = round($totals->total_discount, 6);
+            $total_sub_amount = round($totals->total_sub_amount, 6);
+            $total_ppn = round($totals->total_ppn, 6);
+            $total_amount = round($totals->total_amount, 6);
             // Update PO Data
             PurchaseOrders::where('id', $id)->update([
                 'sub_total' => $sub_total,
@@ -1343,12 +1427,12 @@ class PurchaseController extends Controller
                     ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                         SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                     ->first();
-                // Round up to 3 decimal places
-                $sub_total = round($totals->total_sub_total, 3);
-                $total_discount = round($totals->total_discount, 3);
-                $total_sub_amount = round($totals->total_sub_amount, 3);
-                $total_ppn = round($totals->total_ppn, 3);
-                $total_amount = round($totals->total_amount, 3);
+                // Round up to 6 decimal places
+                $sub_total = round($totals->total_sub_total, 6);
+                $total_discount = round($totals->total_discount, 6);
+                $total_sub_amount = round($totals->total_sub_amount, 6);
+                $total_ppn = round($totals->total_ppn, 6);
+                $total_amount = round($totals->total_amount, 6);
                 // Update PO Data
                 PurchaseOrders::where('id', $request->id_purchase_orders)->update([
                     'sub_total' => $sub_total,
@@ -1387,12 +1471,12 @@ class PurchaseController extends Controller
                 ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                     SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                 ->first();
-            // Round up to 3 decimal places
-            $sub_total = round($totals->total_sub_total, 3);
-            $total_discount = round($totals->total_discount, 3);
-            $total_sub_amount = round($totals->total_sub_amount, 3);
-            $total_ppn = round($totals->total_ppn, 3);
-            $total_amount = round($totals->total_amount, 3);
+            // Round up to 6 decimal places
+            $sub_total = round($totals->total_sub_total, 6);
+            $total_discount = round($totals->total_discount, 6);
+            $total_sub_amount = round($totals->total_sub_amount, 6);
+            $total_ppn = round($totals->total_ppn, 6);
+            $total_amount = round($totals->total_amount, 6);
             // Update PO Data
             PurchaseOrders::where('id', $request->id_purchase_orders)->update([
                 'sub_total' => $sub_total,
@@ -1411,5 +1495,62 @@ class PurchaseController extends Controller
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Gagal Hapus Item Produk!', 'scrollTo' => 'tableItem']);
         }
+    }
+    public function cancelQtyItemPO(Request $request, $id)
+    {
+        $id = decrypt($id);
+
+        $request->validate([
+            'cancel_qty' => 'required',
+        ], [
+            'cancel_qty.required' => 'Cancel Qty harus diisi.',
+        ]);
+        $dataBefore = PurchaseOrderDetails::where('id', $id)->first();
+        $idPO = $dataBefore->id_purchase_orders;
+        //Check GRN Still In Progress Or Not
+        if(GoodReceiptNote::where('id_purchase_orders', $idPO)->whereIn('status', ['Hold', 'Un Posted'])->exists()){
+            return redirect()->back()->with(['fail' => 'Gagal Cancel Item, Good Receipt Note Masih Dalam Proses']);
+        }
+        $originOutstandingQty = (float) $dataBefore->outstanding_qty + (float) $dataBefore->cancel_qty;
+        // Check Cancel Qty Cannot More Than Outstanding Qty
+        if($request->cancel_qty > $originOutstandingQty){
+            return redirect()->back()->with(['fail' => 'Gagal, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
+        }
+        $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
+        $newStatus = ($requestOutstandingQty == 0) ? 'Closed' : 'Open';
+        $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
+
+        if($dataBefore->isDirty()){
+            DB::beginTransaction();
+            try{
+                PurchaseOrderDetails::where('id', $id)->update([
+                    'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
+                    'outstanding_qty' => $requestOutstandingQty,
+                    'status' => $newStatus,
+                ]);
+                PurchaseRequisitionsDetail::where('id', $dataBefore->id_purchase_requisition_details)->update([
+                    'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
+                    'outstanding_qty' => $requestOutstandingQty,
+                    'status' => $newStatus,
+                ]);
+                $product = PurchaseOrderDetails::where('id_purchase_orders', $idPO)->get();
+                //Check Status Item
+                $hasOpenStatus = $product->contains('status', 'Open');
+                if(!$hasOpenStatus){
+                    PurchaseOrders::where('id', $idPO)->update(['status' => 'Closed']);
+                }
+
+                // Audit Log
+                $this->auditLogsShort('Cancel PO Item ID : (' . $id . ')');
+                DB::commit();
+                return redirect()->back()->with(['success' => 'Berhasil Cancel Item PO', 'scrollTo' => 'tableItem']);
+            } catch (Exception $e) {
+                DB::rollback();
+                return redirect()->back()->with(['fail' => 'Gagal Cancel Item PO!']);
+            }
+        } else {
+            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+        }
+
     }
 }

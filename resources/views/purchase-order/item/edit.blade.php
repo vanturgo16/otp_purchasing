@@ -61,7 +61,7 @@
                                     <input type="text" class="form-control custom-bg-gray" placeholder="Masukkan Qty.." name="qty" id="qty" 
                                         value="{{ $data->qty 
                                         ? (strpos(strval($data->qty), '.') !== false 
-                                            ? rtrim(rtrim(number_format($data->qty, 3, ',', '.'), '0'), ',') 
+                                            ? rtrim(rtrim(number_format($data->qty, 6, ',', '.'), '0'), ',') 
                                             : number_format($data->qty, 0, ',', '.')) 
                                         : '0' }}"
                                         required readonly>
@@ -97,7 +97,7 @@
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control number-format" placeholder="Masukkan Price.." name="price" id="price" 
-                                        value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 3, ',', '.')) : '0' }}" 
+                                        value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 6, ',', '.')) : '0' }}" 
                                     required>
                                 </div>
                             </div>
@@ -106,7 +106,7 @@
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control custom-bg-gray" placeholder="Sub Total.. (Terisi Otomatis)"
-                                            value="{{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '' }}" 
+                                            value="{{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 6, ',', '.')) : '' }}" 
                                             name="sub_total" id="sub_total" readonly>
                                         <span class="input-group-text">(Qty * Price)</span>
                                     </div>
@@ -118,7 +118,7 @@
                                 <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control number-format" placeholder="Masukkan Discount.." name="discount" id="discount" 
-                                        value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 3, ',', '.')) : '0' }}" 
+                                        value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 6, ',', '.')) : '0' }}" 
                                         required>
                                 </div>
                             </div>
@@ -127,7 +127,7 @@
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control custom-bg-gray" placeholder="Amount.. (Terisi Otomatis)" name="amount" id="amount" 
-                                            value="{{ $data->amount ? (strpos($data->amount, '.') === false ? number_format($data->amount, 0, ',', '.') : number_format($data->amount, 3, ',', '.')) : '' }}" 
+                                            value="{{ $data->amount ? (strpos($data->amount, '.') === false ? number_format($data->amount, 0, ',', '.') : number_format($data->amount, 6, ',', '.')) : '' }}" 
                                             readonly>
                                         <span class="input-group-text">(Sub Total - Discount)</span>
                                     </div>
@@ -155,7 +155,7 @@
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control custom-bg-gray" placeholder="Tax Value.. (Terisi Otomatis)" name="tax_value" id="tax_value" 
-                                            value="{{ $data->tax_value ? (strpos($data->tax_value, '.') === false ? number_format($data->tax_value, 0, ',', '.') : number_format($data->tax_value, 3, ',', '.')) : '' }}" 
+                                            value="{{ $data->tax_value ? (strpos($data->tax_value, '.') === false ? number_format($data->tax_value, 0, ',', '.') : number_format($data->tax_value, 6, ',', '.')) : '' }}" 
                                             readonly>
                                         <span class="input-group-text">(Tax Rate/100 * Amount)</span>
                                     </div>
@@ -168,7 +168,7 @@
                                 <div class="col-sm-9">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control custom-bg-gray" placeholder="Total Amount.. (Terisi Otomatis)" name="total_amount" id="total_amount" 
-                                            value="{{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '' }}" 
+                                            value="{{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 6, ',', '.')) : '' }}" 
                                             readonly>
                                         <span class="input-group-text">(Amount + Tax)</span>
                                     </div>
@@ -207,17 +207,25 @@
         return num;
     }
     function formatPriceDisplay(value) {
-        let formatted = value.toFixed(3).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        if (formatted.endsWith(',000')) {
-            formatted = formatted.slice(0, -4);
+        let formatted = value.toFixed(6).replace('.', ','); // Convert decimal separator
+        let parts = formatted.split(",");
+
+        // Apply thousands separator only to the integer part
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Remove unnecessary trailing zeros after the comma
+        if (parts[1]) {
+            parts[1] = parts[1].replace(/0+$/, ""); // Remove trailing zeros
+            if (parts[1] === "") return parts[0]; // If decimal part is empty, return only integer part
         }
-        return formatted;
+
+        return parts.join(",");
     }
     function calculateSubTotal() {
         let qty = formatPrice($('#qty').val()) || 0;
         let price = formatPrice($('#price').val()) || 0;
         let subTotal = qty * price;
-        subTotal = Math.round(subTotal * 1000) / 1000; // Round to 3 decimal places
+        subTotal = Math.round(subTotal * 1e6) / 1e6; 
         $('#sub_total').val(formatPriceDisplay(subTotal));
         calculateAmount();
         calculateTotalAmount();
@@ -230,7 +238,7 @@
         let subTotal = formatPrice($('#sub_total').val()) || 0;
         let disc = formatPrice($('#discount').val()) || 0; 
         let amount = subTotal - disc;
-        amount = Math.round(amount * 1000) / 1000;
+        amount = Math.round(amount * 1e6) / 1e6; 
         $('#amount').val(formatPriceDisplay(amount));
         calculateTotalAmount();
     }
@@ -242,11 +250,11 @@
         let amount = formatPrice($('#amount').val()) || 0; 
         let taxRate = parseFloat($('#tax_rate').val()) || 0; 
         let taxValue = (taxRate/100) * amount;
-        taxValue = Math.round(taxValue * 1000) / 1000;
+        taxValue = Math.round(taxValue * 1e6) / 1e6; 
         $('#tax_value').val(formatPriceDisplay(taxValue));
 
         let totalAmount = amount + taxValue;
-        totalAmount = Math.round(totalAmount * 1000) / 1000;
+        totalAmount = Math.round(totalAmount * 1e6) / 1e6; 
         $('#total_amount').val(formatPriceDisplay(totalAmount));
     }
     $('#tax_rate').on('input', function () {

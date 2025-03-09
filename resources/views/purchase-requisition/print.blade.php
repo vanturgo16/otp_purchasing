@@ -77,7 +77,13 @@
                                     {{ $item->product_desc }} @if($item->type_product == 'FG') || {{ $item->perforasi }} @endif <br>
                                     {{ $item->remarks }}
                                 </td>
-                                <td>{{ $item->qty }}</td>
+                                <td>
+                                    {{ $item->qty 
+                                        ? (strpos(strval($item->qty), '.') !== false 
+                                            ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
+                                            : number_format($item->qty, 0, ',', '.')) 
+                                        : '0' }}
+                                </td>
                                 <td>{{ $item->unit_code }}</td>
                                 <td>{{ $item->required_date }}</td>
                                 <td>{{ $item->cc_co_name }}</td>

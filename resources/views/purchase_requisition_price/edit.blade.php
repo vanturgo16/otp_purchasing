@@ -7,9 +7,16 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <div class="page-title-left">
-                        <a href="{{ route('pr.price.index') }}" class="btn btn-light waves-effect btn-label waves-light">
+                        <form action="{{ route('pr.price.index') }}" method="GET" id="resetForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="idUpdated" value="{{ $prPrice->id }}">
+                            <button type="submit" class="btn btn-light waves-effect btn-label waves-light">
+                                <i class="mdi mdi-arrow-left label-icon"></i> Back To List Purchase Requisition Price 
+                            </button>
+                        </form>
+                        {{-- <a href="{{ route('pr.price.index') }}" class="btn btn-light waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left label-icon"></i> Back To List Purchase Requisition Price
-                        </a>
+                        </a> --}}
                     </div>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
@@ -156,8 +163,11 @@
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Required Date</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">CC / CO</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Qty</th>
+                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Cancel Qty</th>
+                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Outstanding Qty</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Currency</th>
                             <th class="align-middle text-center" colspan="6" style="background-color: #6C7AE0; color:#ffff;">Detail Price</th>
+                            <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Status</th>
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2;">Remarks</th>
                             @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                             <th class="align-middle text-center" rowspan="2" style="background-color: #6C7AE0; color:#ffff; border-bottom: 4px solid #e2e2e2; border-left: 3px solid #e2e2e2;">Aksi</th>
@@ -186,24 +196,38 @@
                                     <b>
                                         {{ $item->qty 
                                             ? (strpos(strval($item->qty), '.') !== false 
-                                                ? rtrim(rtrim(number_format($item->qty, 3, ',', '.'), '0'), ',') 
+                                                ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
                                                 : number_format($item->qty, 0, ',', '.')) 
                                             : '0' }}
                                     </b>
                                     <br>({{ $item->unit_code }})
                                 </td>
+                                <td class="text-center">
+                                    {{ $item->cancel_qty 
+                                        ? (strpos(strval($item->cancel_qty), '.') !== false 
+                                            ? rtrim(rtrim(number_format($item->cancel_qty, 6, ',', '.'), '0'), ',') 
+                                            : number_format($item->cancel_qty, 0, ',', '.')) 
+                                        : '0' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $item->outstanding_qty 
+                                        ? (strpos(strval($item->outstanding_qty), '.') !== false 
+                                            ? rtrim(rtrim(number_format($item->outstanding_qty, 6, ',', '.'), '0'), ',') 
+                                            : number_format($item->outstanding_qty, 0, ',', '.')) 
+                                        : '0' }}
+                                </td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
                                 <td class="text-end">
-                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
+                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
+                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
+                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}
+                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 6, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
                                     @if($item->tax == 'N')
@@ -211,15 +235,20 @@
                                     @elseif($item->tax == null)
                                         0
                                     @else
-                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 3, ',', '.')) : '0' }}
+                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 6, ',', '.')) : '0' }}
                                         <br><span class="badge bg-info" 
-                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}">
+                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 6, ',', '.')) : '0' }}">
                                             ({{ $item->tax_rate }}%)
                                         </span>
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 3, ',', '.')) : '0' }}
+                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 6, ',', '.')) : '0' }}
+                                </td>
+                                <td class="align-top text-center">
+                                    <span class="badge bg-{{ $item->status == 'Open' ? 'info' : 'success' }}">
+                                        {{ $item->status }}
+                                    </span>
                                 </td>
                                 <td>
                                     {!! implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), array_chunk(explode(' ', $item->remarks), 10))) !!}
@@ -264,22 +293,25 @@
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                            <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
+                            <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
+                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }}
+                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }}
+                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }}
+                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 6, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end fw-bold">
-                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
+                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 6, ',', '.')) : '0' }}
                             </td>
+                            <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             @if(!in_array($prPrice->status, ['Posted', 'Closed']))
                             <td style="border-top: 3px solid #e2e2e2; border-left: none;"></td>
