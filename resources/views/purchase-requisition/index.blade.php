@@ -56,6 +56,72 @@
     </div>
 </div>
 
+
+{{-- Modal Export --}}
+<div class="modal fade" id="exportModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-top modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Export Data PR</b></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('pr.export') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
+                    <div class="container">
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label">Type Item</label>
+                            <div class="col-sm-8">
+                                <select class="form-select data-select2" name="typeItem" id="" style="width: 100%" required>
+                                    <option value="All">-- Semua Type --</option>
+                                    <option value="RM">RM</option>
+                                    <option value="WIP">WIP</option>
+                                    <option value="FG">FG</option>
+                                    <option value="TA">TA</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2 ">
+                            <label class="col-sm-4 col-form-label">Status</label>
+                            <div class="col-sm-8">
+                                <select class="form-select data-select2" name="status" id="" style="width: 100%" required>
+                                    <option value="All">-- Semua Status --</option>
+                                    <option value="Request">Request</option>
+                                    <option value="Un Posted">Un Posted</option>
+                                    <option value="Posted">Posted</option>
+                                    <option value="Created PO">Created PO</option>
+                                    <option value="Created GRN">Created GRN</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label">Date From</label>
+                            <div class="col-sm-8">
+                                <input type="date" name="dateFrom" class="form-control" value="" required>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label">Date To</label>
+                            <div class="col-sm-8">
+                                <input type="date" name="dateTo" class="form-control" value="" required>
+                                <small class="text-danger d-none" id="dateToError"><b>Date To</b> cannot be before <b>Date From</b></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
+                        <i class="mdi mdi-file-excel label-icon"></i>Export To Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         var url = '{!! route('pr.index') !!}';
@@ -324,6 +390,14 @@
         $('.dataTables_length').before(filterStatus);
         $('#filterStatus').select2({width: '200px' });
         $('#filterStatus').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
+
+        // Export Modal Button
+        var exportButton = `
+            <button id="exportBtn" data-bs-toggle="modal" data-bs-target="#exportModal" class="btn btn-light waves-effect btn-label waves-light">
+                <i class="mdi mdi-export label-icon"></i> Export Data
+            </button>
+        `;
+        $('.dataTables_length').before(exportButton);
     });
 </script>
 

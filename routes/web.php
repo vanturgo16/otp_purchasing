@@ -112,6 +112,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/posted/{id}', 'postedPR')->name('pr.posted');
                 Route::post('/unposted/{id}', 'unpostedPR')->name('pr.unposted');
                 Route::get('/print/{lang}/{id}', 'printPR')->name('pr.print');
+                Route::post('/export', 'exportPR')->name('pr.export');
                 Route::get('/get-pr-details', 'getPRDetails')->name('pr.getPRDetails');
                 //ITEM PR
                 Route::get('/item/edit/{id}', 'editItemPR')->name('pr.editItem');

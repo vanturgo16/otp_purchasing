@@ -9,6 +9,9 @@ use DataTables;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Exports\PurchaseRequisitionsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 // Model
 use App\Models\PurchaseRequisitions;
@@ -377,6 +380,64 @@ class PurchaseController extends Controller
 
         $view = ($lang === 'en') ? 'purchase-requisition.print' : 'purchase-requisition.printIDN';
         return view($view, compact('data', 'itemDatas'));
+    }
+    public function exportPR(Request $request)
+    {
+        // dd($request->all());
+
+        $datas = PurchaseRequisitionsDetail::select(
+            'purchase_requisitions.id', 'purchase_requisitions.request_number', 'purchase_requisitions.date as requisition_date', 'master_suppliers.name as supplier_name', 'requester.nm_requester as requester_name',
+            'purchase_requisitions.qc_check', 'purchase_requisitions.note', 'purchase_orders.po_number', 'purchase_requisitions.type', 'purchase_requisitions.status as statusPR',
+            DB::raw('
+                CASE 
+                    WHEN purchase_requisition_details.type_product = "RM" THEN master_raw_materials.description 
+                    WHEN purchase_requisition_details.type_product = "WIP" THEN master_wips.description 
+                    WHEN purchase_requisition_details.type_product = "FG" THEN master_product_fgs.description 
+                    WHEN purchase_requisition_details.type_product IN ("TA", "Other") THEN master_tool_auxiliaries.description 
+                END as product_desc'),
+            'purchase_requisition_details.required_date', 'cc_co.nm_requester as cc_co_name',
+            'purchase_requisition_details.qty', 'purchase_requisition_details.cancel_qty', 'purchase_requisition_details.outstanding_qty',
+            'master_units.unit', 'master_units.unit_code',
+            'purchase_requisition_details.remarks', 'purchase_requisition_details.status'
+        )
+            ->leftJoin('master_raw_materials', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_raw_materials.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"RM"'));
+            })
+            ->leftJoin('master_wips', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_wips.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"WIP"'));
+            })
+            ->leftJoin('master_product_fgs', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_product_fgs.id')
+                    ->on('purchase_requisition_details.type_product', '=', DB::raw('"FG"'));
+            })
+            ->leftJoin('master_tool_auxiliaries', function ($join) {
+                $join->on('purchase_requisition_details.master_products_id', '=', 'master_tool_auxiliaries.id')
+                     ->whereIn('purchase_requisition_details.type_product', ['TA', 'Other']);
+            })
+            ->leftJoin('purchase_requisitions', 'purchase_requisition_details.id_purchase_requisitions', 'purchase_requisitions.id')
+            ->leftJoin('master_units', 'purchase_requisition_details.master_units_id', 'master_units.id')
+            ->leftJoin('master_requester as requester', 'purchase_requisitions.requester', 'requester.id')
+            ->leftJoin('master_suppliers', 'purchase_requisitions.id_master_suppliers', 'master_suppliers.id')
+            ->leftJoin('purchase_orders', 'purchase_requisitions.id', 'purchase_orders.reference_number')
+            ->leftJoin('master_requester as cc_co', 'purchase_requisition_details.cc_co', 'cc_co.id')
+            ->orderBy('purchase_requisitions.created_at');
+            // ->limit(10);
+
+            if ($request->has('typeItem') && $request->typeItem != '' && $request->typeItem != 'All') {
+                $datas->where('purchase_requisitions.type', $request->typeItem);
+            }
+            if ($request->has('status') && $request->status != '' && $request->status != 'All') {
+                $datas->where('purchase_requisitions.status', $request->status);
+            }
+            if($request->has('dateFrom') && $request->dateFrom != '' && $request->has('dateTo') && $request->dateTo != ''){
+                $datas->whereBetween('purchase_requisitions.date', [$request->dateFrom, $request->dateTo]);
+            }
+            // dd($datas->get());
+
+        $filename = 'Export_PR_' . Carbon::now()->format('d_m_Y_H_i') . '.xlsx';
+        return Excel::download(new PurchaseRequisitionsExport($datas->get()), $filename);
     }
     public function getPRDetails(Request $request)
     {
