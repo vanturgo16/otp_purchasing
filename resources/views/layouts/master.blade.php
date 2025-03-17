@@ -627,6 +627,27 @@
     });
 </script>
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateFrom = document.querySelector('input[name="dateFrom"]');
+        const dateTo = document.querySelector('input[name="dateTo"]');
+        const dateToError = document.getElementById("dateToError");
+
+        function validateDateTo() {
+            if (dateFrom.value && dateTo.value && dateTo.value < dateFrom.value) {
+                dateTo.classList.add("is-invalid");
+                dateToError.classList.remove("d-none");
+            } else {
+                dateTo.classList.remove("is-invalid");
+                dateToError.classList.add("d-none");
+            }
+        }
+
+        dateTo.addEventListener("change", validateDateTo);
+        dateFrom.addEventListener("change", validateDateTo);
+    });
+</script>
+
+<script>
         let baseRoute = '{{ url('') }}';
 </script>
     @stack('scripts')
