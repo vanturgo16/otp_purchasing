@@ -43,6 +43,119 @@
     </div>
 </div>
 
+{{-- Modal Export --}}
+<div class="modal fade" id="exportModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-top modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Export Data PR Item</b></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="exportForm" action="{{ route('pr.item.export') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
+                    <div class="container">
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label">Type Item</label>
+                            <div class="col-sm-8">
+                                <select class="form-select data-select2" name="typeItem" id="" style="width: 100%" required>
+                                    <option value="Semua Type">-- Semua Type --</option>
+                                    <option value="RM">RM</option>
+                                    <option value="WIP">WIP</option>
+                                    <option value="FG">FG</option>
+                                    <option value="TA">TA</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2 ">
+                            <label class="col-sm-4 col-form-label">Status</label>
+                            <div class="col-sm-8">
+                                <select class="form-select data-select2" name="status" id="" style="width: 100%" required>
+                                    <option value="Semua Status">-- Semua Status --</option>
+                                    <option value="Open">Open</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label">Date From</label>
+                            <div class="col-sm-8">
+                                <input type="date" name="dateFrom" class="form-control" value="" required>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-sm-4 col-form-label">Date To</label>
+                            <div class="col-sm-8">
+                                <input type="date" name="dateTo" class="form-control" value="" required>
+                                <small class="text-danger d-none" id="dateToError"><b>Date To</b> cannot be before <b>Date From</b></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
+                        <i class="mdi mdi-file-excel label-icon"></i>Export To Excel
+                    </button>
+                </div>
+            </form>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const exportForm = document.querySelector("form[action='{{ route('pr.item.export') }}']");
+                    const exportButton = exportForm.querySelector("button[type='submit']");
+            
+                    exportForm.addEventListener("submit", function (event) {
+                        event.preventDefault(); // Prevent normal form submission
+            
+                        let formData = new FormData(exportForm);
+                        let url = exportForm.action;
+            
+                        // Disable button to prevent multiple clicks
+                        exportButton.disabled = true;
+                        exportButton.innerHTML = '<i class="mdi mdi-loading mdi-spin label-icon"></i>Exporting...';
+            
+                        fetch(url, {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+                            }
+                        })
+                        .then(response => response.blob()) // Expect a file response
+                        .then(blob => {
+                            let now = new Date();
+                            let formattedDate = now.getDate().toString().padStart(2, '0') + "_" +
+                                                (now.getMonth() + 1).toString().padStart(2, '0') + "_" +
+                                                now.getFullYear() + "_" +
+                                                now.getHours().toString().padStart(2, '0') + "_" +
+                                                now.getMinutes().toString().padStart(2, '0');
+                            let filename = `Export_PR_Item_${formattedDate}.xlsx`;
+            
+                            let downloadUrl = window.URL.createObjectURL(blob);
+                            let a = document.createElement("a");
+                            a.href = downloadUrl;
+                            a.download = filename; // Set dynamic filename
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(downloadUrl);
+                        })
+                        .catch(error => {
+                            console.error("Export error:", error);
+                            alert("An error occurred while exporting.");
+                        })
+                        .finally(() => {
+                            exportButton.disabled = false;
+                            exportButton.innerHTML = '<i class="mdi mdi-file-excel label-icon"></i> Export To Excel';
+                        });
+                    });
+                });
+            </script>            
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         var url = '{!! route('pr.indexItem') !!}';
@@ -61,7 +174,11 @@
             aaSorting: [],
             ajax: {
                 url: url,
-                type: 'GET'
+                type: 'GET',
+                data: function(d) {
+                    d.filterType = $('#filterType').val();
+                    d.filterStatus = $('#filterStatus').val();
+                }
             },
             columns: [
                 {
@@ -282,7 +399,7 @@
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
                 let darkColor = '#FAFAFA';
-                if (data.status === 'Closed') {
+                if (['Close', 'Closed'].includes(data.status)) {
                     bgColor = 'table-success';
                     darkColor = '#CFEBE0';
                 }
@@ -316,6 +433,72 @@
                 window.dispatchEvent(new Event('resize'));
             }, 10);
         });
+    });
+</script>
+
+<script>
+    $(function() {
+        // Hide Length Datatable
+        $('.dataTables_wrapper .dataTables_length').hide();
+
+        // Length
+        var lengthDropdown = `
+            <label>
+                <select id="lengthDT">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </label>
+        `;
+        $('.dataTables_length').before(lengthDropdown);
+        $('#lengthDT').select2({ minimumResultsForSearch: Infinity, width: '60px' });
+        $('#lengthDT').on('change', function() {
+            var newLength = $(this).val();
+            var table = $("#server-side-table").DataTable();
+            table.page.len(newLength).draw();
+        });
+
+        // Filter Type
+        var filterType = `
+            <label>
+                <select id="filterType">
+                    <option value="All">-- Semua Type --</option>
+                    <option value="RM">RM</option>
+                    <option value="WIP">WIP</option>
+                    <option value="FG">FG</option>
+                    <option value="TA">TA</option>
+                    <option value="Other">Other</option>
+                </select>
+            </label>
+        `;
+        $('.dataTables_length').before(filterType);
+        $('#filterType').select2({width: '150px' });
+        $('#filterType').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
+
+        // Filter Status
+        var filterStatus = `
+            <label>
+                <select id="filterStatus">
+                    <option value="All">-- Semua Status --</option>
+                    <option value="Open">Open</option>
+                    <option value="Close">Closed</option>
+                </select>
+            </label>
+        `;
+        $('.dataTables_length').before(filterStatus);
+        $('#filterStatus').select2({width: '200px' });
+        $('#filterStatus').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
+
+        // Export Modal Button
+        var exportButton = `
+            <button id="exportBtn" data-bs-toggle="modal" data-bs-target="#exportModal" class="btn btn-light waves-effect btn-label waves-light">
+                <i class="mdi mdi-export label-icon"></i> Export Data
+            </button>
+        `;
+        $('.dataTables_length').before(exportButton);
     });
 </script>
 
