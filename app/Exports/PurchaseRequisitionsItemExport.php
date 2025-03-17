@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Log;
 
-class PurchaseRequisitionsExport implements FromView, WithStyles, ShouldAutoSize
+class PurchaseRequisitionsItemExport implements FromView, WithStyles, ShouldAutoSize
 {
     protected $datas;
 
@@ -26,7 +26,7 @@ class PurchaseRequisitionsExport implements FromView, WithStyles, ShouldAutoSize
 
     public function view(): View
     {
-        return view('exports.purchase_requisitions', [
+        return view('exports.purchase_requisitions_item', [
             'datas' => $this->datas,
             'typeItem' => $this->typeItem,
             'status' => $this->status,

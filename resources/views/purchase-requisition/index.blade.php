@@ -56,7 +56,6 @@
     </div>
 </div>
 
-
 {{-- Modal Export --}}
 <div class="modal fade" id="exportModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-top modal-md" role="document">
@@ -65,7 +64,7 @@
                 <h5 class="modal-title" id="staticBackdropLabel">Export Data PR</b></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('pr.export') }}" method="POST" enctype="multipart/form-data">
+            <form id="exportForm" action="{{ route('pr.export') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
                     <div class="container">
@@ -73,7 +72,7 @@
                             <label class="col-sm-4 col-form-label">Type Item</label>
                             <div class="col-sm-8">
                                 <select class="form-select data-select2" name="typeItem" id="" style="width: 100%" required>
-                                    <option value="All">-- Semua Type --</option>
+                                    <option value="Semua Type">-- Semua Type --</option>
                                     <option value="RM">RM</option>
                                     <option value="WIP">WIP</option>
                                     <option value="FG">FG</option>
@@ -86,7 +85,7 @@
                             <label class="col-sm-4 col-form-label">Status</label>
                             <div class="col-sm-8">
                                 <select class="form-select data-select2" name="status" id="" style="width: 100%" required>
-                                    <option value="All">-- Semua Status --</option>
+                                    <option value="Semua Status">-- Semua Status --</option>
                                     <option value="Request">Request</option>
                                     <option value="Un Posted">Un Posted</option>
                                     <option value="Posted">Posted</option>
@@ -118,6 +117,58 @@
                     </button>
                 </div>
             </form>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const exportForm = document.querySelector("form[action='{{ route('pr.export') }}']");
+                    const exportButton = exportForm.querySelector("button[type='submit']");
+            
+                    exportForm.addEventListener("submit", function (event) {
+                        event.preventDefault(); // Prevent normal form submission
+            
+                        let formData = new FormData(exportForm);
+                        let url = exportForm.action;
+            
+                        // Disable button to prevent multiple clicks
+                        exportButton.disabled = true;
+                        exportButton.innerHTML = '<i class="mdi mdi-loading mdi-spin label-icon"></i>Exporting...';
+            
+                        fetch(url, {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+                            }
+                        })
+                        .then(response => response.blob()) // Expect a file response
+                        .then(blob => {
+                            let now = new Date();
+                            let formattedDate = now.getDate().toString().padStart(2, '0') + "_" +
+                                                (now.getMonth() + 1).toString().padStart(2, '0') + "_" +
+                                                now.getFullYear() + "_" +
+                                                now.getHours().toString().padStart(2, '0') + "_" +
+                                                now.getMinutes().toString().padStart(2, '0');
+                            let filename = `Export_PR_${formattedDate}.xlsx`;
+            
+                            let downloadUrl = window.URL.createObjectURL(blob);
+                            let a = document.createElement("a");
+                            a.href = downloadUrl;
+                            a.download = filename; // Set dynamic filename
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(downloadUrl);
+                        })
+                        .catch(error => {
+                            console.error("Export error:", error);
+                            alert("An error occurred while exporting.");
+                        })
+                        .finally(() => {
+                            exportButton.disabled = false;
+                            exportButton.innerHTML = '<i class="mdi mdi-file-excel label-icon"></i> Export To Excel';
+                        });
+                    });
+                });
+            </script>            
         </div>
     </div>
 </div>

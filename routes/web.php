@@ -134,6 +134,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/unposted/{id}', 'unposted')->name('pr.price.unposted');
                 Route::get('/get-pr-details', 'getPRDetails')->name('pr.price.getPRDetails');
                 Route::get('/print/{lang}/{id}', 'printPR')->name('pr.price.print');
+                Route::post('/export', 'exportPR')->name('pr.price.export');
                 //ITEM PR
                 Route::get('/item/edit/{id}', 'editItem')->name('pr.price.editItem');
                 Route::post('/item/update/{id}', 'updateItem')->name('pr.price.updateItem');
@@ -143,6 +144,7 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(PurchaseController::class)->group(function () {
             Route::prefix('purchase_requisition_items')->group(function () {
                 Route::get('/', 'indexItemPR')->name('pr.indexItem');
+                Route::post('/export', 'exportItemPR')->name('pr.item.export');
             });
         });
         // Purchase Order
@@ -157,6 +159,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/posted/{id}', 'postedPO')->name('po.posted');
                 Route::post('/unposted/{id}', 'unpostedPO')->name('po.unposted');
                 Route::get('/print/{lang}/{id}', 'printPO')->name('po.print');
+                Route::post('/export', 'exportPO')->name('po.export');
                 //ITEM PO
                 Route::get('/item/edit/{id}', 'editItemPO')->name('po.editItem');
                 Route::post('/item/store/{id}', 'storeItemPO')->name('po.storeItem');
