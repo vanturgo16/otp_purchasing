@@ -1698,7 +1698,7 @@ class PurchaseController extends Controller
             return redirect()->back()->with(['fail' => 'Gagal, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
         }
         $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $newStatus = ($requestOutstandingQty == 0) ? 'Closed' : 'Open';
+        $newStatus = ($requestOutstandingQty == 0) ? 'Close' : 'Open';
         $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
 
         if($dataBefore->isDirty()){
