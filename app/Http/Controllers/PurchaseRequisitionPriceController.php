@@ -523,7 +523,7 @@ class PurchaseRequisitionPriceController extends Controller
             return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
         }
         $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $newStatus = ($requestOutstandingQty == 0) ? 'Closed' : 'Open';
+        $newStatus = ($requestOutstandingQty == 0) ? 'Close' : 'Open';
 
         $idPRPrice = PurchaseRequisitionsPrice::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)->first()->id;
         $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
