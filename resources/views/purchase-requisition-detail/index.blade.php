@@ -74,7 +74,7 @@
                                 <select class="form-select data-select2" name="status" id="" style="width: 100%" required>
                                     <option value="Semua Status">-- Semua Status --</option>
                                     <option value="Open">Open</option>
-                                    <option value="Closed">Closed</option>
+                                    <option value="Close">Close</option>
                                 </select>
                             </div>
                         </div>
@@ -390,7 +390,7 @@
                     searchable: true,
                     className: 'align-top text-center freeze-column',
                     render: function(data) {
-                        const badgeColor = data === 'Closed' ? 'success' : 
+                        const badgeColor = data === 'Close' ? 'success' : 
                                         (data === 'Open' ? 'info' : 'success');
                         return `<span class="badge bg-${badgeColor}" style="font-size: smaller; width: 100%">${data}</span>`;
                     },
@@ -399,7 +399,7 @@
             createdRow: function(row, data, dataIndex) {
                 let bgColor = '';
                 let darkColor = '#FAFAFA';
-                if (['Close', 'Closed'].includes(data.status)) {
+                if (['Close'].includes(data.status)) {
                     bgColor = 'table-success';
                     darkColor = '#CFEBE0';
                 }
@@ -484,7 +484,7 @@
                 <select id="filterStatus">
                     <option value="All">-- Semua Status --</option>
                     <option value="Open">Open</option>
-                    <option value="Close">Closed</option>
+                    <option value="Close">Close</option>
                 </select>
             </label>
         `;
