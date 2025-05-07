@@ -84,7 +84,11 @@
                 <td>{{ $data->product_desc ?? '-' }}</td>
                 <td>{{ $data->required_date ?? '-' }}</td>
                 <td>{{ $data->cc_co_name ?? '-' }}</td>
-                <td>
+                
+                <td>{{ $data->qty ??  '0' }}</td>
+                <td>{{ $data->cancel_qty ??  '0' }}</td>
+                <td>{{ $data->outstanding_qty ??  '0' }}</td>
+                {{-- <td>
                     {{ $data->qty 
                         ? (strpos(strval($data->qty), '.') !== false 
                             ? rtrim(rtrim(number_format($data->qty, 6, ',', '.'), '0'), ',') 
@@ -104,7 +108,7 @@
                             ? rtrim(rtrim(number_format($data->outstanding_qty, 6, ',', '.'), '0'), ',') 
                             : number_format($data->outstanding_qty, 0, ',', '.')) 
                         : '0' }}
-                </td>
+                </td> --}}
                 <td>{{ $data->unit ?? '-' }}</td>
                 <td>{{ $data->remarks ?? '-' }}</td>
                 <td>{{ $data->status ?? '-' }}</td>

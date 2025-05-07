@@ -82,13 +82,15 @@
                     <td rowspan="{{ $rowspan }}">{{ $data->qc_check ?? '-' }}</td>
                     <td rowspan="{{ $rowspan }}">{{ $data->note ?? '-' }}</td>
                     <td rowspan="{{ $rowspan }}">{{ $data->type ?? '-' }}</td>
-                    <td rowspan="{{ $rowspan }}">
+
+                    <td rowspan="{{ $rowspan }}">{{ $data->total_amountPR ??  '0' }}</td>
+                    {{-- <td rowspan="{{ $rowspan }}">
                         {{ $data->total_amountPR 
                             ? (strpos(strval($data->total_amountPR), '.') !== false 
                                 ? rtrim(rtrim(number_format($data->total_amountPR, 6, ',', '.'), '0'), ',') 
                                 : number_format($data->total_amountPR, 0, ',', '.')) 
                             : '0' }}
-                    </td>
+                    </td> --}}
                     <td rowspan="{{ $rowspan }}">{{ $data->statusPRPrice ?? '-' }}</td>
                     <td rowspan="{{ $rowspan }}">{{ $data->createdPR ?? '-' }}</td>
                     <td rowspan="{{ $rowspan }}">{{ $data->updatedPR ?? '-' }}</td>
@@ -98,7 +100,11 @@
                 <td>{{ $data->product_desc ?? '-' }}</td>
                 <td>{{ $data->required_date ?? '-' }}</td>
                 <td>{{ $data->cc_co_name ?? '-' }}</td>
-                <td>
+
+                <td>{{ $data->qty ??  '0' }}</td>
+                <td>{{ $data->cancel_qty ??  '0' }}</td>
+                <td>{{ $data->outstanding_qty ??  '0' }}</td>
+                {{-- <td>
                     {{ $data->qty 
                         ? (strpos(strval($data->qty), '.') !== false 
                             ? rtrim(rtrim(number_format($data->qty, 6, ',', '.'), '0'), ',') 
@@ -118,10 +124,18 @@
                             ? rtrim(rtrim(number_format($data->outstanding_qty, 6, ',', '.'), '0'), ',') 
                             : number_format($data->outstanding_qty, 0, ',', '.')) 
                         : '0' }}
-                </td>
+                </td> --}}
                 <td>{{ $data->unit ?? '-' }}</td>
                 <td>{{ $data->currency ?? '-' }}</td>
-                <td>
+
+                <td>{{ $data->price ??  '0' }}</td>
+                <td>{{ $data->sub_total ??  '0' }}</td>
+                <td>{{ $data->discount ??  '0' }}</td>
+                <td>{{ $data->amount ??  '0' }}</td>
+                <td>{{ isset($data->tax_rate) ? $data->tax_rate . '%' : '-' }}</td>
+                <td>{{ $data->tax_value ??  '0' }}</td>
+                <td>{{ $data->total_amount ??  '0' }}</td>
+                {{-- <td>
                     {{ $data->price 
                         ? (strpos(strval($data->price), '.') !== false 
                             ? rtrim(rtrim(number_format($data->price, 6, ',', '.'), '0'), ',') 
@@ -163,7 +177,7 @@
                             ? rtrim(rtrim(number_format($data->total_amount, 6, ',', '.'), '0'), ',') 
                             : number_format($data->total_amount, 0, ',', '.')) 
                         : '0' }}
-                </td>
+                </td> --}}
                 <td>{{ $data->remarks ?? '-' }}</td>
                 <td>{{ $data->status ?? '-' }}</td>
                 <td>{{ $data->createdItem ?? '-' }}</td>

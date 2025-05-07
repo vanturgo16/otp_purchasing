@@ -68,7 +68,11 @@
                 <td>{{ $data->supplier_name ?? '-' }}</td>
                 <td>{{ $data->type_product ?? '-' }}</td>
                 <td>{{ $data->product_desc ?? '-' }}</td>
-                <td>
+
+                <td>{{ $data->qty ??  '0' }}</td>
+                <td>{{ $data->cancel_qty ??  '0' }}</td>
+                <td>{{ $data->outstanding_qty ??  '0' }}</td>
+                {{-- <td>
                     {{ $data->qty 
                         ? (strpos(strval($data->qty), '.') !== false 
                             ? rtrim(rtrim(number_format($data->qty, 6, ',', '.'), '0'), ',') 
@@ -88,10 +92,18 @@
                             ? rtrim(rtrim(number_format($data->outstanding_qty, 6, ',', '.'), '0'), ',') 
                             : number_format($data->outstanding_qty, 0, ',', '.')) 
                         : '0' }}
-                </td>
+                </td> --}}
                 <td>{{ $data->unit ?? '-' }}</td>
                 <td>{{ $data->currency ?? $data->currencyPO ?? '-' }}</td>
-                <td>
+                
+                <td>{{ $data->pricePO ??  '0' }}</td>
+                <td>{{ $data->sub_totalPO ??  '0' }}</td>
+                <td>{{ $data->discountPO ??  '0' }}</td>
+                <td>{{ $data->amountPO ??  '0' }}</td>
+                <td>{{ isset($data->tax_rate) ? $data->tax_rate . '%' : (isset($data->tax_ratePO) ? $data->tax_ratePO . '%' : '-') }}</td>
+                <td>{{ $data->tax_valuePO ??  '0' }}</td>
+                <td>{{ $data->total_amountPO ??  '0' }}</td>
+                {{-- <td>
                     {{ $data->price ?? $data->pricePO 
                         ? (strpos(strval($data->price ?? $data->pricePO), '.') !== false 
                             ? rtrim(rtrim(number_format($data->price ?? $data->pricePO, 6, ',', '.'), '0'), ',') 
@@ -136,7 +148,7 @@
                             ? rtrim(rtrim(number_format($data->total_amount ?? $data->total_amountPO, 6, ',', '.'), '0'), ',') 
                             : number_format($data->total_amount ?? $data->total_amountPO, 0, ',', '.')) 
                         : '0' }}
-                </td>
+                </td> --}}
                 <td>{{ $data->delivery_date ?? '-' }}</td>
                 <td>{{ $data->status ?? '-' }}</td>
                 <td>{{ $data->createdItem ?? '-' }}</td>
