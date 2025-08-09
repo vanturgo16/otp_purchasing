@@ -83,16 +83,50 @@ class PurchaseController extends Controller
         $this->auditLogsShort('View List Purchase Requisition');
         return view('purchase-requisition.index', compact('idUpdated', 'page_number'));
     }
+
+    private function previewPRNumber()
+    {
+        $lastCode = PurchaseRequisitions::whereYear('created_at', date('Y'))
+            ->orderBy('created_at', 'desc')
+            ->value(DB::raw('RIGHT(request_number, 7)'));
+        $lastCode = $lastCode ? (int)$lastCode : 0;
+        $nextCode = $lastCode + 1;
+        return 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+    }
+    private function generatePRNumber()
+    {
+        $year = date('Y');
+        return DB::transaction(function () use ($year) {
+            // Lock rows for current year to avoid race condition
+            $lastCode = PurchaseRequisitions::whereYear('created_at', $year)
+                ->lockForUpdate()
+                ->orderBy('created_at', 'desc')
+                ->value(DB::raw('RIGHT(request_number, 7)'));
+            $lastCode = $lastCode ? (int)$lastCode : 0;
+            $nextCode = $lastCode + 1;
+            return 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+        });
+    }
+    private function getPRNumber()
+    {
+        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')->value(DB::raw('RIGHT(request_number, 7)'));
+        $lastCode = $lastCode ? $lastCode : 0;
+        $nextCode = $lastCode + 1;
+        $formattedCode = 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+
+        return $formattedCode;
+    }
+
+
     public function addPR($type)
     {
         // dd($type);
         if(!in_array($type, ['RM', 'WIP', 'FG', 'TA', 'Other'])){
             return redirect()->route('dashboard')->with(['fail' => 'Tidak Ada Type '. $type]);
         }
-        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')->value(DB::raw('RIGHT(request_number, 7)'));
-        $lastCode = $lastCode ? $lastCode : 0;
-        $nextCode = $lastCode + 1;
-        $formattedCode = 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
+        // $formattedCode = $this->previewPRNumber();
+        $formattedCode = $this->getPRNumber();
+        
         $suppliers = MstSupplier::get();
         $requesters = MstRequester::get();
 
@@ -118,13 +152,11 @@ class PurchaseController extends Controller
             'type.required' => 'Type masih kosong.',
         ]);
         
-        $lastCode = PurchaseRequisitions::orderBy('created_at', 'desc')->value(DB::raw('RIGHT(request_number, 7)'));
-        $lastCode = $lastCode ? $lastCode : 0;
-        $nextCode = $lastCode + 1;
-        $formattedCode = 'PR' . date('y') . str_pad($nextCode, 7, '0', STR_PAD_LEFT);
-        
         DB::beginTransaction();
         try{
+            // $formattedCode = $this->generatePRNumber();
+            $formattedCode = $this->getPRNumber();
+
             $storeData = PurchaseRequisitions::create([
                 'request_number' => $formattedCode,
                 'date' => $request->date,
@@ -938,14 +970,42 @@ class PurchaseController extends Controller
         ];
         return $romans[$month];
     }
-    public function indexPO(Request $request)
+
+    private function previewPONumber()
     {
         $year = date('y');
-        $lastCode = PurchaseOrders::orderBy('created_at', 'desc')->value(DB::raw('LEFT(po_number, 3)'));
-        $lastCode = $lastCode ? $lastCode : 0;
+        $month = date('n');
+        $lastCode = PurchaseOrders::whereYear('created_at', date('Y'))
+            ->whereMonth('created_at', $month)
+            ->orderBy('created_at', 'desc')
+            ->value(DB::raw('LEFT(po_number, 3)'));
+        $lastCode = $lastCode ? (int)$lastCode : 0;
         $nextCode = $lastCode + 1;
-        $currentMonth = $this->romanMonth(date('n'));
-        $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
+        $currentMonth = $this->romanMonth($month);
+
+        return sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
+    }
+
+    private function generatePONumber()
+    {
+        $year = date('Y');
+        $month = date('n');
+        return DB::transaction(function () use ($year, $month) {
+            $lastCode = PurchaseOrders::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->lockForUpdate()
+                ->orderBy('created_at', 'desc')
+                ->value(DB::raw('LEFT(po_number, 3)'));
+            $lastCode = $lastCode ? (int)$lastCode : 0;
+            $nextCode = $lastCode + 1;
+            $currentMonth = $this->romanMonth($month);
+            return sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, date('y'));
+        });
+    }
+
+    public function indexPO(Request $request)
+    {
+        $formattedCode = $this->previewPONumber();
 
         $idUpdated = $request->get('idUpdated');
 
@@ -1032,15 +1092,9 @@ class PurchaseController extends Controller
             'type.required' => 'Type masih kosong.',
         ]);
         
-        $year = date('y');
-        $lastCode = PurchaseOrders::orderBy('created_at', 'desc')->value(DB::raw('LEFT(po_number, 3)'));
-        $lastCode = $lastCode ? $lastCode : 0;
-        $nextCode = $lastCode + 1;
-        $currentMonth = $this->romanMonth(date('n'));
-        $formattedCode = sprintf('%03d/PO/OTP/%s/%02d', $nextCode, $currentMonth, $year);
-        
         DB::beginTransaction();
         try{
+            $formattedCode = $this->generatePONumber();
             $storeData = PurchaseOrders::create([
                 'po_number' => $formattedCode,
                 'date' => $request->date,
