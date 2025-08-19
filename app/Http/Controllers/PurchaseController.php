@@ -1122,6 +1122,7 @@ class PurchaseController extends Controller
                     'qty' => $item->qty,
                     'outstanding_qty' => $item->outstanding_qty,
                     'master_units_id' => $item->master_units_id,
+                    'note' => $item->remarks,
                     'id_purchase_requisition_details' => $item->id,
                 ]);
             }
@@ -1283,6 +1284,7 @@ class PurchaseController extends Controller
                             'master_products_id' => $item->master_products_id,
                             'qty' => $item->qty,
                             'master_units_id' => $item->master_units_id,
+                            'note' => $item->remarks,
                             'id_purchase_requisition_details' => $item->id,
                         ]);
                     }
