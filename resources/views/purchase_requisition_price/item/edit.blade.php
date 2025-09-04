@@ -146,7 +146,7 @@
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Price </label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control number-format" placeholder="Masukkan Price.." name="price" id="price" 
-                                value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 6, ',', '.')) : '0' }}" 
+                                value="{{ $data->price ? (strpos($data->price, '.') === false ? number_format($data->price, 0, ',', '.') : number_format($data->price, 3, ',', '.')) : '0' }}" 
                             required>
                         </div>
                     </div>
@@ -155,7 +155,7 @@
                         <div class="col-sm-9">
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control custom-bg-gray" placeholder="Sub Total.. (Terisi Otomatis)"
-                                    value="{{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 6, ',', '.')) : '' }}" 
+                                    value="{{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '' }}" 
                                     name="sub_total" id="sub_total" readonly>
                                 <span class="input-group-text">(Qty * Price)</span>
                             </div>
@@ -165,7 +165,7 @@
                         <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Discount </label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control number-format" placeholder="Masukkan Discount.." name="discount" id="discount" 
-                                value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 6, ',', '.')) : '0' }}" 
+                                value="{{ $data->discount ? (strpos($data->discount, '.') === false ? number_format($data->discount, 0, ',', '.') : number_format($data->discount, 3, ',', '.')) : '0' }}" 
                                 required>
                         </div>
                     </div>
@@ -174,7 +174,7 @@
                         <div class="col-sm-9">
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control custom-bg-gray" placeholder="Amount.. (Terisi Otomatis)" name="amount" id="amount" 
-                                    value="{{ $data->amount ? (strpos($data->amount, '.') === false ? number_format($data->amount, 0, ',', '.') : number_format($data->amount, 6, ',', '.')) : '' }}" 
+                                    value="{{ $data->amount ? (strpos($data->amount, '.') === false ? number_format($data->amount, 0, ',', '.') : number_format($data->amount, 3, ',', '.')) : '' }}" 
                                     readonly>
                                 <span class="input-group-text">(Sub Total - Discount)</span>
                             </div>
@@ -200,7 +200,7 @@
                         <div class="col-sm-9">
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control custom-bg-gray" placeholder="Tax Value.. (Terisi Otomatis)" name="tax_value" id="tax_value" 
-                                    value="{{ $data->tax_value ? (strpos($data->tax_value, '.') === false ? number_format($data->tax_value, 0, ',', '.') : number_format($data->tax_value, 6, ',', '.')) : '' }}" 
+                                    value="{{ $data->tax_value ? (strpos($data->tax_value, '.') === false ? number_format($data->tax_value, 0, ',', '.') : number_format($data->tax_value, 3, ',', '.')) : '' }}" 
                                     readonly>
                                 <span class="input-group-text">(Tax Rate/100 * Amount)</span>
                             </div>
@@ -211,7 +211,7 @@
                         <div class="col-sm-9">
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control custom-bg-gray" placeholder="Total Amount.. (Terisi Otomatis)" name="total_amount" id="total_amount" 
-                                    value="{{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 6, ',', '.')) : '' }}" 
+                                    value="{{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '' }}" 
                                     readonly>
                                 <span class="input-group-text">(Amount + Tax)</span>
                             </div>
