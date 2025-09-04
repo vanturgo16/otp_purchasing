@@ -106,7 +106,7 @@
                 {{-- <td>
                     {{ $data->price ?? $data->pricePO 
                         ? (strpos(strval($data->price ?? $data->pricePO), '.') !== false 
-                            ? rtrim(rtrim(number_format($data->price ?? $data->pricePO, 6, ',', '.'), '0'), ',') 
+                            ? rtrim(rtrim(number_format($data->price ?? $data->pricePO, 3, ',', '.'), '0'), ',') 
                             : number_format($data->price ?? $data->pricePO, 0, ',', '.')) 
                         : '0' }}
                 </td>
@@ -114,21 +114,21 @@
                 <td>
                     {{ $data->sub_total ?? $data->sub_totalPO 
                         ? (strpos(strval($data->sub_total ?? $data->sub_totalPO), '.') !== false 
-                            ? rtrim(rtrim(number_format($data->sub_total ?? $data->sub_totalPO, 6, ',', '.'), '0'), ',') 
+                            ? rtrim(rtrim(number_format($data->sub_total ?? $data->sub_totalPO, 3, ',', '.'), '0'), ',') 
                             : number_format($data->sub_total ?? $data->sub_totalPO, 0, ',', '.')) 
                         : '0' }}
                 </td>
                 <td>
                     {{ $data->discount ?? $data->discountPO 
                         ? (strpos(strval($data->discount ?? $data->discountPO), '.') !== false 
-                            ? rtrim(rtrim(number_format($data->discount ?? $data->discountPO, 6, ',', '.'), '0'), ',') 
+                            ? rtrim(rtrim(number_format($data->discount ?? $data->discountPO, 3, ',', '.'), '0'), ',') 
                             : number_format($data->discount ?? $data->discountPO, 0, ',', '.')) 
                         : '0' }}
                 </td>
                 <td>
                     {{ $data->amount ?? $data->amountPO 
                         ? (strpos(strval($data->amount ?? $data->amountPO), '.') !== false 
-                            ? rtrim(rtrim(number_format($data->amount ?? $data->amountPO, 6, ',', '.'), '0'), ',') 
+                            ? rtrim(rtrim(number_format($data->amount ?? $data->amountPO, 3, ',', '.'), '0'), ',') 
                             : number_format($data->amount ?? $data->amountPO, 0, ',', '.')) 
                         : '0' }}
                 </td>
@@ -138,14 +138,14 @@
                 <td>
                     {{ $data->tax_value ?? $data->tax_valuePO
                         ? (strpos(strval($data->tax_value ?? $data->tax_valuePO), '.') !== false 
-                            ? rtrim(rtrim(number_format($data->tax_value ?? $data->tax_valuePO, 6, ',', '.'), '0'), ',') 
+                            ? rtrim(rtrim(number_format($data->tax_value ?? $data->tax_valuePO, 3, ',', '.'), '0'), ',') 
                             : number_format($data->tax_value ?? $data->tax_valuePO, 0, ',', '.')) 
                         : '0' }}
                 </td>
                 <td>
                     {{ $data->total_amount ?? $data->total_amountPO
                         ? (strpos(strval($data->total_amount ?? $data->total_amountPO), '.') !== false 
-                            ? rtrim(rtrim(number_format($data->total_amount ?? $data->total_amountPO, 6, ',', '.'), '0'), ',') 
+                            ? rtrim(rtrim(number_format($data->total_amount ?? $data->total_amountPO, 3, ',', '.'), '0'), ',') 
                             : number_format($data->total_amount ?? $data->total_amountPO, 0, ',', '.')) 
                         : '0' }}
                 </td> --}}

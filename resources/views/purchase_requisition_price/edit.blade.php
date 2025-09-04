@@ -218,16 +218,16 @@
                                 </td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
                                 <td class="text-end">
-                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 6, ',', '.')) : '0' }}
+                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 6, ',', '.')) : '0' }}
+                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 6, ',', '.')) : '0' }}
+                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 6, ',', '.')) : '0' }}
+                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td class="text-end">
                                     @if($item->tax == 'N')
@@ -235,15 +235,15 @@
                                     @elseif($item->tax == null)
                                         0
                                     @else
-                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 6, ',', '.')) : '0' }}
+                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 3, ',', '.')) : '0' }}
                                         <br><span class="badge bg-info" 
-                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 6, ',', '.')) : '0' }}">
+                                            title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}">
                                             ({{ $item->tax_rate }}%)
                                         </span>
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 6, ',', '.')) : '0' }}
+                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td class="align-top text-center">
                                     <span class="badge bg-{{ $item->status == 'Open' ? 'info' : 'success' }}">
@@ -297,19 +297,19 @@
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 6, ',', '.')) : '0' }}
+                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 6, ',', '.')) : '0' }}
+                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 6, ',', '.')) : '0' }}
+                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 6, ',', '.')) : '0' }}
+                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end fw-bold">
-                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 6, ',', '.')) : '0' }}
+                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>

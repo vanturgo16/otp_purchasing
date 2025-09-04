@@ -90,10 +90,10 @@
                                 <td>{{ $item->required_date }}</td>
                                 <td>{{ $item->cc_co_name }}</td>
                                 <td>{{ $item->currency }} 
-                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 6, ',', '.')) : '0' }}
+                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
                                 </td>
                                 <td>
-                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 6, ',', '.')) : '0' }}
+                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
                                 </td>
                             </tr>
                         @endforeach
