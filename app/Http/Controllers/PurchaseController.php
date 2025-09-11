@@ -36,6 +36,7 @@ class PurchaseController extends Controller
     //DATA PR
     public function indexPR(Request $request)
     {
+        $reference_number = $request->reference_number;
         $idUpdated = $request->get('idUpdated');
 
         $datas = PurchaseRequisitions::select('purchase_requisitions.id', 'purchase_requisitions.request_number',
@@ -81,7 +82,7 @@ class PurchaseController extends Controller
 
         //Audit Log
         $this->auditLogsShort('View List Purchase Requisition');
-        return view('purchase-requisition.index', compact('idUpdated', 'page_number'));
+        return view('purchase-requisition.index', compact('idUpdated', 'page_number', 'reference_number'));
     }
 
     private function previewPRNumber()
@@ -1005,6 +1006,7 @@ class PurchaseController extends Controller
 
     public function indexPO(Request $request)
     {
+        $po_number = $request->po_number;
         $formattedCode = $this->previewPONumber();
 
         $idUpdated = $request->get('idUpdated');
@@ -1064,7 +1066,7 @@ class PurchaseController extends Controller
         //Audit Log
         $this->auditLogsShort('View List Purchase Order');
         return view('purchase-order.index', compact('formattedCode', 'postedPRs', 'suppliers',
-            'idUpdated', 'page_number'));
+            'idUpdated', 'page_number', 'po_number'));
     }
     public function storePO(Request $request)
     {

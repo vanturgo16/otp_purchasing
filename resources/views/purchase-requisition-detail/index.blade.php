@@ -195,7 +195,12 @@
                     name: 'request_number',
                     orderable: true,
                     searchable: true,
-                    className: 'align-top fw-bold freeze-column'
+                    className: 'align-top fw-bold freeze-column',
+                    render: function(data, type, row) {
+                        // build URL with reference_number
+                        let url = `{{ route('pr.index') }}?reference_number=${row.request_number}`;
+                        return `<a href="${url}">${data}</a>`;
+                    }
                 },
                 {
                     data: 'po_number',
@@ -203,9 +208,11 @@
                     orderable: true,
                     searchable: true,
                     className: 'align-top',
-                    render: function (data, type, row) {
+                    render: function(data, type, row) {
                         if (!data) { return '-'; }
-                        return data;
+                        // build URL with po_number
+                        let url = `{{ route('po.index') }}?po_number=${row.po_number}`;
+                        return `<a href="${url}">${data}</a>`;
                     }
                 },
                 {

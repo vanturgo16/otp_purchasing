@@ -182,6 +182,7 @@
         var pageLength = 5;
         var displayStart = (pageNumber - 1) * pageLength;
         var firstReload = true; 
+        var referenceNumber = '{{ $reference_number ?? '' }}';
 
         var dataTable = $('#server-side-table').DataTable({
             scrollX: true,
@@ -359,6 +360,12 @@
                 }
             }
         });
+
+        if (referenceNumber) {
+            dataTable.search(referenceNumber).draw();
+            $('.dataTables_filter input').val(referenceNumber); // show in searchbox
+        }
+
         $('.dataTables_scrollHeadInner thead th').each(function(index) {
             let $this = $(this);
             let isFrozenColumn = index < 2 || index === $('.dataTables_scrollHeadInner thead th').length - 1;

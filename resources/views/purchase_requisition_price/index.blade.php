@@ -12,12 +12,111 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">List Purchase Requisition (PR) With Price</h5>
                             <div>
+                                <a href="" class="btn btn-sm btn-info waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#showListPR" title="Lihat List PR yang telah dibuat GRN">
+                                    <i class="mdi mdi-eye label-icon"></i> Show List PR (Created GRN)
+                                </a>
                                 <a href="" class="btn btn-sm btn-primary waves-effect btn-label waves-light mb-2" data-bs-toggle="modal" data-bs-target="#addPRPrice" title="Tambah PR Price">
                                     <i class="mdi mdi-plus label-icon"></i> Tambah Data
                                 </a>
                             </div>
                         </div>
                     </div>
+                    {{-- Modal Show List PR --}}
+                    <div class="modal fade" id="showListPR" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">List of PRs that have created GRNs but do not have prices yet</b></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto;">
+                                    <div id="listPRContent" class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p>Loading data...</p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const modal = document.getElementById('showListPR');
+                            const content = document.getElementById('listPRContent');
+                            let dataTableInstance = null;
+                        
+                            modal.addEventListener('show.bs.modal', function () {
+                                content.innerHTML = `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p>Loading data...</p>
+                                    </div>
+                                `;
+                        
+                                fetch("{{ route('pr.price.getDataPRGRN') }}")
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.length === 0) {
+                                            content.innerHTML = `<p class="text-center text-muted">No PRs found.</p>`;
+                                            return;
+                                        }
+                        
+                                        let tableHtml = `
+                                            <table id="tablePR" class="display table table-bordered table-striped align-middle w-100">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="text-center">#</th>
+                                                        <th class="text-center">GRN Number</th>
+                                                        <th class="text-center">GRN Status</th>
+                                                        <th class="text-center">PR Number</th>
+                                                        <th class="text-center">Created At</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                        `;
+                        
+                                        data.forEach((item, index) => {
+                                            tableHtml += `
+                                                <tr>
+                                                    <td>${index + 1}</td>
+                                                    <td>${item.receipt_number ?? '-'}</td>
+                                                    <td>${item.status ?? '-'}</td>
+                                                    <td>${item.request_number ?? '-'}</td>
+                                                    <td>${item.createdGRN ?? '-'}</td>
+                                                </tr>
+                                            `;
+                                        });
+                        
+                                        tableHtml += `</tbody></table>`;
+                                        content.innerHTML = tableHtml;
+                        
+                                        // destroy old instance if exists (to prevent re-init error)
+                                        if (dataTableInstance) {
+                                            dataTableInstance.destroy();
+                                        }
+                        
+                                        // initialize DataTable
+                                        dataTableInstance = new DataTable("#tablePR", {
+                                            pageLength: 5,       // default rows per page
+                                            lengthMenu: [5, 10, 20, 50],
+                                            ordering: true,
+                                            searching: true
+                                        });
+                                    })
+                                    .catch(error => {
+                                        content.innerHTML = `<p class="text-danger text-center">Failed to load data.</p>`;
+                                        console.error(error);
+                                    });
+                            });
+                        });
+                    </script>                        
+
                     {{-- Modal Add --}}
                     <div class="modal fade" id="addPRPrice" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-top modal-xl" role="document">
@@ -311,7 +410,12 @@
                     name: 'request_number',
                     orderable: true,
                     searchable: true,
-                    className: 'align-top fw-bold freeze-column'
+                    className: 'align-top fw-bold freeze-column',
+                    render: function(data, type, row) {
+                        // build URL with reference_number
+                        let url = `{{ route('pr.index') }}?reference_number=${row.request_number}`;
+                        return `<a href="${url}">${data}</a>`;
+                    }
                 },
                 {
                     data: 'requisition_date',

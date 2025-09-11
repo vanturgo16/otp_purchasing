@@ -301,6 +301,7 @@
         var pageLength = 5;
         var displayStart = (pageNumber - 1) * pageLength;
         var firstReload = true; 
+        var poNumber = '{{ $po_number ?? '' }}';
 
         var dataTable = $('#server-side-table').DataTable({
             scrollX: true,
@@ -358,7 +359,12 @@
                     data: 'reference_number',
                     name: 'reference_number',
                     orderable: true,
-                    className: 'align-top'
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        // build URL with reference_number
+                        let url = `{{ route('pr.index') }}?reference_number=${row.reference_number}`;
+                        return `<a href="${url}">${data}</a>`;
+                    }
                 },
                 {
                     data: 'down_payment',
@@ -495,6 +501,12 @@
                 }
             }
         });
+        
+        if (poNumber) {
+            dataTable.search(poNumber).draw();
+            $('.dataTables_filter input').val(poNumber); // show in searchbox
+        }
+
         $('.dataTables_scrollHeadInner thead th').each(function(index) {
             let $this = $(this);
             let isFrozenColumn = index < 2 || index === $('.dataTables_scrollHeadInner thead th').length - 1;
