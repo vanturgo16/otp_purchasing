@@ -110,11 +110,11 @@
         <hr>
         <div class="row">
             <div class="col-4 text-center">
-                <p class="mb-5">Diminta Oleh,</p>
+                <p class="mb-5">Requested By,</p>
                 <p>(.............)</p>
             </div>
             <div class="col-4 text-center">
-                <p class="mb-5">Disetujui Oleh,</p>
+                <p class="mb-5">Approved by,</p>
                 <p>(.............)</p>
             </div>
             <div class="col-4 text-center">

@@ -138,6 +138,8 @@ Route::middleware(['auth'])->group(function () {
                 //ITEM PR
                 Route::get('/item/edit/{id}', 'editItem')->name('pr.price.editItem');
                 Route::post('/item/update/{id}', 'updateItem')->name('pr.price.updateItem');
+
+                Route::get('/pr-grn', 'getDataPRGRN')->name('pr.price.getDataPRGRN');
             });
         });
         // Purchase Requisition Items
