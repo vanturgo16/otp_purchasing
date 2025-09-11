@@ -212,10 +212,16 @@
                                 </td>
                                 <td>{{ $item->unit_code }}</td>
                                 <td>{{ $item->currency }} 
-                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
+                                    {{ $item->price 
+                                        ? rtrim(rtrim(number_format($item->price, 3, ',', '.'), '0'), ',') 
+                                        : '0' }}
+                                    {{-- {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }} --}}
                                 </td>
                                 <td>
-                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
+                                    {{ $item->sub_total 
+                                        ? rtrim(rtrim(number_format($item->sub_total, 3, ',', '.'), '0'), ',') 
+                                        : '0' }}
+                                    {{-- {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }} --}}
                                 </td>
                                 {{-- <td>
                                     {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
@@ -228,6 +234,20 @@
                                 </td> --}}
                             </tr>
                         @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="align-top">Catatan Pribadi</td>
+                            <td class="align-top" style="padding-left: 15px;">:</td>
+                            <td class="align-top">{{ $data->own_remarks ?? '-' }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -265,7 +285,7 @@
                             <td class="align-top">{{ $data->delivery_date }}</td>
                         </tr>
                         <tr>
-                            <td class="align-top">Catatan</td>
+                            <td class="align-top">Catatan Supplier</td>
                             <td class="align-top" style="padding-left: 15px;">:</td>
                             <td class="align-top">{{ $data->supplier_remarks ?? '-' }}</td>
                         </tr>

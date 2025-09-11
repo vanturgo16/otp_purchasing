@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GoodReceiptNote;
 use DataTables;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
@@ -24,10 +23,22 @@ use App\Models\MstWip;
 use App\Models\PurchaseOrders;
 use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseRequisitionsPrice;
+use App\Models\GoodReceiptNote;
 
 class PurchaseRequisitionPriceController extends Controller
 {
     use AuditLogsTrait;
+    
+    public function getDataPRGRN()
+    {
+        $datas = GoodReceiptNote::select('good_receipt_notes.receipt_number', 'good_receipt_notes.status',
+                'purchase_requisitions.request_number', 'good_receipt_notes.created_at as createdGRN')
+            ->leftJoin('purchase_requisitions', 'good_receipt_notes.reference_number', 'purchase_requisitions.id')
+            ->whereNull('good_receipt_notes.id_purchase_orders')
+            ->orderBy('good_receipt_notes.created_at', 'desc')
+            ->get();
+        return $datas;
+    }
 
     //DATA PR PRICE
     public function index(Request $request)
