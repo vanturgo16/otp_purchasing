@@ -105,7 +105,10 @@
             }
         }
     @endphp
-    @if(($data->status != 'Posted') && ($data->status != 'Closed'))
+    {{-- @if(($data->status != 'Posted') && ($data->status != 'Closed'))
+        <div class="watermark">DRAFT</div>
+    @endif --}}
+    @if(($data->status == 'Request') && ($data->status == 'Un Posted'))
         <div class="watermark">DRAFT</div>
     @endif
     
@@ -239,7 +242,7 @@
             </div>
         </div>
 
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-12">
                 <table>
                     <tbody>
@@ -251,7 +254,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
 
         <div class="row">
             <ul style="list-style-type: '- ';">
@@ -285,7 +288,7 @@
                             <td class="align-top">{{ $data->delivery_date }}</td>
                         </tr>
                         <tr>
-                            <td class="align-top">Supplier Remark</td>
+                            <td class="align-top">Note</td>
                             <td class="align-top" style="padding-left: 15px;">:</td>
                             <td class="align-top">{{ $data->supplier_remarks ?? '-' }}</td>
                         </tr>
