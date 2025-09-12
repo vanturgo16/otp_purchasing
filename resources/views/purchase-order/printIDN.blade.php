@@ -105,7 +105,10 @@
             }
         }
     @endphp
-    @if(($data->status != 'Posted') && ($data->status != 'Closed'))
+    {{-- @if(($data->status != 'Posted') && ($data->status != 'Closed'))
+        <div class="watermark">DRAFT</div>
+    @endif --}}
+    @if(($data->status == 'Request') && ($data->status == 'Un Posted'))
         <div class="watermark">DRAFT</div>
     @endif
     
@@ -239,19 +242,19 @@
             </div>
         </div>
 
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-12">
                 <table>
                     <tbody>
                         <tr>
-                            <td class="align-top">Catatan Pribadi</td>
+                            <td class="align-top">Catatan</td>
                             <td class="align-top" style="padding-left: 15px;">:</td>
                             <td class="align-top">{{ $data->own_remarks ?? '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
 
         <div class="row">
             <ul style="list-style-type: '- ';">
