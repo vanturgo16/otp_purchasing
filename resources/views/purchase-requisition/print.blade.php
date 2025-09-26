@@ -73,6 +73,11 @@
                     </thead>
                     <tbody>
                         @foreach ($itemDatas as $item)
+                        
+                            @php
+                                $qtyFinal = ($item->qty ?? 0) - ($item->cancel_qty ?? 0);
+                            @endphp
+
                             <tr>
                                 <td class="align-top text-center">{{ $loop->iteration }}</td>
                                 <td>{{ $item->code }}</td>
@@ -81,10 +86,10 @@
                                     {{ $item->remarks }}
                                 </td>
                                 <td>
-                                    {{ $item->qty 
-                                        ? (strpos(strval($item->qty), '.') !== false 
-                                            ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
-                                            : number_format($item->qty, 0, ',', '.')) 
+                                    {{ $qtyFinal 
+                                        ? (strpos(strval($qtyFinal), '.') !== false 
+                                            ? rtrim(rtrim(number_format($qtyFinal, 6, ',', '.'), '0'), ',') 
+                                            : number_format($qtyFinal, 0, ',', '.')) 
                                         : '0' }}
                                 </td>
                                 <td>{{ $item->unit_code }}</td>

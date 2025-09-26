@@ -533,68 +533,74 @@ class PurchaseRequisitionPriceController extends Controller
         if($request->cancel_qty > $originOutstandingQty){
             return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
         }
-        $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $newStatus = ($requestOutstandingQty == 0) ? 'Close' : 'Open';
 
-        $idPRPrice = PurchaseRequisitionsPrice::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)->first()->id;
-        $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $dataBefore->outstanding_qty = str_replace(['.', ','], ['', '.'], $request->outstanding_qty);
-        $dataBefore->currency = $request->currency;
-        $dataBefore->price = str_replace(['.', ','], ['', '.'], $request->price);
-        $dataBefore->sub_total = str_replace(['.', ','], ['', '.'], $request->sub_total);
-        $dataBefore->discount = str_replace(['.', ','], ['', '.'], $request->discount);
-        $dataBefore->amount = str_replace(['.', ','], ['', '.'], $request->amount);
-        $dataBefore->tax = $request->tax;
-        $dataBefore->tax_rate = $request->tax_rate;
-        $dataBefore->tax_value = str_replace(['.', ','], ['', '.'], $request->tax_value);
-        $dataBefore->total_amount = str_replace(['.', ','], ['', '.'], $request->total_amount);
-
-        if($dataBefore->isDirty()){
-            DB::beginTransaction();
-            try{
-                PurchaseRequisitionsDetail::where('id', $id)->update([
-                    'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
-                    'outstanding_qty' => $requestOutstandingQty,
-                    'currency' => $request->currency,
-                    'price' => str_replace(['.', ','], ['', '.'], $request->price),
-                    'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
-                    'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
-                    'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
-                    'tax' => $request->tax,
-                    'tax_rate' => $request->tax_rate,
-                    'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
-                    'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
-                    'status' => $newStatus,
-                ]);
-                $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)
-                    ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
-                        SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
-                    ->first();
-                // Round up to 3 decimal places
-                $sub_total = round($totals->total_sub_total, 6);
-                $total_discount = round($totals->total_discount, 6);
-                $total_sub_amount = round($totals->total_sub_amount, 6);
-                $total_ppn = round($totals->total_ppn, 6);
-                $total_amount = round($totals->total_amount, 6);
-                // Update PR Data
-                PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update([
-                    'sub_total' => $sub_total,
-                    'total_discount' => $total_discount,
-                    'total_sub_amount' => $total_sub_amount,
-                    'total_ppn' => $total_ppn,
-                    'total_amount' => $total_amount,
-                ]);
-
-                // Audit Log
-                $this->auditLogsShort('Update Purchase Requisitions Detail Price ID : (' . $id . ')');
-                DB::commit();
-                return redirect()->route('pr.price.edit', encrypt($idPRPrice))->with(['success' => 'Berhasil Update Item PR Price', 'scrollTo' => 'tableItem']);
-            } catch (Exception $e) {
-                DB::rollback();
-                return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price!']);
-            }
-        } else {
-            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+        // Check GRN using this PR Still In Progress Or Not
+        if (GoodReceiptNote::where('reference_number', $dataBefore->id_purchase_requisitions)->whereIn('status', ['Hold', 'Un Posted'])->exists()) {
+            return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price, Masih ada Good Receipt Note Dalam Proses']);
         }
+
+        // $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
+        // $newStatus = ($requestOutstandingQty == 0) ? 'Close' : 'Open';
+
+        // $idPRPrice = PurchaseRequisitionsPrice::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)->first()->id;
+        // $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
+        // $dataBefore->outstanding_qty = str_replace(['.', ','], ['', '.'], $request->outstanding_qty);
+        // $dataBefore->currency = $request->currency;
+        // $dataBefore->price = str_replace(['.', ','], ['', '.'], $request->price);
+        // $dataBefore->sub_total = str_replace(['.', ','], ['', '.'], $request->sub_total);
+        // $dataBefore->discount = str_replace(['.', ','], ['', '.'], $request->discount);
+        // $dataBefore->amount = str_replace(['.', ','], ['', '.'], $request->amount);
+        // $dataBefore->tax = $request->tax;
+        // $dataBefore->tax_rate = $request->tax_rate;
+        // $dataBefore->tax_value = str_replace(['.', ','], ['', '.'], $request->tax_value);
+        // $dataBefore->total_amount = str_replace(['.', ','], ['', '.'], $request->total_amount);
+
+        // if($dataBefore->isDirty()){
+        //     DB::beginTransaction();
+        //     try{
+        //         PurchaseRequisitionsDetail::where('id', $id)->update([
+        //             'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
+        //             'outstanding_qty' => $requestOutstandingQty,
+        //             'currency' => $request->currency,
+        //             'price' => str_replace(['.', ','], ['', '.'], $request->price),
+        //             'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
+        //             'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
+        //             'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
+        //             'tax' => $request->tax,
+        //             'tax_rate' => $request->tax_rate,
+        //             'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
+        //             'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
+        //             'status' => $newStatus,
+        //         ]);
+        //         $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)
+        //             ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
+        //                 SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
+        //             ->first();
+        //         // Round up to 3 decimal places
+        //         $sub_total = round($totals->total_sub_total, 6);
+        //         $total_discount = round($totals->total_discount, 6);
+        //         $total_sub_amount = round($totals->total_sub_amount, 6);
+        //         $total_ppn = round($totals->total_ppn, 6);
+        //         $total_amount = round($totals->total_amount, 6);
+        //         // Update PR Data
+        //         PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update([
+        //             'sub_total' => $sub_total,
+        //             'total_discount' => $total_discount,
+        //             'total_sub_amount' => $total_sub_amount,
+        //             'total_ppn' => $total_ppn,
+        //             'total_amount' => $total_amount,
+        //         ]);
+
+        //         // Audit Log
+        //         $this->auditLogsShort('Update Purchase Requisitions Detail Price ID : (' . $id . ')');
+        //         DB::commit();
+        //         return redirect()->route('pr.price.edit', encrypt($idPRPrice))->with(['success' => 'Berhasil Update Item PR Price', 'scrollTo' => 'tableItem']);
+        //     } catch (Exception $e) {
+        //         DB::rollback();
+        //         return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price!']);
+        //     }
+        // } else {
+        //     return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+        // }
     }
 }

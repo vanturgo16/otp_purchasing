@@ -28,6 +28,7 @@ use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseOrderDetails;
 use App\Models\PurchaseRequisitionsPrice;
 use App\Models\GoodReceiptNote;
+use App\Models\GoodReceiptNoteDetail;
 
 class PurchaseController extends Controller
 {
@@ -1744,39 +1745,68 @@ class PurchaseController extends Controller
         ], [
             'cancel_qty.required' => 'Cancel Qty harus diisi.',
         ]);
-        $dataBefore = PurchaseOrderDetails::where('id', $id)->first();
-        $idPO = $dataBefore->id_purchase_orders;
-        //Check GRN Still In Progress Or Not
-        if(GoodReceiptNote::where('id_purchase_orders', $idPO)->whereIn('status', ['Hold', 'Un Posted'])->exists()){
+
+        $dataBefore     = PurchaseOrderDetails::where('id', $id)->first();
+        $idPO           = $dataBefore->id_purchase_orders;
+        $idPRDetail     = $dataBefore->id_purchase_requisition_details;
+
+        // Check GRN Still In Progress Or Not
+        if (GoodReceiptNote::where('id_purchase_orders', $idPO)->whereIn('status', ['Hold', 'Un Posted'])->exists()) {
             return redirect()->back()->with(['fail' => 'Gagal Cancel Item, Good Receipt Note Masih Dalam Proses']);
         }
-        $originOutstandingQty = (float) $dataBefore->outstanding_qty + (float) $dataBefore->cancel_qty;
-        // Check Cancel Qty Cannot More Than Outstanding Qty
-        if($request->cancel_qty > $originOutstandingQty){
+
+        // Variable to Float
+        $osQtyDB        = (float) $dataBefore->outstanding_qty;
+        $cancelQtyDB    = (float) $dataBefore->cancel_qty;
+        $newCancelQty   = (float) (str_replace(['.', ','], ['', '.'], $request->cancel_qty));
+        
+        // Calculate difference edit cancel qty
+        $diffCancelQty  = (float) ($cancelQtyDB - $newCancelQty);
+
+        $newOsQty       = (float) ($osQtyDB + $diffCancelQty);
+        $newStatus      = ($newOsQty == 0.0) ? 'Close' : 'Open';
+
+        // Check Cancel Qty Cannot More Than Outstanding Qty (negative new outstanding)
+        if($newOsQty < 0){
             return redirect()->back()->with(['fail' => 'Gagal, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
         }
-        $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $newStatus = ($requestOutstandingQty == 0) ? 'Close' : 'Open';
-        $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
 
-        if($dataBefore->isDirty()){
+        if($cancelQtyDB != $newCancelQty) {
             DB::beginTransaction();
             try{
                 PurchaseOrderDetails::where('id', $id)->update([
-                    'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
-                    'outstanding_qty' => $requestOutstandingQty,
-                    'status' => $newStatus,
+                    'cancel_qty'        => $newCancelQty,
+                    'outstanding_qty'   => $newOsQty,
+                    'status'            => $newStatus,
                 ]);
-                PurchaseRequisitionsDetail::where('id', $dataBefore->id_purchase_requisition_details)->update([
-                    'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
-                    'outstanding_qty' => $requestOutstandingQty,
-                    'status' => $newStatus,
+                PurchaseRequisitionsDetail::where('id', $idPRDetail)->update([
+                    'cancel_qty'        => $newCancelQty,
+                    'outstanding_qty'   => $newOsQty,
+                    'status'            => $newStatus,
                 ]);
                 $product = PurchaseOrderDetails::where('id_purchase_orders', $idPO)->get();
                 //Check Status Item
                 $hasOpenStatus = $product->contains('status', 'Open');
-                if(!$hasOpenStatus){
+                if(!$hasOpenStatus) {
                     PurchaseOrders::where('id', $idPO)->update(['status' => 'Closed']);
+                }
+
+                // Update Qty initate & outstanding qty in GRN used this PO
+                $itemGRNs = GoodReceiptNoteDetail::where('id_purchase_requisition_details', $idPRDetail)->get();
+                foreach($itemGRNs as $item) {
+                    // Variable to Float
+                    $qtyInitiateGRN = (float) $item->qty;
+                    $osQtyGRN       = (float) $item->outstanding_qty;
+                    // Apply adjustment
+                    $newQtyInitiateGRN  = $qtyInitiateGRN + $diffCancelQty;
+                    $newOsQtyGRN        = $osQtyGRN + $diffCancelQty;
+                    $newStatusGRN       = ($newOsQtyGRN == 0.0) ? 'Close' : 'Open';
+
+                    GoodReceiptNoteDetail::where('id', $item->id)->update([
+                        'qty'               => $newQtyInitiateGRN,
+                        'outstanding_qty'   => $newOsQtyGRN,
+                        'status'            => $newStatusGRN
+                    ]);
                 }
 
                 // Audit Log
@@ -1790,6 +1820,5 @@ class PurchaseController extends Controller
         } else {
             return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
         }
-
     }
 }

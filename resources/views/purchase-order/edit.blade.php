@@ -301,7 +301,7 @@
                                 </td>
                                 <td>
                                     <span title="{{ strlen($item->note) > 70 ? $item->note : '' }}">
-                                      {{ strlen($item->note) > 70 ? substr($item->note, 0, 70) . '...' : $item->note }}
+                                        {{ strlen($item->note) > 70 ? substr($item->note, 0, 70) . '...' : $item->note }}
                                     </span>
                                 </td>
                                 @if(in_array($data->status, $statusEdit))
@@ -316,7 +316,7 @@
                                     </td>
                                 @else 
                                     <td class="align-top text-center" style="border-left: 3px solid #e2e2e2;">
-                                        @if($item->outstanding_qty > 0)
+                                        @if($item->outstanding_qty > 0 || $item->cancel_qty > 0)
                                             <button type="button" class="btn btn-sm btn-danger my-half" 
                                                 data-bs-toggle="modal" data-bs-target="#cancelQty{{ $item->id }}"><i class="bx bx-x" title="Cancel Qty"></i> Cancel Qty
                                             </button>
@@ -326,7 +326,7 @@
                                     </td>
                                 @endif
                             </tr>
-                            @if($item->outstanding_qty > 0)
+                            @if($item->outstanding_qty > 0 || $item->cancel_qty > 0)
                                 <div class="modal fade" id="cancelQty{{ $item->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-top modal-lg" role="document">
                                         <div class="modal-content">
