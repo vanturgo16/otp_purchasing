@@ -591,9 +591,18 @@ class PurchaseController extends Controller
             'cc_co.required' => 'CC / CO harus diisi.',
         ]);
 
+
         $dataBefore = PurchaseRequisitionsDetail::where('id', $id)->first();
+
+        // Check with cancel qty
+        $cancelQtyDB = (float) $dataBefore->cancel_qty;
+        $requestQty = (float) (str_replace(['.', ','], ['', '.'], $request->qty));
+        if($requestQty < $cancelQtyDB){
+            return redirect()->back()->with(['fail' => 'Gagal Update Item PR, Cancel Qty lebih besar dari request Qty baru!']);
+        }
+
         $dataBefore->master_products_id = $request->master_products_id;
-        $dataBefore->qty = str_replace(['.', ','], ['', '.'], $request->qty);
+        $dataBefore->qty = $requestQty;
         $dataBefore->master_units_id = $request->master_units_id;
         $dataBefore->required_date = $request->required_date;
         $dataBefore->cc_co = $request->cc_co;
@@ -605,30 +614,26 @@ class PurchaseController extends Controller
                 $dataPR = PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->first();
                 PurchaseRequisitionsDetail::where('id', $id)->update([
                     'master_products_id' => $request->master_products_id,
-                    'qty' => str_replace(['.', ','], ['', '.'], $request->qty),
-                    'outstanding_qty' => str_replace(['.', ','], ['', '.'], $request->qty),
+                    'qty' => $requestQty,
+                    'outstanding_qty' => $requestQty,
                     'master_units_id' => $request->master_units_id,
                     'required_date' => $request->required_date,
                     'cc_co' => $request->cc_co,
                     'remarks' => $request->remarks,
                 ]);
-                // Update Item PO Also IF Has Created PO
-                PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
-                    'master_products_id' => $request->master_products_id,
-                    'qty' => str_replace(['.', ','], ['', '.'], $request->qty),
-                    'outstanding_qty' => str_replace(['.', ','], ['', '.'], $request->qty),
-                    'master_units_id' => $request->master_units_id,
-                ]);
-
+                
                 // IF Input Price Re-Calculate Price With New QTY
                 if ($dataPR->input_price == 'Y') {
                     $dataItemPR = PurchaseRequisitionsDetail::where('id', $id)->first();
                     if($dataItemPR->price){
-                        $qty = str_replace(['.', ','], ['', '.'], $request->qty);
+                        $qty = (float) str_replace(['.', ','], ['', '.'], $request->qty);
+                        $cancelQty = (float) str_replace(['.', ','], ['', '.'], $dataItemPR->cancel_qty);
+                        $finalQty = $qty - $cancelQty;
+
                         $price = isset($dataItemPR->price) ? $dataItemPR->price : 0;
                         $discount = isset($dataItemPR->discount) ? $dataItemPR->discount : 0;
                         $tax_rate = isset($dataItemPR->tax_rate) ? $dataItemPR->tax_rate : 0;
-                        $sub_total = round(($qty * $price), 6);
+                        $sub_total = round(($finalQty * $price), 6);
                         $amount = round(($sub_total - $discount), 6);
                         $tax_value = round((($tax_rate/100) * $amount), 6);
                         $total_amount = round(($amount + $tax_value), 6);
@@ -663,8 +668,16 @@ class PurchaseController extends Controller
                 // IF Has Created PO Re-Calculate Price With New QTY
                 $dataItemPO = PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->first();
                 if($dataItemPO){
+                    // Update Item PO Also IF Has Created PO
+                    PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
+                        'master_products_id' => $request->master_products_id,
+                        'qty' => str_replace(['.', ','], ['', '.'], $request->qty),
+                        'outstanding_qty' => str_replace(['.', ','], ['', '.'], $request->qty),
+                        'master_units_id' => $request->master_units_id,
+                    ]);
+                    
                     if($dataItemPO->price){
-                        $qty = str_replace(['.', ','], ['', '.'], $request->qty);
+                        $qty = $requestQty;
                         $price = $dataItemPO->price;
                         $discount = isset($dataItemPO->discount) ? $dataItemPO->discount : 0;
                         $tax_rate = isset($dataItemPO->tax_rate) ? $dataItemPO->tax_rate : 0;
@@ -674,10 +687,15 @@ class PurchaseController extends Controller
                         $total_amount = round(($amount + $tax_value), 6);
 
                         PurchaseOrderDetails::where('id_purchase_requisition_details', $id)->update([
+                            'master_products_id' => $request->master_products_id,
+                            'qty' => $requestQty,
+                            'outstanding_qty' => $requestQty,
+                            'master_units_id' => $request->master_units_id,
                             'sub_total' => $sub_total,
                             'amount' => $amount,
                             'tax_value' => $tax_value,
-                            'total_amount' => $total_amount
+                            'total_amount' => $total_amount,
+                            'note' => $request->remarks
                         ]);
                         $totals = PurchaseOrderDetails::where('id_purchase_orders', $dataItemPO->id_purchase_orders)
                             ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
@@ -1736,89 +1754,89 @@ class PurchaseController extends Controller
             return redirect()->back()->with(['fail' => 'Gagal Hapus Item Produk!', 'scrollTo' => 'tableItem']);
         }
     }
-    public function cancelQtyItemPO(Request $request, $id)
-    {
-        $id = decrypt($id);
+    // public function cancelQtyItemPO(Request $request, $id)
+    // {
+    //     $id = decrypt($id);
 
-        $request->validate([
-            'cancel_qty' => 'required',
-        ], [
-            'cancel_qty.required' => 'Cancel Qty harus diisi.',
-        ]);
+    //     $request->validate([
+    //         'cancel_qty' => 'required',
+    //     ], [
+    //         'cancel_qty.required' => 'Cancel Qty harus diisi.',
+    //     ]);
 
-        $dataBefore     = PurchaseOrderDetails::where('id', $id)->first();
-        $idPO           = $dataBefore->id_purchase_orders;
-        $idPRDetail     = $dataBefore->id_purchase_requisition_details;
+    //     $dataBefore     = PurchaseOrderDetails::where('id', $id)->first();
+    //     $idPO           = $dataBefore->id_purchase_orders;
+    //     $idPRDetail     = $dataBefore->id_purchase_requisition_details;
 
-        // Check GRN Still In Progress Or Not
-        if (GoodReceiptNote::where('id_purchase_orders', $idPO)->whereIn('status', ['Hold', 'Un Posted'])->exists()) {
-            return redirect()->back()->with(['fail' => 'Gagal Cancel Item, Good Receipt Note Masih Dalam Proses']);
-        }
+    //     // Check GRN Still In Progress Or Not
+    //     if (GoodReceiptNote::where('id_purchase_orders', $idPO)->whereIn('status', ['Hold', 'Un Posted'])->exists()) {
+    //         return redirect()->back()->with(['fail' => 'Gagal Cancel Item, Good Receipt Note Masih Dalam Proses']);
+    //     }
 
-        // Variable to Float
-        $osQtyDB        = (float) $dataBefore->outstanding_qty;
-        $cancelQtyDB    = (float) $dataBefore->cancel_qty;
-        $newCancelQty   = (float) (str_replace(['.', ','], ['', '.'], $request->cancel_qty));
+    //     // Variable to Float
+    //     $osQtyDB        = (float) $dataBefore->outstanding_qty;
+    //     $cancelQtyDB    = (float) $dataBefore->cancel_qty;
+    //     $newCancelQty   = (float) (str_replace(['.', ','], ['', '.'], $request->cancel_qty));
         
-        // Calculate difference edit cancel qty
-        $diffCancelQty  = (float) ($cancelQtyDB - $newCancelQty);
+    //     // Calculate difference edit cancel qty
+    //     $diffCancelQty  = (float) ($cancelQtyDB - $newCancelQty);
 
-        $newOsQty       = (float) ($osQtyDB + $diffCancelQty);
-        $newStatus      = ($newOsQty == 0.0) ? 'Close' : 'Open';
+    //     $newOsQty       = (float) ($osQtyDB + $diffCancelQty);
+    //     $newStatus      = ($newOsQty == 0.0) ? 'Close' : 'Open';
 
-        // Check Cancel Qty Cannot More Than Outstanding Qty (negative new outstanding)
-        if($newOsQty < 0){
-            return redirect()->back()->with(['fail' => 'Gagal, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
-        }
+    //     // Check Cancel Qty Cannot More Than Outstanding Qty (negative new outstanding)
+    //     if($newOsQty < 0){
+    //         return redirect()->back()->with(['fail' => 'Gagal, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
+    //     }
 
-        if($cancelQtyDB != $newCancelQty) {
-            DB::beginTransaction();
-            try{
-                PurchaseOrderDetails::where('id', $id)->update([
-                    'cancel_qty'        => $newCancelQty,
-                    'outstanding_qty'   => $newOsQty,
-                    'status'            => $newStatus,
-                ]);
-                PurchaseRequisitionsDetail::where('id', $idPRDetail)->update([
-                    'cancel_qty'        => $newCancelQty,
-                    'outstanding_qty'   => $newOsQty,
-                    'status'            => $newStatus,
-                ]);
-                $product = PurchaseOrderDetails::where('id_purchase_orders', $idPO)->get();
-                //Check Status Item
-                $hasOpenStatus = $product->contains('status', 'Open');
-                if(!$hasOpenStatus) {
-                    PurchaseOrders::where('id', $idPO)->update(['status' => 'Closed']);
-                }
+    //     if($cancelQtyDB != $newCancelQty) {
+    //         DB::beginTransaction();
+    //         try{
+    //             PurchaseOrderDetails::where('id', $id)->update([
+    //                 'cancel_qty'        => $newCancelQty,
+    //                 'outstanding_qty'   => $newOsQty,
+    //                 'status'            => $newStatus,
+    //             ]);
+    //             PurchaseRequisitionsDetail::where('id', $idPRDetail)->update([
+    //                 'cancel_qty'        => $newCancelQty,
+    //                 'outstanding_qty'   => $newOsQty,
+    //                 'status'            => $newStatus,
+    //             ]);
+    //             $product = PurchaseOrderDetails::where('id_purchase_orders', $idPO)->get();
+    //             //Check Status Item
+    //             $hasOpenStatus = $product->contains('status', 'Open');
+    //             if(!$hasOpenStatus) {
+    //                 PurchaseOrders::where('id', $idPO)->update(['status' => 'Closed']);
+    //             }
 
-                // Update Qty initate & outstanding qty in GRN used this PO
-                $itemGRNs = GoodReceiptNoteDetail::where('id_purchase_requisition_details', $idPRDetail)->get();
-                foreach($itemGRNs as $item) {
-                    // Variable to Float
-                    $qtyInitiateGRN = (float) $item->qty;
-                    $osQtyGRN       = (float) $item->outstanding_qty;
-                    // Apply adjustment
-                    $newQtyInitiateGRN  = $qtyInitiateGRN + $diffCancelQty;
-                    $newOsQtyGRN        = $osQtyGRN + $diffCancelQty;
-                    $newStatusGRN       = ($newOsQtyGRN == 0.0) ? 'Close' : 'Open';
+    //             // Update Qty initate & outstanding qty in GRN used this PO
+    //             $itemGRNs = GoodReceiptNoteDetail::where('id_purchase_requisition_details', $idPRDetail)->get();
+    //             foreach($itemGRNs as $item) {
+    //                 // Variable to Float
+    //                 $qtyInitiateGRN = (float) $item->qty;
+    //                 $osQtyGRN       = (float) $item->outstanding_qty;
+    //                 // Apply adjustment
+    //                 $newQtyInitiateGRN  = $qtyInitiateGRN + $diffCancelQty;
+    //                 $newOsQtyGRN        = $osQtyGRN + $diffCancelQty;
+    //                 $newStatusGRN       = ($newOsQtyGRN == 0.0) ? 'Close' : 'Open';
 
-                    GoodReceiptNoteDetail::where('id', $item->id)->update([
-                        'qty'               => $newQtyInitiateGRN,
-                        'outstanding_qty'   => $newOsQtyGRN,
-                        'status'            => $newStatusGRN
-                    ]);
-                }
+    //                 GoodReceiptNoteDetail::where('id', $item->id)->update([
+    //                     'qty'               => $newQtyInitiateGRN,
+    //                     'outstanding_qty'   => $newOsQtyGRN,
+    //                     'status'            => $newStatusGRN
+    //                 ]);
+    //             }
 
-                // Audit Log
-                $this->auditLogsShort('Cancel PO Item ID : (' . $id . ')');
-                DB::commit();
-                return redirect()->back()->with(['success' => 'Berhasil Cancel Item PO', 'scrollTo' => 'tableItem']);
-            } catch (Exception $e) {
-                DB::rollback();
-                return redirect()->back()->with(['fail' => 'Gagal Cancel Item PO!']);
-            }
-        } else {
-            return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
-        }
-    }
+    //             // Audit Log
+    //             $this->auditLogsShort('Cancel PO Item ID : (' . $id . ')');
+    //             DB::commit();
+    //             return redirect()->back()->with(['success' => 'Berhasil Cancel Item PO', 'scrollTo' => 'tableItem']);
+    //         } catch (Exception $e) {
+    //             DB::rollback();
+    //             return redirect()->back()->with(['fail' => 'Gagal Cancel Item PO!']);
+    //         }
+    //     } else {
+    //         return redirect()->back()->with(['info' => 'Tidak Ada Yang Dirubah, Data Sama Dengan Sebelumnya']);
+    //     }
+    // }
 }

@@ -13,7 +13,7 @@
     {{-- @if(($data->status != 'Posted') && ($data->status != 'Created PO') && ($data->status != 'Closed'))
         <div class="watermark">DRAFT</div>
     @endif --}}
-    @if(($data->status == 'Request') && ($data->status == 'Un Posted'))
+    @if(in_array($data->status, ['Request', 'Un Posted']))
         <div class="watermark">DRAFT</div>
     @endif
     
