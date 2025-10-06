@@ -370,41 +370,29 @@
                     data: 'down_payment',
                     name: 'down_payment',
                     orderable: true,
-                    className: 'align-top text-center',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        if (data) {
-                            let number = parseFloat(data).toString(); // Convert to string without rounding
-                            let parts = number.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                            if (decimalPart) {
-                                return `${integerPart},${decimalPart}`;
-                            }
-                            return integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'total_amount',
                     name: 'total_amount',
                     orderable: true,
-                    className: 'align-top text-center',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        if (data) {
-                            let number = parseFloat(data).toString(); // Convert to string without rounding
-                            let parts = number.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                            if (decimalPart) {
-                                return `${integerPart},${decimalPart}`;
-                            }
-                            return integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'qc_check',

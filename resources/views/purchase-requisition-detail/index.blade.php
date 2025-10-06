@@ -245,63 +245,45 @@
                     name: 'qty',
                     searchable: true,
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        if (data) {
-                            let number = parseFloat(data).toString(); // Convert to string without rounding
-                            let parts = number.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-
-                            // Add dots as thousands separator
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-                            return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'cancel_qty',
                     name: 'cancel_qty',
                     searchable: true,
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        if (data) {
-                            let number = parseFloat(data).toString(); // Convert to string without rounding
-                            let parts = number.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-
-                            // Add dots as thousands separator
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-                            return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'outstanding_qty',
                     name: 'outstanding_qty',
                     searchable: true,
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        if (data) {
-                            let number = parseFloat(data).toString(); // Convert to string without rounding
-                            let parts = number.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-
-                            // Add dots as thousands separator
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-                            return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'unit_code',
@@ -326,58 +308,43 @@
                     data: 'price',
                     name: 'price',
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        let number = data ? parseFloat(data) : parseFloat(row.pricePO);
-                        if (!isNaN(number)) {
-                            let numberStr = number.toString();
-                            let parts = numberStr.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-                            // Format integer part with dot as thousand separator
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                            return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '-';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'discount',
                     name: 'discount',
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        let number = data ? parseFloat(data) : parseFloat(row.discountPO);
-                        if (!isNaN(number)) {
-                            let numberStr = number.toString();
-                            let parts = numberStr.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-                            // Format integer part with dot as thousand separator
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                            return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '-';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'amount',
                     name: 'amount',
                     orderable: true,
-                    className: 'align-top',
+                    className: 'align-top text-end',
                     render: function(data, type, row) {
-                        let number = data ? parseFloat(data) : parseFloat(row.amountPO);
-                        if (!isNaN(number)) {
-                            let numberStr = number.toString();
-                            let parts = numberStr.split('.'); // Split integer and decimal parts
-                            let integerPart = parts[0];
-                            let decimalPart = parts[1] || '';
-                            // Format integer part with dot as thousand separator
-                            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                            return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+                        var formattedAmount = numberFormat(data, 6, ',', '.'); 
+                        var parts = formattedAmount.split(',');
+                        if (parts.length > 1) {
+                            return '<span class="text-bold">' + parts[0] + '</span><span class="text-muted">,' + parts[1] + '</span>';
                         }
-                        return '-';
-                    }
+                        return '<span class="text-bold">' + parts[0] + '</span>';
+                    },
                 },
                 {
                     data: 'delivery_date',
