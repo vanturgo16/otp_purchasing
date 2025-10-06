@@ -24,6 +24,7 @@ use App\Models\PurchaseOrders;
 use App\Models\PurchaseRequisitionsDetail;
 use App\Models\PurchaseRequisitionsPrice;
 use App\Models\GoodReceiptNote;
+use App\Models\GoodReceiptNoteDetail;
 
 class PurchaseRequisitionPriceController extends Controller
 {
@@ -42,7 +43,7 @@ class PurchaseRequisitionPriceController extends Controller
 
     //DATA PR PRICE
     public function index(Request $request)
-    {
+    {   
         $idPRCreatedPO = PurchaseOrders::pluck('reference_number')->toArray();
         $postedPRs = PurchaseRequisitions::whereNotIn('id', $idPRCreatedPO)
             ->whereIn('status', ['Created GRN', 'Closed'])
@@ -65,7 +66,7 @@ class PurchaseRequisitionPriceController extends Controller
             $datas->where('purchase_requisitions.type', $request->filterType);
         }
         if ($request->has('filterStatus') && $request->filterStatus != '' && $request->filterStatus != 'All') {
-            $datas->where('purchase_requisitions.status', $request->filterStatus);
+            $datas->where('purchase_requisitions_price.status', $request->filterStatus);
         }
 
         $datas = $datas->orderBy('purchase_requisitions_price.created_at', 'desc')->get();
@@ -252,17 +253,47 @@ class PurchaseRequisitionPriceController extends Controller
         try{
             // Rollback Data PR Before
             $idPR = PurchaseRequisitionsPrice::where('id', $id)->first()->id_purchase_requisitions;
+            if(GoodReceiptNote::where('reference_number', $idPR)->exists()){
+                $statusPR = 'Created GRN';
+            } else {
+                $statusPR = 'Posted';
+            }
             PurchaseRequisitions::where('id', $idPR)->update([
                 'input_price' => 'N', 'sub_total' => null, 'total_discount' => null, 
                 'total_sub_amount' => null, 'total_ppn' => null, 'total_amount' => null,
+                'status' => $statusPR
             ]);
-            PurchaseRequisitionsDetail::where('id_purchase_requisitions', $idPR)->update([
-                'currency' => null, 'price' => null, 'sub_total' => null, 'discount' => null, 'amount' => null,
-                'tax' => null, 'tax_rate' => null, 'tax_value' => null, 'total_amount' => null,
-            ]);
+            $products = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $idPR)->get();
+            foreach($products as $item){
+                $newOs = (float) $item->outstanding_qty + $item->cancel_qty;
+                PurchaseRequisitionsDetail::where('id', $item->id)->update([
+                    'cancel_qty' => null, 'outstanding_qty' => $newOs,
+                    'currency' => null, 'price' => null, 'sub_total' => null, 'discount' => null, 'amount' => null,
+                    'tax' => null, 'tax_rate' => null, 'tax_value' => null, 'total_amount' => null,
+                ]);
+
+                // Update Qty initate & outstanding qty in GRN used this PO
+                $itemGRNs = GoodReceiptNoteDetail::where('id_purchase_requisition_details', $item->id)->get();
+                $cancelQty = (float) $item->cancel_qty;
+                foreach($itemGRNs as $item) {
+                    // Variable to Float
+                    $qtyInitiateGRN = (float) $item->qty;
+                    $osQtyGRN       = (float) $item->outstanding_qty;
+                    // Apply adjustment
+                    $newQtyInitiateGRN  = $qtyInitiateGRN + $cancelQty;
+                    $newOsQtyGRN        = $osQtyGRN + $cancelQty;
+                    $newStatusGRN       = ($newOsQtyGRN == 0.0) ? 'Close' : 'Open';
+
+                    GoodReceiptNoteDetail::where('id', $item->id)->update([
+                        'qty'               => $newQtyInitiateGRN,
+                        'outstanding_qty'   => $newOsQtyGRN,
+                        'status'            => $newStatusGRN
+                    ]);
+                }
+            }
 
             PurchaseRequisitionsPrice::where('id', $id)->delete();
-
+            
             // Audit Log
             $this->auditLogsShort('Hapus Purchase Requisitions');
             DB::commit();
@@ -526,51 +557,83 @@ class PurchaseRequisitionPriceController extends Controller
             'amount.required' => 'Jumlah harus diisi.',
         ]);
 
-        $dataBefore = PurchaseRequisitionsDetail::where('id', $id)->first();
+        $dataRequest = [
+            'qty'               => (float) (str_replace(['.', ','], ['', '.'], $request->qty)),
+            'outstanding_qty'   => (float) (str_replace(['.', ','], ['', '.'], $request->outstanding_qty)),
+            'cancel_qty'        => (float) (str_replace(['.', ','], ['', '.'], $request->cancel_qty)),
+            'final_qty'         => (float) (str_replace(['.', ','], ['', '.'], $request->final_qty)),
+            'currency'          => $request->currency,
+            'price'             => (float) (str_replace(['.', ','], ['', '.'], $request->price)),
+            'sub_total'         => (float) (str_replace(['.', ','], ['', '.'], $request->sub_total)),
+            'discount'          => (float) (str_replace(['.', ','], ['', '.'], $request->discount)),
+            'amount'            => (float) (str_replace(['.', ','], ['', '.'], $request->amount)),
+            'tax'               => $request->tax,
+            'tax_rate'          => $request->tax_rate,
+            'tax_value'         => (float) (str_replace(['.', ','], ['', '.'], $request->tax_value)),
+            'total_amount'      => (float) (str_replace(['.', ','], ['', '.'], $request->total_amount)),
+        ];
 
-        $originOutstandingQty = (float) $dataBefore->outstanding_qty + (float) $dataBefore->cancel_qty;
-        // Check Cancel Qty Cannot More Than Outstanding Qty
-        if($request->cancel_qty > $originOutstandingQty){
-            return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
+        $dataBefore                     = PurchaseRequisitionsDetail::where('id', $id)->first();
+        $dataBefore->qty                = $dataRequest['qty'];
+        $dataBefore->outstanding_qty    = $dataRequest['outstanding_qty'];
+        $dataBefore->cancel_qty         = $dataRequest['cancel_qty'];
+        $dataBefore->currency           = $dataRequest['currency'];
+        $dataBefore->price              = $dataRequest['price'];
+        $dataBefore->sub_total          = $dataRequest['sub_total'];
+        $dataBefore->discount           = $dataRequest['discount'];
+        $dataBefore->amount             = $dataRequest['amount'];
+        $dataBefore->tax                = $dataRequest['tax'];
+        $dataBefore->tax_rate           = $dataRequest['tax_rate'];
+        $dataBefore->tax_value          = $dataRequest['tax_value'];
+        $dataBefore->total_amount       = $dataRequest['total_amount'];
+
+        // dd($dataBefore, $dataRequest, $request->all());
+
+        // Check GRN using this PR Still In Progress Or Not
+        if (GoodReceiptNote::where('reference_number', $dataBefore->id_purchase_requisitions)->whereIn('status', ['Hold', 'Un Posted'])->exists()) {
+            return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price, Masih ada Good Receipt Note Dalam Proses']);
         }
-        $requestOutstandingQty = (float) $originOutstandingQty - str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $newStatus = ($requestOutstandingQty == 0) ? 'Close' : 'Open';
 
         $idPRPrice = PurchaseRequisitionsPrice::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)->first()->id;
-        $dataBefore->cancel_qty = str_replace(['.', ','], ['', '.'], $request->cancel_qty);
-        $dataBefore->outstanding_qty = str_replace(['.', ','], ['', '.'], $request->outstanding_qty);
-        $dataBefore->currency = $request->currency;
-        $dataBefore->price = str_replace(['.', ','], ['', '.'], $request->price);
-        $dataBefore->sub_total = str_replace(['.', ','], ['', '.'], $request->sub_total);
-        $dataBefore->discount = str_replace(['.', ','], ['', '.'], $request->discount);
-        $dataBefore->amount = str_replace(['.', ','], ['', '.'], $request->amount);
-        $dataBefore->tax = $request->tax;
-        $dataBefore->tax_rate = $request->tax_rate;
-        $dataBefore->tax_value = str_replace(['.', ','], ['', '.'], $request->tax_value);
-        $dataBefore->total_amount = str_replace(['.', ','], ['', '.'], $request->total_amount);
 
         if($dataBefore->isDirty()){
+            // CHECKING IF ANY CANCEL QTY
+            // Re-get data before
+            $dataBefore = PurchaseRequisitionsDetail::where('id', $id)->first();
+            // Variable to Float
+            $osQtyDB        = (float) $dataBefore->outstanding_qty;
+            $cancelQtyDB    = (float) $dataBefore->cancel_qty;
+            $newCancelQty   = $dataRequest['cancel_qty'];
+            // Calculate difference edit cancel qty
+            $diffCancelQty  = (float) ($cancelQtyDB - $newCancelQty);
+            $newOsQty       = (float) ($osQtyDB + $diffCancelQty);
+            $newStatus      = ($newOsQty == 0.0) ? 'Close' : 'Open';
+            // Check Cancel Qty Cannot More Than Outstanding Qty (negative new outstanding)
+            if($newOsQty < 0){
+                return redirect()->back()->with(['fail' => 'Gagal Update Item PR Price, Cancel Qty Tidak Boleh Melebihi Outstanding Qty']);
+            }
+            
             DB::beginTransaction();
             try{
                 PurchaseRequisitionsDetail::where('id', $id)->update([
-                    'cancel_qty' => str_replace(['.', ','], ['', '.'], $request->cancel_qty),
-                    'outstanding_qty' => $requestOutstandingQty,
-                    'currency' => $request->currency,
-                    'price' => str_replace(['.', ','], ['', '.'], $request->price),
-                    'sub_total' => str_replace(['.', ','], ['', '.'], $request->sub_total),
-                    'discount' => str_replace(['.', ','], ['', '.'], $request->discount),
-                    'amount' => str_replace(['.', ','], ['', '.'], $request->amount),
-                    'tax' => $request->tax,
-                    'tax_rate' => $request->tax_rate,
-                    'tax_value' => str_replace(['.', ','], ['', '.'], $request->tax_value),
-                    'total_amount' => str_replace(['.', ','], ['', '.'], $request->total_amount),
-                    'status' => $newStatus,
+                    'cancel_qty'        => $dataRequest['cancel_qty'],
+                    'outstanding_qty'   => $newOsQty,
+                    'currency'          => $dataRequest['currency'],
+                    'price'             => $dataRequest['price'],
+                    'sub_total'         => $dataRequest['sub_total'],
+                    'discount'          => $dataRequest['discount'],
+                    'amount'            => $dataRequest['amount'],
+                    'tax'               => $dataRequest['tax'],
+                    'tax_rate'          => $dataRequest['tax_rate'],
+                    'tax_value'         => $dataRequest['tax_value'],
+                    'total_amount'      => $dataRequest['total_amount'],
+                    'status'            => $newStatus,
                 ]);
                 $totals = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)
                     ->selectRaw('SUM(sub_total) as total_sub_total, SUM(discount) as total_discount, SUM(amount) as total_sub_amount,
                         SUM(tax_value) as total_ppn, SUM(total_amount) as total_amount')
                     ->first();
-                // Round up to 3 decimal places
+                // Round up to 6 decimal places
                 $sub_total = round($totals->total_sub_total, 6);
                 $total_discount = round($totals->total_discount, 6);
                 $total_sub_amount = round($totals->total_sub_amount, 6);
@@ -584,7 +647,44 @@ class PurchaseRequisitionPriceController extends Controller
                     'total_ppn' => $total_ppn,
                     'total_amount' => $total_amount,
                 ]);
+                
+                // IF ANY CANCEL
+                if($dataBefore->cancel_qty != $dataRequest['cancel_qty']){
+                    $product = PurchaseRequisitionsDetail::where('id_purchase_requisitions', $dataBefore->id_purchase_requisitions)->get();
+                    //Check Status Item
+                    $hasOpenStatus = $product->contains('status', 'Open');
+                    $statusPR = 'Closed';
+                    if(!$hasOpenStatus) {
+                        $statusPR = 'Closed';
+                        PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update(['status' => 'Closed']);
+                    } else {
+                        if(GoodReceiptNote::where('reference_number', $dataBefore->id_purchase_requisitions)->exists()){
+                            $statusPR = 'Created GRN';
+                        } else {
+                            $statusPR = 'Posted';
+                        }
+                    }
+                    PurchaseRequisitions::where('id', $dataBefore->id_purchase_requisitions)->update(['status' => $statusPR]);
 
+                    // Update Qty initate & outstanding qty in GRN used this PO
+                    $itemGRNs = GoodReceiptNoteDetail::where('id_purchase_requisition_details', $id)->get();
+                    foreach($itemGRNs as $item) {
+                        // Variable to Float
+                        $qtyInitiateGRN = (float) $item->qty;
+                        $osQtyGRN       = (float) $item->outstanding_qty;
+                        // Apply adjustment
+                        $newQtyInitiateGRN  = $qtyInitiateGRN + $diffCancelQty;
+                        $newOsQtyGRN        = $osQtyGRN + $diffCancelQty;
+                        $newStatusGRN       = ($newOsQtyGRN == 0.0) ? 'Close' : 'Open';
+
+                        GoodReceiptNoteDetail::where('id', $item->id)->update([
+                            'qty'               => $newQtyInitiateGRN,
+                            'outstanding_qty'   => $newOsQtyGRN,
+                            'status'            => $newStatusGRN
+                        ]);
+                    }
+                }
+                
                 // Audit Log
                 $this->auditLogsShort('Update Purchase Requisitions Detail Price ID : (' . $id . ')');
                 DB::commit();
