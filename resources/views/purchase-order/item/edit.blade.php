@@ -260,7 +260,14 @@
     $('#tax_rate').on('input', function () {
         calculateTotalAmount();
     });
-
+    
+    var taxDB = '{{ $data->tax }}';
+    if (taxDB == 'Y'){
+        $('#tax_rate').prop('readonly', false).removeClass('custom-bg-gray');
+    } else {
+        $('#tax_rate').val(0,000).prop('readonly', true).addClass('custom-bg-gray');
+        calculateTotalAmount();
+    }
     $('#tax_N').on('click', function () {
         $('#tax_rate').val(0,000).prop('readonly', true).addClass('custom-bg-gray');
         calculateTotalAmount();

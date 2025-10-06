@@ -1,6 +1,15 @@
 @extends('layouts.master')
 @section('konten')
 
+
+@php
+    function formatQty($value) {
+        $formatted = number_format($value, 6, ',', '.');
+        $formatted = rtrim(rtrim($formatted, '0'), ',');
+        return $formatted;
+    }
+@endphp
+
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -193,41 +202,55 @@
                                 <td class="text-center">{{ $item->required_date}}</td>
                                 <td class="align-top">{{ $item->cc_co_name}}</td>
                                 <td class="text-center">
-                                    <b>
-                                        {{ $item->qty 
-                                            ? (strpos(strval($item->qty), '.') !== false 
-                                                ? rtrim(rtrim(number_format($item->qty, 6, ',', '.'), '0'), ',') 
-                                                : number_format($item->qty, 0, ',', '.')) 
-                                            : '0' }}
-                                    </b>
+                                    @php
+                                        $formatted = formatQty($item->qty);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                     <br>({{ $item->unit_code }})
                                 </td>
                                 <td class="text-center">
-                                    {{ $item->cancel_qty 
-                                        ? (strpos(strval($item->cancel_qty), '.') !== false 
-                                            ? rtrim(rtrim(number_format($item->cancel_qty, 6, ',', '.'), '0'), ',') 
-                                            : number_format($item->cancel_qty, 0, ',', '.')) 
-                                        : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->cancel_qty);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="text-center">
-                                    {{ $item->outstanding_qty 
-                                        ? (strpos(strval($item->outstanding_qty), '.') !== false 
-                                            ? rtrim(rtrim(number_format($item->outstanding_qty, 6, ',', '.'), '0'), ',') 
-                                            : number_format($item->outstanding_qty, 0, ',', '.')) 
-                                        : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->outstanding_qty);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="text-center">{{ $item->currency ?? '-' }}</td>
                                 <td class="text-end">
-                                    {{ $item->price ? (strpos($item->price, '.') === false ? number_format($item->price, 0, ',', '.') : number_format($item->price, 3, ',', '.')) : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->price);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->sub_total ? (strpos($item->sub_total, '.') === false ? number_format($item->sub_total, 0, ',', '.') : number_format($item->sub_total, 3, ',', '.')) : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->sub_total);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->discount ? (strpos($item->discount, '.') === false ? number_format($item->discount, 0, ',', '.') : number_format($item->discount, 3, ',', '.')) : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->discount);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->amount);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="text-end">
                                     @if($item->tax == 'N')
@@ -235,7 +258,11 @@
                                     @elseif($item->tax == null)
                                         0
                                     @else
-                                        {{ $item->tax_value ? (strpos($item->tax_value, '.') === false ? number_format($item->tax_value, 0, ',', '.') : number_format($item->tax_value, 3, ',', '.')) : '0' }}
+                                        @php
+                                            $formatted = formatQty($item->tax_value);
+                                            [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                        @endphp
+                                        <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                         <br><span class="badge bg-info" 
                                             title="{{ $item->tax_rate }}% Dari {{ $item->amount ? (strpos($item->amount, '.') === false ? number_format($item->amount, 0, ',', '.') : number_format($item->amount, 3, ',', '.')) : '0' }}">
                                             ({{ $item->tax_rate }}%)
@@ -243,7 +270,11 @@
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    {{ $item->total_amount ? (strpos($item->total_amount, '.') === false ? number_format($item->total_amount, 0, ',', '.') : number_format($item->total_amount, 3, ',', '.')) : '0' }}
+                                    @php
+                                        $formatted = formatQty($item->total_amount);
+                                        [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                    @endphp
+                                    <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 </td>
                                 <td class="align-top text-center">
                                     <span class="badge bg-{{ $item->status == 'Open' ? 'info' : 'success' }}">
@@ -297,19 +328,43 @@
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="background-color: #f0f0f0; border-top: 3px solid #e2e2e2; border-left: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->sub_total ? (strpos($data->sub_total, '.') === false ? number_format($data->sub_total, 0, ',', '.') : number_format($data->sub_total, 3, ',', '.')) : '0' }}
+                                @php
+                                    $formatted = formatQty($data->sub_total);
+                                    [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                @endphp
+                                <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }}
+                                @php
+                                    $formatted = formatQty($data->total_discount);
+                                    [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                @endphp
+                                <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
+                                {{-- {{ $data->total_discount ? (strpos($data->total_discount, '.') === false ? number_format($data->total_discount, 0, ',', '.') : number_format($data->total_discount, 3, ',', '.')) : '0' }} --}}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }}
+                                @php
+                                    $formatted = formatQty($data->total_sub_amount);
+                                    [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                @endphp
+                                <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
+                                {{-- {{ $data->total_sub_amount ? (strpos($data->total_sub_amount, '.') === false ? number_format($data->total_sub_amount, 0, ',', '.') : number_format($data->total_sub_amount, 3, ',', '.')) : '0' }} --}}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2;" class="text-end">
-                                {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }}
+                                @php
+                                    $formatted = formatQty($data->total_ppn);
+                                    [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                @endphp
+                                <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
+                                {{-- {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }} --}}
                             </td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end fw-bold">
-                                {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }}
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">
+                                @php
+                                    $formatted = formatQty($data->total_amount);
+                                    [$before, $after] = array_pad(explode(',', $formatted), 2, null);
+                                @endphp
+                                <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
+                                {{-- {{ $data->total_amount ? (strpos($data->total_amount, '.') === false ? number_format($data->total_amount, 0, ',', '.') : number_format($data->total_amount, 3, ',', '.')) : '0' }} --}}
                             </td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
                             <td style="border-top: 3px solid #e2e2e2; border-left: none; border-right: none;"></td>
