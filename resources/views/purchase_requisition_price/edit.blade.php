@@ -358,7 +358,7 @@
                                 <span class="fw-bold">{{ $before }}</span>@if($after)<span class="text-muted">,{{ $after }}</span>@endif
                                 {{-- {{ $data->total_ppn ? (strpos($data->total_ppn, '.') === false ? number_format($data->total_ppn, 0, ',', '.') : number_format($data->total_ppn, 3, ',', '.')) : '0' }} --}}
                             </td>
-                            <td style="border-top: 3px solid #e2e2e2;" class="text-end fw-bold">
+                            <td style="border-top: 3px solid #e2e2e2;" class="text-end">
                                 @php
                                     $formatted = formatQty($data->total_amount);
                                     [$before, $after] = array_pad(explode(',', $formatted), 2, null);
