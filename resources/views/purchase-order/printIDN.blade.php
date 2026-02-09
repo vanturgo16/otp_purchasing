@@ -265,12 +265,7 @@
             <div class="col-8">
                 @if($data->total_amount)
                 <h6>
-                    # {{ ucfirst(numberToWords($data->total_amount)) }}
-                    @if(isset($itemDatas) && $itemDatas[0]->currency == 'USD')
-                        {{ 'USD' }}
-                    @else
-                        {{ 'rupiah' }}
-                    @endif#
+                    # {{ ucfirst(numberToWords($data->total_amount)) }} {{ $spell }} #
                 </h6>
                 @else
                     <h6># 0 #</h6>
