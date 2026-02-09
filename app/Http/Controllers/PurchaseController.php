@@ -1453,11 +1453,11 @@ class PurchaseController extends Controller
             
         $currencyCode = $itemDatas[0]->currency ?? null;
         if (!$currencyCode) {
-            return back()->with('error', 'Currency tidak ditemukan pada data.');
+            return back()->with('fail', 'Currency tidak ditemukan pada data.');
         }
         $spell = MstCurrencies::where('currency_code', $currencyCode)->value('currency_spelling');
         if (!$spell) {
-            return back()->with('error', "Currency {$currencyCode} belum terdaftar di master currency.");
+            return back()->with('fail', "Currency {$currencyCode} belum terdaftar di master currency.");
         }
 
         $view = ($lang === 'en') ? 'purchase-order.print' : 'purchase-order.printIDN';
