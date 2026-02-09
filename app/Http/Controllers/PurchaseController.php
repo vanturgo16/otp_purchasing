@@ -1450,9 +1450,18 @@ class PurchaseController extends Controller
             ->where('purchase_order_details.id_purchase_orders', $id)
             ->orderBy('purchase_order_details.created_at')
             ->get();
+            
+        $currencyCode = $itemDatas[0]->currency ?? null;
+        if (!$currencyCode) {
+            return back()->with('error', 'Currency tidak ditemukan pada data.');
+        }
+        $spell = MstCurrencies::where('currency_code', $currencyCode)->value('currency_spelling');
+        if (!$spell) {
+            return back()->with('error', "Currency {$currencyCode} belum terdaftar di master currency.");
+        }
 
         $view = ($lang === 'en') ? 'purchase-order.print' : 'purchase-order.printIDN';
-        return view($view, compact('data', 'itemDatas'));
+        return view($view, compact('data', 'itemDatas', 'spell'));
     }
     public function exportPO(Request $request)
     {
